@@ -1,0 +1,132 @@
+
+
+
+/* Photo Upload Container */
+.photo-upload-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 20px;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;}
+
+/* Custom File Input */
+.photo-upload-input {
+  display: none;
+}
+
+.photo-upload-label {
+  display: inline-block;
+  background-color: white;
+  padding: 12px 20px;
+  border-radius: 5px;
+  width: 100%;
+  height: 80px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  /* border: 1px solid ; */
+  box-shadow: 1px 1px 2px gainsboro ;
+  padding-top: 25px;
+}
+
+
+
+/* Uploaded Photos Section */
+.uploaded-photos {
+  margin-top: 20px;
+}
+
+.uploaded-photos-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+}
+
+.uploaded-photo-item {
+  position: relative;
+  text-align: center;
+}
+
+.uploaded-photo {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  /* box-shadow: 10px 26px 25px 13px rgba(0, 0, 0, 0.1); */
+
+  transition: transform 0.2s ease;
+}
+
+.uploaded-photo:hover {
+  transform: scale(1.05);
+}
+
+/* Remove Photo Button */
+.remove-photo-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background-color: rgba(255, 0, 0, 0.6);
+  color: white;
+  border: none;
+  padding: 4px 9px;
+  border-radius: 10%;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}fff
+
+.remove-photo-btn:hover {
+  background-color: rgba(255, 0, 0, 1);
+}
+
+/* Container for the video upload section */
+.form-group {
+margin-bottom: 20px;
+}
+
+/* Style for the label */
+.form-group label {
+font-size: 16px;
+font-weight: bold;
+margin-bottom: 8px;
+display: block;
+color: #333;
+}
+
+/* Style for file input */
+input[type="file"] {
+display: none; /* Hide the default file input */
+}
+
+.file-upload-label {
+display: inline-block;
+background-color: white;
+padding: 20px 30px;
+font-size: 16px;
+cursor: pointer;
+border-radius: 5px;
+transition: background-color 0.3s;
+box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+/* .file-upload-label:hover {
+background-color: #007bff;
+color: white;
+} */
+
+/* Style for the selected video container */
+.selected-video-container {
+margin-top: 20px;
+text-align: center;
+}
+
+/* Video element styling */
+video {
+border-radius: 10px;
+max-width: 100%;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+

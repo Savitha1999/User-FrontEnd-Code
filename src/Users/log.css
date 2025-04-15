@@ -1,0 +1,68 @@
+/* Login Page Styles */
+/* .login {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcuV4KOIIk3EuvX9hVPSTszzfiPqalO5Oipbfm5wXCPVFgtWiFpMEiO3K2GpjuV87G61Y&usqp=CAU'); 
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }*/
+   
+  /* Optional dark overlay for readability */
+  .login::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Adjust transparency */
+    z-index: 0;
+  }
+  
+  /* Login Container */
+  .login-container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 400px;
+    height: 100vh;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    color: black;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcuV4KOIIk3EuvX9hVPSTszzfiPqalO5Oipbfm5wXCPVFgtWiFpMEiO3K2GpjuV87G61Y&usqp=CAU'); /* Replace with your image URL */
+    background-size: cover;
+    background-position: center;
+  }
+  
+  /* Buttons */
+  .btn-login {
+    background-color: orangered;
+    color: white;
+    border: 2px solid orangered;
+    border-radius: 25px;
+  }
+  
+  .btn-skip {
+    background-color: white;
+    color: orangered;
+    border: 2px solid orangered;
+    border-radius: 25px;
+  }
+  
+  .btn-login:hover, .btn-skip:hover {
+    opacity: 0.9;
+  }
+  
+  /* Inputs */
+  .small-input {
+    min-width: 30px;
+  }
+  

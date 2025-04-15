@@ -1,0 +1,62 @@
+.my .property-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    width: 90%;
+    height: auto;
+  }
+  
+.my  .property-image img {
+    width: 160px;
+    height: 160px;
+    border-radius: 4px;
+  }
+  
+ .my .property-details h5 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+  }
+  
+ .my .property-details p {
+    margin: 0px 0;
+    font-size: 14px;
+    color: #555;
+    justify-content: space-between;
+  }
+
+ .my .property-image .incomplete-button {
+    position: relative;
+    top: 60px;
+    right: 30%;
+    transform: translateX(-50%);
+    background-color: orangered; 
+    color: white;
+    border: none;
+    padding: 3px 3px;
+    font-size: 0.8rem;
+    border-radius: 5px;
+    /* left: 15%; */
+  }
+
+
+/* .my .nav-link.active {
+    color: white; 
+    background-color: #007bff; 
+  } */
+  
+.my .nav-link:hover {
+    color: white;
+    background-color: rgb(47,116,127);
+  }
+  
+  .my .nav-link
+  {
+    color: rgb(106, 102, 102);
+  } 
+  
