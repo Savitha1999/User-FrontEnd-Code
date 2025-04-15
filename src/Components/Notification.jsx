@@ -9,228 +9,6 @@
 
 
 
-// // // --------------------------------------------------------------------
-
-
-
-
-
-// import React, { useEffect, useState } from "react";
-// import { useLocation, useNavigate } from "react-router-dom";
-// import axios from "axios";
-// import { FaArrowLeft } from "react-icons/fa";
-// import logo from "../Assets/Sale Property-01.png";
-// import ConfirmationModal from "./ConfirmationModal"; // update path as needed
-
-
-// const READ_NOTIFICATIONS_KEY = "readNotifications";
-
-// // Utility: Get and Save to localStorage
-// const getReadNotificationsFromStorage = () => {
-//   const stored = localStorage.getItem(READ_NOTIFICATIONS_KEY);
-//   return stored ? JSON.parse(stored) : [];
-// };
-
-// const saveReadNotificationToStorage = (id) => {
-//   const stored = getReadNotificationsFromStorage();
-//   if (!stored.includes(id)) {
-//     const updated = [...stored, id];
-//     localStorage.setItem(READ_NOTIFICATIONS_KEY, JSON.stringify(updated));
-//   }
-// };
-
-// const Notification = () => {
-//   const location = useLocation();
-//   const navigate = useNavigate();
-
-
-//   const storedPhoneNumber =
-//     location.state?.phoneNumber || localStorage.getItem("phoneNumber") || "";
-//   const [userPhoneNumber] = useState(storedPhoneNumber);
-
-//   const [notifications, setNotifications] = useState([]);
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState("");
-
-
-  
-//   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
-
-
-// const [modalShow, setModalShow] = useState(false);
-// const [pendingDeleteId, setPendingDeleteId] = useState(null);
-// const [message, setMessage] = useState({ text: "", type: "" });
-
-
-  
-
-//     // Fetch Unread Notifications
-//     const fetchUnreadNotifications = async (phoneNumber) => {
-//       if (!phoneNumber) {
-//         setError("No phone number found.");
-//         return;
-//       }
-  
-//       setLoading(true);
-//       setError("");
-  
-//       try {
-//         const res = await axios.get(
-//           `${process.env.REACT_APP_API_URL}/get-unread-notifications`,
-//           { params: { phoneNumber } }
-//         );
-  
-//         let unreadNotifications = res.data.notifications || [];
-  
-//         // Deduplicate based on ppcId + message
-//         const uniqueMap = new Map();
-//         unreadNotifications.forEach((n) => {
-//           const key = `${n.ppcId}_${n.message}`;
-//           if (!uniqueMap.has(key)) uniqueMap.set(key, n);
-//         });
-//         unreadNotifications = Array.from(uniqueMap.values());
-  
-//         const readIds = getReadNotificationsFromStorage();
-//         const updated = unreadNotifications.map((n) => ({
-//           ...n,
-//           isRead: readIds.includes(n._id),
-//         }));
-  
-//         setNotifications(updated);
-//       } catch (err) {
-//         console.error("Error fetching unread notifications:", err);
-//         setError("Error fetching unread notifications.");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-  
-//   useEffect(() => {
-//     if (userPhoneNumber) {
-//       if (showUnreadOnly) {
-//         fetchUnreadNotifications(userPhoneNumber);
-//       }
-//       else{
-//           fetchAllNotifications(userPhoneNumber);
-//       }
-//     }
-//   }, [userPhoneNumber, showUnreadOnly]);
-  
-  
-//   const fetchAllNotifications = async (phoneNumber) => {
-//     if (!phoneNumber) {
-//       setError("No phone number found.");
-//       return;
-//     }
-  
-//     setLoading(true);
-//     setError("");
-  
-//     try {
-//       const res = await axios.get(`${process.env.REACT_APP_API_URL}/get-user-notifications`, {
-//         params: { phoneNumber },
-//       });
-  
-//       let allNotifications = res.data.notifications || [];
-  
-//       // ✅ Deduplicate by ppcId + message
-//       const uniqueMap = new Map();
-//       allNotifications.forEach((n) => {
-//         const key = `${n.ppcId}_${n.message}`;
-//         if (!uniqueMap.has(key)) {
-//           uniqueMap.set(key, n);
-//         }
-//       });
-  
-//       allNotifications = Array.from(uniqueMap.values());
-  
-//       // ✅ Sort and check read status
-//       allNotifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-//       const readIds = getReadNotificationsFromStorage();
-//       const updatedNotifications = allNotifications.map((n) => ({
-//         ...n,
-//         isRead: n.isRead || readIds.includes(n._id),
-//       }));
-  
-//       setNotifications(updatedNotifications);
-//     } catch (err) {
-//       console.error("Error fetching notifications:", err);
-//       setError("Error fetching notifications. Please try again.");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-  
-
-//   const handlePageNavigation = () => {
-//     navigate("/mobileviews");
-//   };
-
-//   const handleDeleteNotification = (notificationId) => {
-//     setPendingDeleteId(notificationId);
-//     setModalShow(true);
-//   };
-  
-//   const confirmDelete = async () => {
-//     try {
-//       await axios.delete(
-//         `${process.env.REACT_APP_API_URL}/delete-notification/${pendingDeleteId}`
-//       );
-//       setNotifications((prev) =>
-//         prev.filter((n) => n._id !== pendingDeleteId)
-//       );
-//       setMessage({ text: "Notification deleted successfully", type: "success" });
-//     } catch (error) {
-//       setMessage({ text: "Failed to delete notification", type: "error" });
-//     } finally {
-//       setModalShow(false);
-//       setPendingDeleteId(null);
-//     }
-//   };
-  
-  
-//   const handleSingleNotificationClick = async (notificationId, ppcId) => {
-//     try {
-//       await axios.put(
-//         `${process.env.REACT_APP_API_URL}/mark-single-notification-read/${notificationId}`
-//       );
-  
-//       saveReadNotificationToStorage(notificationId);
-  
-//       setNotifications((prevNotifications) =>
-//         prevNotifications.map((n) =>
-//           n._id === notificationId ? { ...n, isRead: true } : n
-//         )
-//       );
-  
-//       // 🔁 Conditional Navigation Based on PPC ID
-//       if (ppcId?.startsWith("PLAN-")) {
-//         // Navigate to /my-plan with optional state
-//         navigate('/my-plan', { state: { ppcId } });
-//       } else {
-//         // Navigate to /details page for property
-//         navigate(`/details/${ppcId}`);
-//       }
-  
-//     } catch (error) {
-//     }
-//   };
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -385,22 +163,50 @@ useEffect(() => {
 
 
   
-  const handleSingleNotificationClick = async (notificationId, ppcId) => {
+  // const handleSingleNotificationClick = async (notificationId, ppcId) => {
+  //   try {
+  //     await axios.put(
+  //       `${process.env.REACT_APP_API_URL}/mark-single-notification-read/${notificationId}`
+  //     );
+
+  //     saveReadNotificationToStorage(notificationId);
+
+  //     setNotifications((prevNotifications) =>
+  //       prevNotifications.map((n) =>
+  //         n._id === notificationId ? { ...n, isRead: true } : n
+  //       )
+  //     );
+
+  //     if (ppcId?.startsWith("PLAN-")) {
+  //       navigate('/my-plan', { state: { ppcId } });
+  //     } else {
+  //       navigate(`/details/${ppcId}`);
+  //     }
+  //   } catch (error) {
+  //     setMessage({ text: "Failed to open notification", type: "error" });
+  //   }
+  // };
+
+  const handleSingleNotificationClick = async (notificationId, ppcId, message) => {
     try {
       await axios.put(
         `${process.env.REACT_APP_API_URL}/mark-single-notification-read/${notificationId}`
       );
-
+  
       saveReadNotificationToStorage(notificationId);
-
+  
       setNotifications((prevNotifications) =>
         prevNotifications.map((n) =>
           n._id === notificationId ? { ...n, isRead: true } : n
         )
       );
-
-      if (ppcId?.startsWith("PLAN-")) {
-        navigate('/my-plan', { state: { ppcId } });
+  
+  
+      if (message?.toLowerCase().includes("buyer") && message.toLowerCase().includes("assistance")) {
+        navigate("/buyer-list");
+      
+      } else if (ppcId?.startsWith("PLAN-")) {
+        navigate("/my-plan", { state: { ppcId } });
       } else {
         navigate(`/details/${ppcId}`);
       }
@@ -408,28 +214,8 @@ useEffect(() => {
       setMessage({ text: "Failed to open notification", type: "error" });
     }
   };
+  
 
-  // const handleDeleteNotification = (notificationId) => {
-  //   setPendingDeleteId(notificationId);
-  //   setModalShow(true);
-  // };
-
-  // const confirmDelete = async () => {
-  //   try {
-  //     await axios.delete(
-  //       `${process.env.REACT_APP_API_URL}/delete-notification/${pendingDeleteId}`
-  //     );
-  //     setNotifications((prev) =>
-  //       prev.filter((n) => n._id !== pendingDeleteId)
-  //     );
-  //     setMessage({ text: "Notification deleted successfully", type: "success" });
-  //   } catch (error) {
-  //     setMessage({ text: "Failed to delete notification", type: "error" });
-  //   } finally {
-  //     setModalShow(false);
-  //     setPendingDeleteId(null);
-  //   }
-  // };
 
   const handleDeleteNotification = (createdAt) => {
     setPendingDeleteId(createdAt); // now storing timestamp
@@ -560,7 +346,7 @@ const cancelDelete = () => {
   key={notification._id}
   className="mb-3"
   // onClick={() => handleSingleNotificationClick(notification._id)}
-  onClick={() => handleSingleNotificationClick(notification._id, notification.ppcId)}
+  onClick={() => handleSingleNotificationClick(notification._id, notification.ppcId,notification.message)}
 
   style={{
     cursor: "pointer",
