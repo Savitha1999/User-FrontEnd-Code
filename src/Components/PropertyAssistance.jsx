@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 // import { FaChevronDown, FaPhone } from "react-icons/fa";
@@ -17,6 +18,21 @@ import { useNavigate } from "react-router-dom";
 
 
 const PropertyForm = ({ phoneNumber, existingData }) => {
+    const [hovered, setHovered] = useState(false);
+  
+    const baseStyle = {
+      backgroundColor: "#019988",
+      color: "#fff",
+      border: "none",
+      padding: "8px 16px",
+      borderRadius: "5px",
+      cursor: "pointer",
+      transition: "background-color 0.3s ease",
+    };
+  
+    const hoverStyle = {
+      backgroundColor: "#017a6e",
+    };
   const [formData, setFormData] = useState({
     phoneNumber: phoneNumber || "",
     altPhoneNumber: "",
@@ -142,7 +158,26 @@ const handleSubmit = (e) => {
   return (
     <div className="property-form-container p-1" style={{  overflowY: "auto",  position: "relative", scrollbarWidth: "none" ,  fontFamily: "Inter, sans-serif",}}>
       <img src={imge} alt="" className="header-image"  style={{width:'100%'}}/>
-      <h4 className="form-title mt-2" style={{color: '#2F747F', fontSize:"15px", fontWeight:"bold"}}>Buyer Assistance</h4>
+      <div className="w-100 d-flex justify-content-around align-items-center mt-3">
+        <button style={{
+          ...baseStyle,
+          opacity: 0.6,
+          cursor: "not-allowed",
+        }}
+        disabled
+        >Add Buyer Assistant</button>
+        <button   style={{
+          ...baseStyle,
+          ...(hovered ? hoverStyle : {}),
+        }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onClick={() => navigate(`/Buyer-List-Filter`)}
+
+   >view Buyer List</button>
+
+      </div>
+      <h4 className="form-title mt-3" style={{color: '#2F747F', fontSize:"15px", fontWeight:"bold"}}>Buyer Assistance</h4>
 
 
       <div>
@@ -209,7 +244,7 @@ const handleSubmit = (e) => {
 
 
 
-      <form onSubmit={handleSubmit} className="mt-3 p-3">
+      <form onSubmit={handleSubmit} className="p-3">
   
 <div className="row mb-3 justify-content-around">
 <div className="col-5 p-0">
@@ -636,6 +671,12 @@ const handleSubmit = (e) => {
 
 
 export default PropertyForm;
+
+
+
+
+
+
 
 
 

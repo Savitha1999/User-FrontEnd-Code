@@ -12,12 +12,17 @@ import axios from "axios";
 import myImage from '../Assets/Rectangle 146.png'; // Correct path
 import myImage1 from '../Assets/Rectangle 145.png'; // Correct path
 import pic from '../Assets/Mask Group 3@2x.png'; // Correct path
+import calendar from '../Assets/Calender-01.png'
+import bed from '../Assets/BHK-01.png'
+import totalarea from '../Assets/Total Area-01.png'
+import postedby from '../Assets/Posted By-01.png'
+import indianprice from '../Assets/Indian Rupee-01.png'
 import { 
   FaRupeeSign, FaBed, FaCalendarAlt, FaUserAlt, FaRulerCombined,
   FaCamera,
   FaEye
 } from "react-icons/fa";
-const PyProperty = () => {
+const AllProperty = () => {
     const [imageCounts, setImageCounts] = useState({}); // Store image count for each property
   
   const [properties, setProperties] = useState([]);
@@ -90,7 +95,7 @@ const PyProperty = () => {
       
  
       <div className="w-100">
-      <h2>Puducherry Property Listings</h2>
+      {/* <h2>Puducherry Property Listings</h2> */}
       {error && <p style={{ color: "red" }}>{error}</p>}
    
       <div style={{ overflowY: 'auto', fontFamily:"Inter, sans-serif" }}>
@@ -155,52 +160,73 @@ justifyContent: "space-between",
 </div>
 </div>
 </div>
-<div className="col-md-8 col-8 ps-2">
-<div className="d-flex justify-content-start"><p className="mb-1" style={{ color:'#5E5E5E' , fontWeight:500 }}>{property.propertyMode || 'N/A'}</p> 
-</div>
- <p className="fw-bold m-0" style={{ color:'#000000' }}>{property.propertyType || 'N/A'}</p>
- <p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500}}>{property.city || 'N/A'} , {property.city || 'N/A'}</p>
- <div className="card-body ps-2 m-0 pt-0 pe-2 pb-0 d-flex flex-column justify-content-center">
-   <div className="row">
-     <div className="col-6 d-flex align-items-center mt-1 mb-1">
-                         <FaRulerCombined className="me-2" color="#2F747F" /> <span style={{ fontSize: '13px', color: '#5E5E5E', fontWeight: 'medium' }}>{property.totalArea || 'N/A'}{property.areaUnit || 'N/A'}</span>
-                       </div>
-                     <div className="col-6 d-flex align-items-center mt-1 mb-1">
-                               <FaBed className="me-2" color="#2F747F" />
-                               <span style={{ fontSize: '13px', color: '#5E5E5E' }}>
-                                 {property.bedrooms || 'N/A'}BHK
-                               </span>
-                             </div>
-                             <div className="col-6 d-flex align-items-center mt-1 mb-1">
-                               <FaUserAlt className="me-2" color="#2F747F" />
-                               <span style={{ fontSize: '13px', color: '#5E5E5E' }}>
-                                 {property.postedBy || 'N/A'}
-                               </span>
-                             </div>
-                           <div className="col-6 d-flex align-items-center mt-1 mb-1">
-                                                                                          <FaCalendarAlt className="me-2" color="#2F747F"/> 
-                                                 <span style={{ fontSize:'13px', color:'#5E5E5E', fontWeight: 500 }}>
-                                                   {property.createdAt ? new Date(property.createdAt).toLocaleDateString('en-IN', {
+<div className="col-md-8 col-8 " style={{paddingLeft:"10px", paddingTop:"7px"}}>
+          <div className="d-flex justify-content-start"><p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500 }}>{property.propertyMode
+  ? property.propertyMode.charAt(0).toUpperCase() + property.propertyMode.slice(1)
+  : 'N/A'}
+</p> 
+          </div>
+           <p className="fw-bold m-0 " style={{ color:'#000000' }}>{property.propertyType 
+  ? property.propertyType.charAt(0).toUpperCase() + property.propertyType.slice(1) 
+  : 'N/A'}
+</p>
+           <p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500}}>{property.city
+  ? property.city.charAt(0).toUpperCase() + property.city.slice(1)
+  : 'N/A'} , {property.district
+  ? property.district.charAt(0).toUpperCase() + property.district.slice(1)
+  : 'N/A'}</p>
+           <div className="card-body ps-2 m-0 pt-0 pe-2 pb-0 d-flex flex-column justify-content-center" style={{background:"#FAFAFA"}}>
+             <div className="row">
+               <div className="col-6 d-flex align-items-center mt-1 mb-1 ps-1">
+                 {/* <FaRulerCombined className="me-2" color="#2F747F" /> */}
+                 <img src={totalarea} alt="" width={12} className="me-2"/>
+                 <span style={{ fontSize:'13px', color:'#5E5E5E' , fontWeight:500 }}>{property.totalArea || 'N/A'} {property.areaUnit
+  ? property.areaUnit.charAt(0).toUpperCase() + property.areaUnit.slice(1)
+  : 'N/A'}
+
+                  
+                 </span>
+               </div>
+               <div className="col-6 d-flex align-items-center mt-1 mb-1">
+                 {/* <FaBed className="me-2" color="#2F747F"/> */}
+                 <img src={bed} alt="" width={12} className="me-2"/>
+                 <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>{property.bedrooms || 'N/A'}</span>
+               </div>
+               <div className="col-6 d-flex align-items-center mt-1 mb-1 ps-1 pe-1">
+                 {/* <FaUserAlt className="me-2" color="#2F747F"/> */}
+                 <img src={postedby} alt="" width={12} className="me-2"/>
+                 <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>
+                 {property.ownership
+  ? property.ownership.charAt(0).toUpperCase() + property.ownership.slice(1)
+  : 'N/A'}
+                 </span>
+               </div>
+               <div className="col-6 d-flex align-items-center mt-1 mb-1">
+                 <img src={calendar} alt="" width={12} className="me-2"/>
+                  <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>
+                  {property.createdAt ? new Date(property.createdAt).toLocaleDateString('en-IN', {
                                                      year: 'numeric',
                                                      month: 'short',
                                                      day: 'numeric'
                                                    }) : 'N/A'}
-                                                 </span>     
-                                                 </div> 
-     <div className="col-12 d-flex flex-col align-items-center mt-1 mb-1">
-      <h6 className="m-0">
-      <span style={{ fontSize:'17px', color:'#2F747F', fontWeight:'bold', letterSpacing:"1px" }}> <FaRupeeSign className="me-2" color="#2F747F"/>{property.price ? property.price.toLocaleString('en-IN') : 'N/A'}
-      </span> 
-      <span style={{ color:'#2F747F', marginLeft:"5px",fontSize:'11px',}}> 
-      Negotiable                </span> 
-        </h6>
-     </div>
-     {/* <div className="col-6 d-flex align-items-center mt-1 mb-1">
-       <h4 className="m-0" style={{ color:'#2F747F', fontSize:'13px'}}> Negotiable: <span style={{ color:'#555555' }}>{property.negotiation || 'N/A'}</span></h4>
-     </div> */}
-    </div>
-  </div>
-</div>
+                  </span>
+               </div>
+               <div className="col-12 d-flex flex-col align-items-center mt-1 mb-1 ps-1">
+                <h6 className="m-0">
+                <span style={{ fontSize:'15px', color:'#2F747F', fontWeight:600, letterSpacing:"1px" }}> 
+                  {/* <FaRupeeSign className="me-2" color="#2F747F"/> */}
+                  <img src={
+                    indianprice
+                  } alt="" width={8}  className="me-2"/>
+                  {property.price ? property.price.toLocaleString('en-IN') : 'N/A'}
+                </span> 
+                <span style={{ color:'#2F747F', marginLeft:"5px",fontSize:'11px',}}> 
+                Negotiable                </span> 
+                  </h6>
+               </div>
+              </div>
+            </div>
+          </div>
 </div>
 
         </div>
@@ -213,7 +239,7 @@ justifyContent: "space-between",
   );
 };
 
-export default PyProperty;
+export default AllProperty;
 
 
 

@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -13,11 +9,12 @@ export default function ExpiredPlans() {
   const location = useLocation();
   const phoneNumber = location.state?.phoneNumber || localStorage.getItem("phoneNumber");
 
-  const [message,setMessage]= useState('');
+  const [message, setMessage] = useState('');
   const [fetchedPlan, setFetchedPlan] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showPlans, setShowPlans] = useState(false);
   const [statusMessage, setStatusMessage] = useState(null); // Expiring or Expired message
+  const [expiringPlans, setExpiringPlans] = useState([]); // Store expiring plans data
 
   useEffect(() => {
     if (!phoneNumber) {
@@ -25,6 +22,7 @@ export default function ExpiredPlans() {
     } else {
       updateExpiredPlans(); // Auto-update expired plans
       fetchPlan(phoneNumber);
+      fetchExpiringPlans(); // Fetch expiring plans
     }
   }, [phoneNumber]);
 
@@ -47,20 +45,21 @@ export default function ExpiredPlans() {
     }
   };
 
-  // Fetch Expiring Soon & Expired Plans
+  // Fetch Expiring Soon Plans
+  const fetchExpiringPlans = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/expiring-soon`);
+      setExpiringPlans(response.data.expiringPlans || []);
+    } catch (error) {
+      setMessage("Failed to fetch expiring plans.");
+    }
+  };
+
+  // Check if the current plan is expiring soon or expired
   const checkPlanStatus = async (plan) => {
     try {
-      const [expiringRes, expiredRes] = await Promise.all([
-        axios.get(`${process.env.REACT_APP_API_URL}/expiring-soon`),
-        axios.get(`${process.env.REACT_APP_API_URL}/expired-plans`)
-      ]);
-
-      const expiringPlans = expiringRes.data;
-      const expiredPlans = expiredRes.data;
-
-      // Check if the current plan is expiring soon
       const isExpiringSoon = expiringPlans.some(p => p._id === plan._id);
-      const isExpired = expiredPlans.some(p => p._id === plan._id);
+      const isExpired = expiringPlans.some(p => p._id === plan._id);
 
       if (isExpiringSoon) {
         setStatusMessage({ type: 'warning', text: "Your plan is expiring soon. Renew now to avoid interruption!" });
@@ -140,9 +139,3 @@ export default function ExpiredPlans() {
     </Container>
   );
 }
-
-
-
-
-
-

@@ -89,19 +89,7 @@ const PyProperty = () => {
    
       <div style={{ overflowY: 'auto', fontFamily:"Inter, sans-serif" }}>
       {properties.map((property) => (
-          // <div 
-          //   key={property._id} 
-          //   onClick={() => handleCardClick(property.ppcId, property.phoneNumber)}
-          //   style={{ cursor: "pointer", border: "1px solid #ddd", borderRadius: "10px", padding: "15px", boxShadow: "2px 2px 10px rgba(0,0,0,0.1)" }}
-          // >
-          //   <h3>{property.title}</h3>
-          //   <p><strong>State:</strong> {property.state}</p>
-          //   <p><strong>City:</strong> {property.city}</p>
-          //   <p><strong>Price:</strong> ₹{property.price}</p>
-          //   <p><strong>Owner:</strong> {property.ownerName}</p>
-          //   <p><strong>Contact:</strong> {property.phoneNumber}</p>
-          //   <p>{property.ppcId}</p>
-          // </div>
+         
           <div 
           key={property._id}
           className="card mb-3 shadow rounded-4"

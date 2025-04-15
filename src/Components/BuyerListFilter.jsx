@@ -1,10 +1,4 @@
 
-
-
-
-
-
-
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import profil from "../Assets/xd_profile.png";
@@ -20,10 +14,9 @@ import { TfiLocationPin } from "react-icons/tfi";
 import maxrupe from "../Assets/Price maxi-01.png";
 import minrupe from "../Assets/Price Mini-01.png";
 import { useLocation, useNavigate } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
 
-
-
-const BuyerLists = () => {
+const BuyerListFilter = () => {
   const [assistanceData, setAssistanceData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,28 +26,28 @@ const BuyerLists = () => {
   const [selectedPpcId, setSelectedPpcId] = useState("");
   const [interestData, setInterestData] = useState([]);
   const [selectedType, setSelectedType] = useState(null);
-    const [hovered, setHovered] = useState(false);
-  
-    const baseStyle = {
-      backgroundColor: "#019988",
-      color: "#fff",
-      border: "none",
-      padding: "8px 16px",
-      borderRadius: "5px",
-      cursor: "pointer",
-      transition: "background-color 0.3s ease",
-    };
-  
-    const hoverStyle = {
-      backgroundColor: "#017a6e",
-    };
+
   const navigate = useNavigate();
   const scrollContainerRef = useRef(null);
   const iconContainerRef = useRef(null);
   const location = useLocation();
   const storedPhoneNumber = location.state?.phoneNumber || localStorage.getItem("phoneNumber") || "";
   const [phoneNumber] = useState(storedPhoneNumber);
+  const [hovered, setHovered] = useState(false);
 
+  const baseStyle = {
+    backgroundColor: "#019988",
+    color: "#fff",
+    border: "none",
+    padding: "8px 16px",
+    borderRadius: "5px",
+    cursor: "pointer",
+    transition: "background-color 0.3s ease",
+  };
+
+  const hoverStyle = {
+    backgroundColor: "#017a6e",
+  };
   const handleConfirmCall = (type, phone, ba_id) => {
     setSelectedType(type);
     setSelectedPhone(phone);
@@ -117,39 +110,63 @@ const BuyerLists = () => {
       return () => clearTimeout(timer);
     }
   }, [message]);
+  const filters = location.state?.filters || {};
 
 
-  useEffect(() => {
-    const fetchAllAssistanceData = async () => {
-      try {
-        // Fetch buyer assistance
-        const assistanceResponse = await axios.get(`${process.env.REACT_APP_API_URL}/get-buyerAssistance`);
-        const sortedAssistanceData = assistanceResponse.data.data.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-  
-        // Fetch buyer-assistance-interest entries
-        const interestResponse = await axios.get(`${process.env.REACT_APP_API_URL}/buyer-assistance-interests`);
-        const sortedInterestData = interestResponse.data.data.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-  
-        // You can either:
-        // 1. Show both separately (recommended for clarity), or
-        // 2. Combine them into one if needed.
-  
-        setAssistanceData(sortedAssistanceData); // regular assistance requests
-        setInterestData(sortedInterestData); // buyer-assistance-interest entries
-  
-      } catch (err) {
-        setError("Error fetching assistance or interest data");
-      } finally {
-        setLoading(false);
+useEffect(() => {
+  const fetchAllAssistanceData = async () => {
+    try {
+      const assistanceResponse = await axios.get(`${process.env.REACT_APP_API_URL}/get-buyerAssistance`);
+      let sortedData = assistanceResponse.data.data.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      // Apply filters
+      if (filters.id) {
+        sortedData = sortedData.filter(item => item.ba_id?.toLowerCase().includes(filters.id.toLowerCase()));
       }
-    };
-  
-    fetchAllAssistanceData();
-},[]);
+
+      if (filters.minPrice) {
+        sortedData = sortedData.filter(item => Number(item.minPrice) >= Number(filters.minPrice));
+      }
+
+      if (filters.maxPrice) {
+        sortedData = sortedData.filter(item => Number(item.maxPrice) <= Number(filters.maxPrice));
+      }
+
+      if (filters.propertyMode) {
+        sortedData = sortedData.filter(item => item.propertyMode === filters.propertyMode);
+      }
+      if (filters.propertyType) {
+        sortedData = sortedData.filter(item => item.propertyType === filters.propertyType);
+      }
+      if (filters.floorNo) {
+        sortedData = sortedData.filter(item => item.floorNo === filters.floorNo);
+      } 
+        if (filters.bedrooms) {
+        sortedData = sortedData.filter(item => item.bedrooms === filters.bedrooms);
+      }
+      if (filters.city) {
+        sortedData = sortedData.filter(item => item.city?.toLowerCase().includes(filters.city.toLowerCase()));
+      }
+      if (filters.state) {
+        sortedData = sortedData.filter(item => item.state?.toLowerCase().includes(filters.state.toLowerCase()));
+      }
+      if (filters.area) {
+        sortedData = sortedData.filter(item => item.area?.toLowerCase().includes(filters.area.toLowerCase()));
+      }
+      setAssistanceData(sortedData);
+    } catch (err) {
+      setError("Error fetching assistance or interest data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchAllAssistanceData();
+}, [filters]);
+
+
 
   const handleWheelScroll = (e) => {
     if (scrollContainerRef.current) {
@@ -168,44 +185,63 @@ const BuyerLists = () => {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
-
+  const handlePageNavigation = () => {
+    navigate('/mobileviews'); // Redirect to the desired path
+  };
   return (
+    <div className="container d-flex align-items-center justify-content-center p-0">
+    <div className="d-flex flex-column align-items-center justify-content-center m-0" style={{ maxWidth: '500px', margin: 'auto', width: '100%',fontFamily: 'Inter, sans-serif'}}>
+    <div className="row g-2 w-100">
+<div className="d-flex align-items-center justify-content-start w-100" style={{background:"#EFEFEF" }}>
+  <button className="pe-5" onClick={handlePageNavigation}><FaArrowLeft color="#30747F"/> 
+</button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>Buyer Lists </h3> </div>
+     
     <div
-      className="d-flex flex-column justify-content-center align-items-center w-100"
+      className="d-flex flex-column justify-content-center align-items-center"
       style={{ padding: "10px", gap: "15px", borderRadius: "10px", overflowY: "auto" }}
       onWheel={handleWheelScroll}
       ref={scrollContainerRef}
     >
-      {/* <h5>Buyer List Datas</h5> */}
-      <div className="w-100 d-flex justify-content-around align-items-center mt-3">
-        <button style={{
-          ...baseStyle,
-          opacity: 0.6,
-          cursor: "not-allowed",
-        }}
-        disabled
-        >Add Buyer Assistant</button>
-        <button   style={{
+        <div className="w-100 d-flex justify-content-around align-items-center">
+      <button
+        style={{
           ...baseStyle,
           ...(hovered ? hoverStyle : {}),
         }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        onClick={() => navigate(`/Buyer-List-Filter`)}
+        onClick={() => navigate(`/Property-Assistance-Search/${phoneNumber}`)}
 
-   >view Buyer List</button>
+      >
+        Add Buyer Assistant
+      </button>
 
-      </div>
+      <button
+        style={{
+          ...baseStyle,
+          opacity: 0.6,
+          cursor: "not-allowed",
+        }}
+        disabled
+      >
+        View Buyer List
+      </button>
+    </div>
       {message && <div className="alert text-success fw-bold">{message}</div>}
 
       {assistanceData.length > 0 ? (
         assistanceData.map((card) => (
-  
           <div
   key={card._id}
-  className="card p-1"
-  style={{ width: '100%', height: 'auto', background: '#F9F9F9', overflow:'hidden' }}
-
+  className="card p-2 w-100 w-md-50 w-lg-33"
+  style={{
+    // width: "450px",
+    border: "1px solid #ddd",
+    borderRadius: "10px",
+    marginBottom: "15px",
+    fontFamily: "Inter, sans-serif",
+    cursor: "pointer", // make it look clickable
+  }}
   onClick={() => navigate(`/detail-buyer-assistance/${card._id}`)}
 >
   
@@ -236,8 +272,8 @@ const BuyerLists = () => {
                     | Buyer
                   </span>
                 </h5>
-                <div className="d-flex align-items-center justify-content-between col-8">
-                  <p className="mb-0 me-3 d-flex align-items-center" style={{ fontSize: "12px", fontWeight: 500 }}>
+                <div className="d-flex align-items-center justify-content-between col-10">
+                  <p className="mb-0 me-3 d-flex align-items-center me-3" style={{ fontSize: "12px", fontWeight: 500 }}>
                     <img src={minrupe} alt="min" width={13} className="me-2" />
                     {card.minPrice}
                   </p>
@@ -262,7 +298,8 @@ const BuyerLists = () => {
                 }}
                 onWheel={handleIconScroll}
                 ref={iconContainerRef}
-                >                <div className="d-flex align-items-center me-3">
+              >
+                <div className="d-flex align-items-center me-3">
                   <GoHome size={12} className="me-2" color="#019988" />
                   <p className="mb-0" style={{ fontSize: "12px" }}>{card.propertyMode}</p>
                 </div>
@@ -302,29 +339,33 @@ const BuyerLists = () => {
                       : "Phone: N/A"}
                   </h6>
                 </div>
+              
 
-                <button
-                  className="btn text-white px-3 py-1 mx-1"
-                  style={{ background: "orangered", fontSize: "13px" }}
-                  onClick={() => handleSendInterest(card._id)}
-                >
-                  Send Interest
-                </button>
-
-                <button
-                  className="btn text-white px-3 py-1 mx-1"
-                  style={{ background: "#2F747F", fontSize: "13px" }}
-                  onClick={() =>
-                    handleConfirmCall(
-                      card.interestedUserPhone ? "buyer" : "owner",
-                      card.interestedUserPhone || card.phoneNumber,
-                      card.ba_id
-                    )
-                  }
-                >
-                  Call
-                </button>
               </div>
+              <div className="d-flex justify-content-end align-items-center m-0">
+
+<button
+  className="btn text-white px-3 py-1 mx-1"
+  style={{ background: "orangered", fontSize: "13px" }}
+  onClick={() => handleSendInterest(card._id)}
+>
+  Send Interest
+</button>
+
+<button
+  className="btn text-white px-3 py-1 mx-1"
+  style={{ background: "#2F747F", fontSize: "13px" }}
+  onClick={() =>
+    handleConfirmCall(
+      card.interestedUserPhone ? "buyer" : "owner",
+      card.interestedUserPhone || card.phoneNumber,
+      card.ba_id
+    )
+  }
+>
+  Call
+</button>
+</div>
             </div>
           </div>
         ))
@@ -344,8 +385,12 @@ const BuyerLists = () => {
         </div>
       )}
     </div>
+    </div>
+    </div>
+    </div>
+
   );
 };
 
-export default BuyerLists;
+export default BuyerListFilter;
 

@@ -34,7 +34,12 @@ import bed from '../Assets/BHK-01.png'
 import totalarea from '../Assets/Total Area-01.png'
 import postedby from '../Assets/Posted By-01.png'
 import indianprice from '../Assets/Indian Rupee-01.png'
-
+import {
+  
+  FaUsers,
+  FaSortAmountDownAlt,
+  FaHeadset,
+} from 'react-icons/fa';
 const PropertyCards = ({phoneNumber}) => {
   const [properties, setProperties] = useState([]);
   // const [filters, setFilters] = useState({ id: '', price: '', propertyMode: '', city: '' });
@@ -45,7 +50,8 @@ const PropertyCards = ({phoneNumber}) => {
     propertyMode: '', 
     city: '' 
   });
-    
+  const [hoverSearch, setHoverSearch] = useState(false);
+  const [hoverAdvance, setHoverAdvance] = useState(false);
   const [imageCounts, setImageCounts] = useState({}); // Store image count for each property
 
 
@@ -94,31 +100,13 @@ const PropertyCards = ({phoneNumber}) => {
 
 
 
-    // useEffect(() => {
-    //   const fetchProperties = async () => {
-    //     try {
-    //       const response = await axios.get(`${process.env.REACT_APP_API_URL}/fetch-active-users`);
-    //       const allProperties = response.data.users;
-    
-    //       setProperties(allProperties); // Directly setting the fetched data
-    //     } catch (error) {
-    //       console.error("Error fetching properties:", error);
-    //     }
-    //   };
-    
-    //   fetchProperties();
-    // }, []);
-
     useEffect(() => {
       const fetchProperties = async () => {
         try {
           const response = await axios.get(`${process.env.REACT_APP_API_URL}/fetch-active-users`);
           const allProperties = response.data.users;
     
-          // Sort by createdAt in descending order (newest first)
-          const sortedProperties = allProperties.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    
-          setProperties(sortedProperties);
+          setProperties(allProperties); // Directly setting the fetched data
         } catch (error) {
           console.error("Error fetching properties:", error);
         }
@@ -126,7 +114,6 @@ const PropertyCards = ({phoneNumber}) => {
     
       fetchProperties();
     }, []);
-    
     
     const [dropdownState, setDropdownState] = useState({
       activeDropdown: null,
@@ -175,7 +162,53 @@ const PropertyCards = ({phoneNumber}) => {
     setAdvancedFilters((prevState) => ({ ...prevState, [name]: value }));
     setDropdownState((prevState) => ({ ...prevState, filterText: value }));
   };
-
+  const fieldLabels = {
+    propertyMode: "Property Mode",
+    propertyType: "Property Type",
+    price: "Price",
+    propertyAge: "Property Age",
+    bankLoan: "Bank Loan",
+    negotiation: "Negotiation",
+    length: "Length",
+    breadth: "Breadth",
+    totalArea: "Total Area",
+    ownership: "Ownership",
+    bedrooms: "Bedrooms",
+    kitchen: "Kitchen",
+    kitchenType: "Kitchen Type",
+    balconies: "Balconies",
+    floorNo: "Floor No.",
+    areaUnit: "Area Unit",
+    propertyApproved: "Property Approved",
+    postedBy: "Posted By",
+    facing: "Facing",
+    salesMode: "Sales Mode",
+    salesType: "Sales Type",
+    description: "Description",
+    furnished: "Furnished",
+    lift: "Lift",
+    attachedBathrooms: "Attached Bathrooms",
+    western: "Western Toilet",
+    numberOfFloors: "Number of Floors",
+    carParking: "Car Parking",
+    rentalPropertyAddress: "Property Address",
+    country: "Country",
+    state: "State",
+    city: "City",
+    district: "District",
+    area: "Area",
+    streetName: "Street Name",
+    doorNumber: "Door Number",
+    nagar: "Nagar",
+    ownerName: "Owner Name",
+    email: "Email",
+    phoneNumber: "Phone Number",
+    phoneNumberCountryCode: "Phone Country Code",
+    alternatePhone: "Alternate Phone",
+    alternatePhoneCountryCode: "Alternate Phone Country Code",
+    bestTimeToCall: "Best Time to Call",
+  };
+  
     const renderDropdown = (field) => {
       const options = dataList[field] || [];
       const filteredOptions = options.filter((option) =>
@@ -200,6 +233,17 @@ const PropertyCards = ({phoneNumber}) => {
               animation: 'popupOpen 0.3s ease-in-out',
             }}
           >
+                      <div
+          style={{
+            fontWeight: "bold",
+            fontSize: "16px",
+            marginBottom: "10px",
+            textAlign: "start",
+            color: "#019988",
+          }}
+        >
+           {fieldLabels[field] || "Property Field"}
+        </div>
             <div
               style={{
                 display: 'flex',
@@ -301,6 +345,12 @@ const PropertyCards = ({phoneNumber}) => {
   
     return basicFilterMatch && priceMatch && advancedFilterMatch;
   });
+  useEffect(() => {
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (isFilterPopupOpen && backdrop) {
+      backdrop.style.pointerEvents = 'none';
+    }
+  }, [isFilterPopupOpen]);
   
 
   const handleCardClick = (ppcId, phoneNumber) => {
@@ -316,8 +366,10 @@ const PropertyCards = ({phoneNumber}) => {
       </Helmet>
       <Row className="g-3 w-100 ">
         <Col lg={12} className="d-flex align-items-center justify-content-center pt-2 m-0">
-          <div
-            className="d-flex flex-column justify-content-center align-items-center "
+          {/* <div
+            className="d-flex flex-column justify-content-center align-items-center " 
+              data-bs-toggle="modal"
+        data-bs-target="#propertyModal"
             style={{
               height: '50px', width: '50px', background: '#2F747F', borderRadius: '50%',
               position: 'fixed',
@@ -325,381 +377,397 @@ const PropertyCards = ({phoneNumber}) => {
               bottom: '15%', 
               zIndex: '1',
             }}
-            onClick={() => setIsFilterPopupOpen(true)}
+            // onClick={() => setIsFilterPopupOpen(true)}
           >
             <BiSearchAlt fontSize={24} color="#fff" />
           </div>
+      <div
+        className="modal fade"
+        id="propertyModal"
+        tabIndex="-1"
+          data-bs-backdrop="false"
+  data-bs-keyboard="false"
 
-          <div className="w-100">
-            <div style={{ overflowY: 'auto', fontFamily:"Inter, sans-serif" }}>
-              {filteredProperties.length > 0 ? (
-                filteredProperties.map((property) => (
-                  <div 
-                    key={property._id}
-                    className="card mb-3 shadow rounded-4"
-                    style={{ width: '100%', height: 'auto', background: '#F9F9F9', overflow:'hidden' }}
-                    onClick={() => handleCardClick(property.ppcId, phoneNumber)}
-                  >
-                     <div className="row g-0 ">
-         <div className="col-md-4 col-4 d-flex flex-column align-items-center">
-      
- <div style={{ position: "relative", width: "100%",height: window.innerWidth <= 640 ? "180px" : "170px",  }}>
-    {/* Image */}
-    <img
- src={
-  property.photos && property.photos.length > 0
-  ? `http://localhost:5006/${property.photos[0].replace(/\\/g, "/")}`
-  : pic // Use the imported local image if no photos are available
-  }      
-      style={{
-        objectFit: "cover",
-        objectPosition: "center",
-        width: "100%",
-        height: "100%",
-      }}
-    />
-
- 
-
-    {/* Icons */}
-    <div
-      style={{
-        position: "absolute",
-        bottom: "0px",
-        width: "100%",
-        display: "flex",
-        justifyContent: "space-between",
-      }}
-    >
-      <span
-        className="d-flex justify-content-center align-items-center"
-        style={{
-          color: "#fff",
-          backgroundImage: `url(${myImage})`,
-          backgroundSize: "cover",
-          width: "45px",
-          height: "20px",
-        }}
       >
-        <FaCamera className="me-1" size={13}/>  <span style={{fontSize:"11px"}}>{imageCounts[property.ppcId] || 0}</span>
-      </span>
-      <span
-        className="d-flex justify-content-center align-items-center"
-        style={{
-          color: "#fff",
-          backgroundImage: `url(${myImage1})`,
-          backgroundSize: "cover",
-          width: "45px",
-          height: "20px",
-        }}
-      >
-        <FaEye className="me-1" size={15} /> <span style={{fontSize:"11px"}}> {property.views}  </span>
-      </span>
-    </div>
-  </div>
-         </div>
-         <div className="col-md-8 col-8 " style={{paddingLeft:"10px", paddingTop:"7px"}}>
-          <div className="d-flex justify-content-start"><p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500 }}>{property.propertyMode
-  ? property.propertyMode.charAt(0).toUpperCase() + property.propertyMode.slice(1)
-  : 'N/A'}
-</p> 
-          </div>
-           <p className="fw-bold m-0 " style={{ color:'#000000' }}>{property.propertyType 
-  ? property.propertyType.charAt(0).toUpperCase() + property.propertyType.slice(1) 
-  : 'N/A'}
-</p>
-           <p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500}}>{property.city
-  ? property.city.charAt(0).toUpperCase() + property.city.slice(1)
-  : 'N/A'} , {property.area
-  ? property.area.charAt(0).toUpperCase() + property.area.slice(1)
-  : 'N/A'}</p>
-           <div className="card-body ps-2 m-0 pt-0 pe-2 pb-0 d-flex flex-column justify-content-center" style={{background:"#FAFAFA"}}>
-             <div className="row">
-               <div className="col-6 d-flex align-items-center mt-1 mb-1 ps-1">
-                 {/* <FaRulerCombined className="me-2" color="#2F747F" /> */}
-                 <img src={totalarea} alt="" width={12} className="me-2"/>
-                 <span style={{ fontSize:'13px', color:'#5E5E5E' , fontWeight:500 }}>{property.totalArea || 'N/A'} {property.areaUnit
-  ? property.areaUnit.charAt(0).toUpperCase() + property.areaUnit.slice(1)
-  : 'N/A'}
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content rounded-4 shadow">
+            <div className="modal-body py-4">
+              <div className="d-grid gap-2 mb-2">
+                <button className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3"
+                //  onClick={() => setIsFilterPopupOpen(true)}
+                >
+                  <FaHome className="me-2" /> Search Property
+                </button>
 
-                  
-                 </span>
-               </div>
-               <div className="col-6 d-flex align-items-center mt-1 mb-1">
-                 {/* <FaBed className="me-2" color="#2F747F"/> */}
-                 <img src={bed} alt="" width={12} className="me-2"/>
-                 <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>{property.bedrooms || 'N/A'} BHK</span>
-               </div>
-               <div className="col-6 d-flex align-items-center mt-1 mb-1 ps-1 pe-1">
-                 {/* <FaUserAlt className="me-2" color="#2F747F"/> */}
-                 <img src={postedby} alt="" width={12} className="me-2"/>
-                 <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>
-                 {property.ownership
-  ? property.ownership.charAt(0).toUpperCase() + property.ownership.slice(1)
-  : 'N/A'}
-                 </span>
-               </div>
-               <div className="col-6 d-flex align-items-center mt-1 mb-1">
-                 <img src={calendar} alt="" width={12} className="me-2"/>
-                  <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>
-                  {property.bestTimeToCall
-  ? property.bestTimeToCall.charAt(0).toUpperCase() + property.bestTimeToCall.slice(1)
-  : 'N/A'}
-                  </span>
-               </div>
-               <div className="col-12 d-flex flex-col align-items-center mt-1 mb-1 ps-1">
-                <h6 className="m-0">
-                <span style={{ fontSize:'15px', color:'#2F747F', fontWeight:600, letterSpacing:"1px" }}> 
-                  {/* <FaRupeeSign className="me-2" color="#2F747F"/> */}
-                  <img src={
-                    indianprice
-                  } alt="" width={8}  className="me-2"/>
-                  {property.price ? property.price.toLocaleString('en-IN') : 'N/A'}
-                </span> 
-                <span style={{ color:'#2F747F', marginLeft:"5px",fontSize:'11px',}}> 
-                Negotiable                </span> 
-                  </h6>
-               </div>
+                <button className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3">
+                  <FaUsers className="me-2" /> Tenant Search
+                </button>
+
+                <button className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3">
+                  <FaSortAmountDownAlt className="me-2" /> Quick Sort
+                </button>
+
+                <button className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3">
+                  <FaHeadset className="me-2" /> Property Assistance
+                </button>
+              </div>
+
+              <div className="text-center">
+                <button
+                  className="btn btn-primary rounded-pill px-4 mt-3"
+                  data-bs-dismiss="modal"
+                >
+                  CANCEL
+                </button>
               </div>
             </div>
           </div>
-       </div>
-
-                  </div>
-                ))
-
-              ) : (
-                <p>No properties found.</p>
-              )}
-            </div>
-          </div>
-        </Col>
-      </Row>
-
-      {/* Basic Filters Popup */}
-     {isFilterPopupOpen && (
-  <div 
+        </div>
+      </div> */}
+      <div
+  className="d-flex flex-column justify-content-center align-items-center"
+  data-bs-toggle="modal"
+  data-bs-target="#propertyModal"
   style={{
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '90%', // Responsive width
-    maxWidth: '400px', // Prevents stretching on larger screens
-    maxHeight: '60vh',
-    overflowY: 'auto',
-    background: '#fff',
-    padding: '20px',
-    boxShadow: '0px 0px 10px rgba(0,0,0,0.5)',
-    zIndex: 2,
-    borderRadius: '8px',
+    height: '50px',
+    width: '50px',
+    background: '#2F747F',
+    borderRadius: '50%',
+    position: 'fixed',
+    right: 'calc(50% - 187.5px + 10px)', // Center - half of 375px + some offset
+    bottom: '15%',
+    zIndex: '1',
   }}
-  >
-    <style>
-      {`
-        ::-webkit-scrollbar {
-          display: none;
-        }
-      `}
-    </style>
-
-    <h4>
-      <FaFilter className="me-2" /> Filter Properties
-    </h4>
-    <div>
-   
-  <div className="form-group">
-  <label>ID</label>
-  <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
-    <FaIdCard className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
-    <input
-      type="text"
-      name="id"
-      value={filters.id}
-      onChange={handleFilterChange}
-      className="form-input m-0"
-      placeholder="ID"
-      style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
-    />
-  </div>
-  </div>
-  
-  <div className="form-group">
-  <label>Min Price  </label>
-  <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
-    <FaRupeeSign className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
-    <input
-      type="tel"
-      name="minPrice"
-      value={filters.minPrice}
-      onChange={handleFilterChange}
-      className="form-input m-0"
-      placeholder="Min Price"
-      style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
-    />
-  </div>
-  </div>
-
-  <div className="form-group">
-  <label>maxPrice  </label>
-  <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
-    <FaRupeeSign className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
-    <input
-      type="tel"
-      name="maxPrice"
-      value={filters.maxPrice}
-      onChange={handleFilterChange}
-      className="form-input m-0"
-      placeholder="Max Price"
-      style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
-    />
-  </div>
-  </div>
-     
-  <div className="form-group">
-  <label style={{ width: "100%" }}>
-    <label>Property Mode</label>
-    <div style={{ display: "flex", alignItems: "center" }}>
-      <div style={{ flex: "1" }}>
-        {/* Hidden select dropdown */}
-        <select
-          name="propertyMode"
-          value={filters.propertyMode || ""}
-          onChange={handleFilterChange}
-          className="form-control"
-          style={{ display: "none" }} 
-        >
-          <option value="">Select Property Mode</option>
-          {dataList.propertyMode?.map((option, index) => (
-            <option key={index} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-
-        {/* Custom button to act as a dropdown */}
-        <button
-          className="m-0"
-          type="button"
-          onClick={() => toggleDropdown("propertyMode")}
-          style={{
-            cursor: "pointer",
-            border: "1px solid #2F747F",
-            padding: "10px",
-            background: "#fff",
-            borderRadius: "5px",
-            width: "100%",
-            textAlign: "left",
-            color: "#2F747F",
-          }}
-        >
-          <span style={{ marginRight: "10px" }}>
-            <MdApproval />
-          </span>
-          {filters.propertyMode || "Select Property Mode"}
-        </button>
-
-        {/* Render dropdown list */}
-        {renderDropdown("propertyMode")}
-      </div>
-    </div>
-  </label>
+>
+  <BiSearchAlt fontSize={24} color="#fff" />
 </div>
 
-    
-        <div className="form-group">
-        <label>city </label>
-        <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
-          <FaRupeeSign className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
-          <input
-            type="tel"
-            name="city"
-            value={filters.city}
-            onChange={handleFilterChange}
-            className="form-input m-0"
-            placeholder="city"
-            style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
-          />
+{/* Modal */}
+<div
+  className="modal fade"
+  id="propertyModal"
+  tabIndex="-1"
+  data-bs-backdrop="false"
+  data-bs-keyboard="false"
+  style={{  backgroundColor: 'rgba(64, 64, 64, 0.9)', // white with 90% opacity
+    backdropFilter: 'blur(1px)', // optional for a frosted-glass effect
+}}
+>
+  <div className="modal-dialog modal-dialog-centered">
+    <div className="modal-content rounded-5 shadow" 
+     style={{
+      width: "350px",
+      margin: "0 auto", // centers horizontally
+     
+    }}    >
+      <div className="modal-body py-4">
+        <div className="d-grid gap-2 mb-2">
+          {/* Search Property - Open another popup */}
+          <button style={{background:"#DFDFDF" , color:"#5E5E5E" , fontWeight:600 , fontSize:"15px"}}
+            className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3"
+            data-bs-toggle="modal"
+            data-bs-target="#filterPopup" // Nested modal
+          >
+            <FaHome className="me-2" /> Search Property
+          </button>
+
+          {/* Tenant Search */}
+          <button style={{background:"#DFDFDF" , color:"#5E5E5E" , fontWeight:600 , fontSize:"15px"}}
+          className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3"
+                onClick={() => navigate(`/FormComponent`)}
+>
+            <FaUsers className="me-2" /> Tenant Search
+          </button>
+
+          {/* Quick Sort */}
+          <button style={{background:"#DFDFDF" , color:"#5E5E5E" , fontWeight:600 , fontSize:"15px"}}
+          className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3"
+                          onClick={() => navigate(`/Sort-Property`)}
+>
+            <FaSortAmountDownAlt className="me-2" /> Quick Sort
+          </button>
+
+          {/* Property Assistance */}
+          <button style={{background:"#DFDFDF" , color:"#5E5E5E" , fontWeight:600 , fontSize:"15px"}}
+          className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3"
+      onClick={() => navigate(`/Property-Assistance-Search/${phoneNumber}`)}
+      >
+            <FaHeadset className="me-2" /> Property Assistance
+          </button>
         </div>
+
+        {/* Cancel */}
+        <div className="text-center" >
+          <button className="btn btn-primary rounded-2 px-4 mt-2" data-bs-dismiss="modal"
+          style={{ fontWeight:500 , fontSize:"10px"}}>
+            CANCEL
+          </button>
         </div>
-      <button
-      style={{background:"#F01963", color:'#fff', border:'0'}}
-        className="btn me-2 rounded-0 w-30"
-        onClick={() => setIsFilterPopupOpen(false)}
-      >
-        <FaCheck className="me-1" /> Apply Filters
-      </button>
-      <button
-        className="btn rounded-0 w-30" style={{background:"#FF9D3C", color:'#fff', border:'0'}}
-        onClick={() => {
-          setIsFilterPopupOpen(false);
-          setIsAdvancedPopupOpen(true);
-        }}
-      >
-        <FaTools className="me-1" /> Advanced Filters
-      </button>
-      <button
-        className="btn rounded-0 mt-1 ms-1 w-30" style={{background:"black", color:"#ffffff"}}
-        onClick={() => setIsFilterPopupOpen(false)}
-      >
-        <FaTimes className="me-1" /> Cancel
-      </button>
-      
+      </div>
     </div>
   </div>
-)}
+</div>
 
+{/* Filter Popup (Nested Modal) */}
+<div
+  className="modal fade"
+  id="filterPopup"
+  tabIndex="-1"
+  aria-labelledby="filterPopupLabel"
+  aria-hidden="true"
+>
+  <div className="modal-dialog modal-dialog-centered">
+    <div className="modal-content rounded-4 shadow">
+      <div className="modal-header">
+        <h5 className="modal-title" id="filterPopupLabel">Search Property</h5>
+        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div className="modal-body">
+        {/* Filter Form */}
+        <div className="form-group">
+          <label>ID</label>
+          <div
+            className="input-card p-0 rounded-1"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              border: '1px solid #2F747F',
+              background: '#fff',
+            }}
+          >
+            <FaIdCard className="input-icon" style={{ color: '#2F747F', marginLeft: '10px' }} />
+            <input
+              type="text"
+              name="id"
+              value={filters.id}
+              onChange={handleFilterChange}
+              className="form-input m-0"
+              placeholder="ID"
+              style={{
+                flex: '1 0 80%',
+                padding: '8px',
+                fontSize: '14px',
+                border: 'none',
+                outline: 'none',
+              }}
+            />
+          </div>
+        </div>
 
-      {/* Advanced Filters Popup */}
-      {isAdvancedPopupOpen && (
-  <div
-    style={{
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      width: '90%', // Responsive width
-      maxWidth: '400px',
-      maxHeight: '60vh',
-      overflowY: 'scroll',
-      scrollbarWidth: 'none',
-      msOverflowStyle: 'none',
-      background: '#fff',
-      padding: '20px',
-      boxShadow: '0px 0px 10px rgba(0,0,0,0.5)',
-      zIndex: 2,
-    }}
-  >
-    <style>
-      {`
-        ::-webkit-scrollbar {
-          display: none;
-        }
-      `}
-    </style>
+        <div className="form-group">
+          <label>Min Price</label>
+          <div
+            className="input-card p-0 rounded-1"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              border: '1px solid #2F747F',
+              background: '#fff',
+            }}
+          >
+            <FaRupeeSign className="input-icon" style={{ color: '#2F747F', marginLeft: '10px' }} />
+            <input
+              type="tel"
+              name="minPrice"
+              value={filters.minPrice}
+              onChange={handleFilterChange}
+              className="form-input m-0"
+              placeholder="Min Price"
+              style={{
+                flex: '1 0 80%',
+                padding: '8px',
+                fontSize: '14px',
+                border: 'none',
+                outline: 'none',
+              }}
+            />
+          </div>
+        </div>
 
-    {/* Close Button */}
-    <button
-      style={{
-        position: 'absolute',
-        top: '10px',
-        right: '10px',
-        background: 'transparent',
-        border: 'none',
-        fontSize: '20px',
-        cursor: 'pointer',
-      }}
-      onClick={() => setIsAdvancedPopupOpen(false)}
-    >
-      &times;
-    </button>
+        <div className="form-group">
+          <label>Max Price</label>
+          <div
+            className="input-card p-0 rounded-1"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              border: '1px solid #2F747F',
+              background: '#fff',
+            }}
+          >
+            <FaRupeeSign className="input-icon" style={{ color: '#2F747F', marginLeft: '10px' }} />
+            <input
+              type="tel"
+              name="maxPrice"
+              value={filters.maxPrice}
+              onChange={handleFilterChange}
+              className="form-input m-0"
+              placeholder="Max Price"
+              style={{
+                flex: '1 0 80%',
+                padding: '8px',
+                fontSize: '14px',
+                border: 'none',
+                outline: 'none',
+              }}
+            />
+          </div>
+        </div>
 
-    <h4>
-      <FaTools className="me-2" /> Advanced Filters
-    </h4>
-    <div>
-     
-      
+        <div className="form-group">
+          <label>Property Mode</label>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ flex: '1' }}>
+              <select
+                name="propertyMode"
+                value={filters.propertyMode || ''}
+                onChange={handleFilterChange}
+                className="form-control"
+                style={{ display: 'none' }}
+              >
+                <option value="">Select Property Mode</option>
+                {dataList.propertyMode?.map((option, index) => (
+                  <option key={index} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                className="m-0"
+                type="button"
+                onClick={() => toggleDropdown('propertyMode')}
+                style={{
+                  cursor: 'pointer',
+                  border: '1px solid #2F747F',
+                  padding: '10px',
+                  background: '#fff',
+                  borderRadius: '5px',
+                  width: '100%',
+                  textAlign: 'left',
+                  color: '#2F747F',
+                }}
+              >
+                <span style={{ marginRight: '10px' }}>
+                  <MdApproval />
+                </span>
+                {filters.propertyMode || 'Select Property Mode'}
+              </button>
+
+              {renderDropdown('propertyMode')}
+            </div>
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label>City</label>
+          <div
+            className="input-card p-0 rounded-1"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              border: '1px solid #2F747F',
+              background: '#fff',
+            }}
+          >
+            <FaCity className="input-icon" style={{ color: '#2F747F', marginLeft: '10px' }} />
+            <input
+              type="tel"
+              name="city"
+              value={filters.city}
+              onChange={handleFilterChange}
+              className="form-input m-0"
+              placeholder="City"
+              style={{
+                flex: '1 0 80%',
+                padding: '8px',
+                fontSize: '14px',
+                border: 'none',
+                outline: 'none',
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Advance Filter Button */}
+        <div className="text-center mt-3 ">
+        <button
+        type="button"
+        className="btn w-100"
+        style={{
+          backgroundColor: hoverSearch ? '#58a09b' : '#6EB7B2',
+          color: '#fff',
+          border: 'none',
+        }}
+        onMouseEnter={() => setHoverSearch(true)}
+        onMouseLeave={() => setHoverSearch(false)}
+        // onClick={applyFilters}
+      >
+        SEARCH
+      </button>
+
+      <button
+        type="button"
+        className="btn w-100 mt-3"
+        style={{
+          backgroundColor: hoverAdvance ? '#6EB7B2' : 'transparent',
+          color: hoverAdvance ? '#fff' : '#6EB7B2',
+          border: `1px solid #6EB7B2`,
+        }}
+        onMouseEnter={() => setHoverAdvance(true)}
+        onMouseLeave={() => setHoverAdvance(false)}
+        data-bs-toggle="modal"
+        data-bs-target="#advancedFilterPopup"
+      >
+        GO TO ADVANCED SEARCH
+      </button>
+        </div>
+      </div>
+
+      {/* <div className="modal-footer">
+        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button type="button" className="btn btn-primary"
+        //  onClick={applyFilters}
+         >
+          Apply Filters
+        </button>
+      </div> */}
+    </div>
+  </div>
+</div>
+
+{/* Advanced Filter Popup */}
+<div
+  className="modal fade"
+  id="advancedFilterPopup"
+  tabIndex="-1"
+  aria-labelledby="advancedFilterPopupLabel"
+  aria-hidden="true"
+>
+  <div className="modal-dialog modal-dialog-centered">
+    <div className="modal-content rounded-4 shadow">
+      <div className="modal-header">
+        <h5 className="modal-title" id="advancedFilterPopupLabel">Advanced Search</h5>
+        <button
+          type="button"
+          className="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div className="modal-body">
+        {/* Add Advanced Filter Fields Here */}
+    
         <div>
         {/* Property Mode */}
         <div className="form-group">
@@ -2115,26 +2183,218 @@ const PropertyCards = ({phoneNumber}) => {
             </div>
           </label>
         </div>
-        </div>
-      
-      
-      <button
-            style={{background:"#F01963", color:'#fff', border:'0'}}
 
-        className="btn btn-primary mb-2 w-100"
-        onClick={() => setIsAdvancedPopupOpen(false)}
-      >
-        <FaCheck className="me-1" /> Apply Filters
-      </button>
+        </div>
+        <div className="text-center mt-3 ">
+        <button
+          type="button"
+          className="btn w-100"
+          style={{
+            backgroundColor: hoverSearch ? '#58a09b' : '#6EB7B2',
+            color: '#fff',
+            border: 'none',
+          }}
+          onMouseEnter={() => setHoverSearch(true)}
+          onMouseLeave={() => setHoverSearch(false)}          // onClick={applyAdvancedFilters}
+        >
+          SEARCH
+        </button>
       <button
-        className="btn w-100" style={{background:"black", color:'#ffffff'}}
-        onClick={() => setIsAdvancedPopupOpen(false)}
-      >
-        <FaTimes className="me-1" /> Cancel
-      </button>
+          type="button"
+          className="btn w-100 mt-3"
+          style={{
+            backgroundColor: hoverAdvance ? '#6EB7B2' : 'transparent',
+            color: hoverAdvance ? '#fff' : '#6EB7B2',
+            border: `1px solid #6EB7B2`,
+          }}
+          onMouseEnter={() => setHoverAdvance(true)}
+          onMouseLeave={() => setHoverAdvance(false)}          data-bs-toggle="modal"
+          data-bs-target="#filterPopup" // Nested modal
+          >
+          GO TO SIMPLE SEARCH
+        </button>
+        <button 
+        style={{color:"#019988"}}
+          type="button"
+          className="btn w-100 mt-3"
+          data-bs-dismiss="modal"
+        >
+          HOME
+        </button>
+        </div>
+
+      </div>
+
+      <div className="modal-footer">
+        <button
+          type="button"
+          className="btn btn-secondary"
+          data-bs-dismiss="modal"
+        >
+          HOME
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary"
+          // onClick={applyAdvancedFilters}
+        >
+          SEARCH
+        </button>
+      </div>
     </div>
   </div>
-)}
+</div>
+
+
+
+          <div className="w-100">
+            <div style={{ overflowY: 'auto', fontFamily:"Inter, sans-serif" }}>
+              {filteredProperties.length > 0 ? (
+                filteredProperties.map((property) => (
+                  <div 
+                    key={property._id}
+                    className="card mb-3 shadow rounded-4"
+                    style={{ width: '100%', height: 'auto', background: '#F9F9F9', overflow:'hidden' }}
+                    onClick={() => handleCardClick(property.ppcId, phoneNumber)}
+                  >
+                     <div className="row g-0 ">
+         <div className="col-md-4 col-4 d-flex flex-column align-items-center">
+      
+ <div style={{ position: "relative", width: "100%",height: window.innerWidth <= 640 ? "180px" : "170px",  }}>
+    {/* Image */}
+    <img
+ src={
+  property.photos && property.photos.length > 0
+  ? `http://localhost:5006/${property.photos[0].replace(/\\/g, "/")}`
+  : pic // Use the imported local image if no photos are available
+  }      
+      style={{
+        objectFit: "cover",
+        objectPosition: "center",
+        width: "100%",
+        height: "100%",
+      }}
+    />
+
+ 
+
+    {/* Icons */}
+    <div
+      style={{
+        position: "absolute",
+        bottom: "0px",
+        width: "100%",
+        display: "flex",
+        justifyContent: "space-between",
+      }}
+    >
+      <span
+        className="d-flex justify-content-center align-items-center"
+        style={{
+          color: "#fff",
+          backgroundImage: `url(${myImage})`,
+          backgroundSize: "cover",
+          width: "45px",
+          height: "20px",
+        }}
+      >
+        <FaCamera className="me-1" size={13}/>  <span style={{fontSize:"11px"}}>{imageCounts[property.ppcId] || 0}</span>
+      </span>
+      <span
+        className="d-flex justify-content-center align-items-center"
+        style={{
+          color: "#fff",
+          backgroundImage: `url(${myImage1})`,
+          backgroundSize: "cover",
+          width: "45px",
+          height: "20px",
+        }}
+      >
+        <FaEye className="me-1" size={15} /> <span style={{fontSize:"11px"}}> {property.views}  </span>
+      </span>
+    </div>
+  </div>
+         </div>
+         <div className="col-md-8 col-8 " style={{paddingLeft:"10px", paddingTop:"7px"}}>
+          <div className="d-flex justify-content-start"><p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500 }}>{property.propertyMode
+  ? property.propertyMode.charAt(0).toUpperCase() + property.propertyMode.slice(1)
+  : 'N/A'}
+</p> 
+          </div>
+           <p className="fw-bold m-0 " style={{ color:'#000000' }}>{property.propertyType 
+  ? property.propertyType.charAt(0).toUpperCase() + property.propertyType.slice(1) 
+  : 'N/A'}
+</p>
+           <p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500}}>{property.city
+  ? property.city.charAt(0).toUpperCase() + property.city.slice(1)
+  : 'N/A'} , {property.district
+  ? property.district.charAt(0).toUpperCase() + property.district.slice(1)
+  : 'N/A'}</p>
+           <div className="card-body ps-2 m-0 pt-0 pe-2 pb-0 d-flex flex-column justify-content-center" style={{background:"#FAFAFA"}}>
+             <div className="row">
+               <div className="col-6 d-flex align-items-center mt-1 mb-1 ps-1">
+                 {/* <FaRulerCombined className="me-2" color="#2F747F" /> */}
+                 <img src={totalarea} alt="" width={12} className="me-2"/>
+                 <span style={{ fontSize:'13px', color:'#5E5E5E' , fontWeight:500 }}>{property.totalArea || 'N/A'} {property.areaUnit
+  ? property.areaUnit.charAt(0).toUpperCase() + property.areaUnit.slice(1)
+  : 'N/A'}
+
+                  
+                 </span>
+               </div>
+               <div className="col-6 d-flex align-items-center mt-1 mb-1">
+                 {/* <FaBed className="me-2" color="#2F747F"/> */}
+                 <img src={bed} alt="" width={12} className="me-2"/>
+                 <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>{property.bedrooms || 'N/A'}</span>
+               </div>
+               <div className="col-6 d-flex align-items-center mt-1 mb-1 ps-1 pe-1">
+                 {/* <FaUserAlt className="me-2" color="#2F747F"/> */}
+                 <img src={postedby} alt="" width={12} className="me-2"/>
+                 <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>
+                 {property.ownership
+  ? property.ownership.charAt(0).toUpperCase() + property.ownership.slice(1)
+  : 'N/A'}
+                 </span>
+               </div>
+               <div className="col-6 d-flex align-items-center mt-1 mb-1">
+                 <img src={calendar} alt="" width={12} className="me-2"/>
+                  <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>
+                  {property.createdAt ? new Date(property.createdAt).toLocaleDateString('en-IN', {
+                                                     year: 'numeric',
+                                                     month: 'short',
+                                                     day: 'numeric'
+                                                   }) : 'N/A'}
+                  </span>
+               </div>
+               <div className="col-12 d-flex flex-col align-items-center mt-1 mb-1 ps-1">
+                <h6 className="m-0">
+                <span style={{ fontSize:'15px', color:'#2F747F', fontWeight:600, letterSpacing:"1px" }}> 
+                  {/* <FaRupeeSign className="me-2" color="#2F747F"/> */}
+                  <img src={
+                    indianprice
+                  } alt="" width={8}  className="me-2"/>
+                  {property.price ? property.price.toLocaleString('en-IN') : 'N/A'}
+                </span> 
+                <span style={{ color:'#2F747F', marginLeft:"5px",fontSize:'11px',}}> 
+                Negotiable                </span> 
+                  </h6>
+               </div>
+              </div>
+            </div>
+          </div>
+       </div>
+
+                  </div>
+                ))
+
+              ) : (
+                <p>No properties found.</p>
+              )}
+            </div>
+          </div>
+        </Col>
+      </Row>
+
 
     </Container>
   );

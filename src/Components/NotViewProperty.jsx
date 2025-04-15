@@ -15,7 +15,7 @@ import postedby from '../Assets/Posted By-01.png'
 import indianprice from '../Assets/Indian Rupee-01.png'
 import { Navigate, useNavigate } from "react-router-dom";
 
-const ZeroView = () => {
+const NotViewProperty = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
@@ -38,7 +38,8 @@ const ZeroView = () => {
     };
     fetchZeroViewProperties();
   }, []);
- 
+
+  
   return (
      <div className="container d-flex align-items-center justify-content-center p-0">
            <div className="d-flex flex-column align-items-center justify-content-center m-0" style={{ maxWidth: '500px', margin: 'auto', width: '100%' ,fontFamily: 'Inter, sans-serif'}}>
@@ -194,5 +195,5 @@ const ZeroView = () => {
   );
 };
 
-export default ZeroView;
+export default NotViewProperty;
 

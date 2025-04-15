@@ -214,8 +214,6 @@ useEffect(() => {
       setMessage({ text: "Failed to open notification", type: "error" });
     }
   };
-  
-
 
   const handleDeleteNotification = (createdAt) => {
     setPendingDeleteId(createdAt); // now storing timestamp

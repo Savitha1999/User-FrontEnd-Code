@@ -73,6 +73,49 @@ const [notificationUserCount, setNotificationUserCount] = useState(0);
   const [planCount, setPlanCount] = useState(0);
 
   const [callUserCount, setCallUserCount] = useState(0);
+  const [buyerAssistanceInterestCount, setBuyerAssistanceInterestCount] = useState(0);
+  const [viewCountLast10Days, setViewCountLast10Days] = useState(0);
+
+
+  useEffect(() => {
+    const fetchViewCountLast10Days = async () => {
+      if (!phoneNumber) return;
+
+      try {
+        const { data } = await axios.get(
+          `${process.env.REACT_APP_API_URL}/user-view-count/${phoneNumber}`
+        );
+        setViewCountLast10Days(data.viewCount);
+      } catch (error) {
+        console.error("Error fetching view count:", error);
+        setError("Failed to fetch view count");
+      }
+    };
+
+    fetchViewCountLast10Days();
+  }, [phoneNumber]);
+
+
+  useEffect(() => {
+    const fetchBuyerAssistanceInterestCount = async () => {
+        if (!phoneNumber) return;
+
+        try {
+            const { data } = await axios.get(
+                `${process.env.REACT_APP_API_URL}/buyer-assistance-interests-phone/count`,
+                {
+                    params: { phone: phoneNumber },
+                }
+            );
+            setBuyerAssistanceInterestCount(data.count);
+        } catch (error) {
+            console.error("Error fetching buyer assistance interest count:", error);
+        }
+    };
+
+    fetchBuyerAssistanceInterestCount();
+}, [phoneNumber]);
+
 
 
 useEffect(() => {
@@ -119,7 +162,7 @@ useEffect(() => {
   
       try {
         const { data } = await axios.get(
-          `${process.env.REACT_APP_API_URL}/notification-user-count?phoneNumber=${phoneNumber}`
+          `${process.env.REACT_APP_API_URL}/notification-unread-count?phoneNumber=${phoneNumber}`
         );
         setNotificationUserCount(data.count);
       } catch (error) {
@@ -712,13 +755,13 @@ fetchContactBuyerCount();
     count={interestBuyersCount}
     badgeClass="bg-primary" 
 />
-
+{/* 
 <MenuLink  
     to={`/help-buyer/${phoneNumber}`} 
     label="Help Requests Buyers"
     count={helpRequestsCount}
     badgeClass="bg-danger" 
-/>
+/> */}
 
 
 <MenuLink  
@@ -767,20 +810,20 @@ fetchContactBuyerCount();
     count={buyerViewedCount}
     badgeClass="bg-success" 
 />
-
+{/* 
 <MenuLink  
     to={`/report-property-buyer/${phoneNumber}`} 
     label=" Report Property Buyers"
     count={reportRequestsCount}
     badgeClass="bg-warning" 
-/>
-
+/> */}
+{/* 
 <MenuLink  
     to={`/soldout-buyer/${phoneNumber}`} 
     label=" Sold-Out Buyers "
     count={soldOutRequestsCount}
     badgeClass="bg-danger" 
-/>
+/> */}
 
 
 
@@ -799,6 +842,11 @@ fetchContactBuyerCount();
                         </div>
                         <ul className="list-group">
 
+
+                        <MenuLink 
+                        to={`/buyer-assistance/${phoneNumber}`}
+    label="Buyer Assistance " 
+/>
                         <MenuLink 
     to={`/interest-owner/${phoneNumber}`} 
     label=" My Send Interest  "  
@@ -820,12 +868,6 @@ fetchContactBuyerCount();
     badgeClass="bg-info" 
 />
 
-<MenuLink  
-    to={`/help-owner/${phoneNumber}`} 
-    label="My Help Requests "
-    count={helpOwnersCount}
-    badgeClass="bg-warning" 
-/>
 
 <MenuLink  
     to={`/contact-owner/${phoneNumber}`} 
@@ -844,54 +886,39 @@ fetchContactBuyerCount();
 
 
 <MenuLink  
-    to={`/report-property-owner/${phoneNumber}`} 
-    label="My Report Property "
-    count={reportPropertyOwnersCount}
-    badgeClass="bg-warning" 
-/>
-
-<MenuLink  
-    to={`/soldout-owner/${phoneNumber}`} 
-    label="My Sold-Out "
-    count={soldOutOwnersCount}
-    badgeClass="bg-warning" 
-/>
-
-<MenuLink  
     to={`/favorite-owner/${phoneNumber}`} 
     label="My Shortlist Property"
     count={favoriteOwnerCount}
     badgeClass="bg-success" 
 />
 
-<MenuLink  
-    to={`/favorite-remove-owner/${phoneNumber}`} 
-    label="My Shortlist Removed Property"
-    count={favoriteRemovedOwnerCount}
-    badgeClass="bg-danger" 
-/>
-
-
-
+{/* 
 <MenuLink  
     to={`/view-owner/${phoneNumber}`} 
     label="Viewed Properties"
     count={viewedPropertiesCount}
     badgeClass="bg-info" 
-/>
+/> */}
 
 
-
+{/* 
 <MenuLink 
     to={`/my-call`} 
     label="My Called List "
     count={callUserCount}  
-/>
+/> */}
 
 <MenuLink 
     to={`/my-last-property`} 
     label="My Last Viewed Property "  
-    // count={planCount}   
+    count={viewCountLast10Days}
+/>
+
+<MenuLink 
+    to={`/my-interest-send`} 
+    label="My Interest Send "  
+    count={buyerAssistanceInterestCount}
+
 />
 
 

@@ -156,26 +156,7 @@ useEffect(() => {
   }, [phoneNumber]);
 
 
-//   useEffect(() => {
-//     const fetchNotificationUserCount = async () => {
-//       if (!phoneNumber) return;
-  
-//       try {
-//         const { data } = await axios.get(
-//           `${process.env.REACT_APP_API_URL}/notification-user-count?phoneNumber=${phoneNumber}`
-//         );
-//         setNotificationUserCount(data.count);
-//       } catch (error) {
-//         setError("Error fetching notification count");
-//       }
-//     };
-  
-//     fetchNotificationUserCount();
-//   }, [phoneNumber]);
-  
-
-
-useEffect(() => {
+  useEffect(() => {
     const fetchNotificationUserCount = async () => {
       if (!phoneNumber) return;
   
@@ -192,7 +173,6 @@ useEffect(() => {
     fetchNotificationUserCount();
   }, [phoneNumber]);
   
-
 
   useEffect(() => {
 

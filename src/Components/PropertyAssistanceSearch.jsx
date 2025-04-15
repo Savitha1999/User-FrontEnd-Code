@@ -1,7 +1,6 @@
 
 
 
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 // import { FaChevronDown, FaPhone } from "react-icons/fa";
@@ -17,9 +16,23 @@ FaArrowLeft} from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 
 
-const BuyerAssistance = ({  existingData }) => {
+const PropertyAssistanceSearch = ({  existingData }) => {
   const {phoneNumber} = useParams();
+  const [hovered, setHovered] = useState(false);
 
+  const baseStyle = {
+    backgroundColor: "#019988",
+    color: "#fff",
+    border: "none",
+    padding: "8px 16px",
+    borderRadius: "5px",
+    cursor: "pointer",
+    transition: "background-color 0.3s ease",
+  };
+
+  const hoverStyle = {
+    backgroundColor: "#017a6e",
+  };
   const [formData, setFormData] = useState({
     phoneNumber: phoneNumber || "",
     altPhoneNumber: "",
@@ -56,6 +69,39 @@ const handleSubmit = (e) => {
   setShowConfirmPopup(true); // just show the confirmation
 };
 
+// const handleConfirmSubmit = async () => {
+//   setShowConfirmPopup(false); // hide the confirm popup
+
+//   try {
+//     let response;
+
+//     if (formData._id) {
+//       response = await axios.put(
+//         `${process.env.REACT_APP_API_URL}/update-PropertyAssistanceSearch/${formData._id}`,
+//         formData
+//       );
+//       setMessage(" Buyer Assistance request updated successfully!");
+//     } else {
+//       response = await axios.post(`${process.env.REACT_APP_API_URL}/add-PropertyAssistanceSearch`, formData);
+//       setFormData(response.data.data);
+//       setMessage(" Buyer Assistance request added successfully!");
+//     }
+
+//     setShowPopup(true);
+//     setTimeout(() => {
+//       setShowPopup(false);
+//       setMessage("");
+//     }, 3000);
+//   } catch (error) {
+//     setMessage(" Please Fill The All Fields Datas");
+//     setShowPopup(true);
+//     setTimeout(() => {
+//       setShowPopup(false);
+//       setMessage("");
+//     }, 3000);
+//   }
+// };
+
 
 const handleConfirmSubmit = async () => {
   setShowConfirmPopup(false); // hide the confirm popup
@@ -66,13 +112,13 @@ const handleConfirmSubmit = async () => {
     if (formData._id) {
       // Update existing request
       response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/update-buyerAssistance/${formData._id}`,
+        `${process.env.REACT_APP_API_URL}/update-PropertyAssistanceSearch/${formData._id}`,
         formData
       );
       setMessage("Buyer Assistance request updated successfully!");
     } else {
       // Create new request
-      response = await axios.post(`${process.env.REACT_APP_API_URL}/add-buyerAssistance`, formData);
+      response = await axios.post(`${process.env.REACT_APP_API_URL}/add-PropertyAssistanceSearch`, formData);
       setFormData(response.data.data); // Save returned formData with _id
       setMessage("Buyer Assistance request added successfully!");
     }
@@ -166,13 +212,29 @@ const navigate = useNavigate();
                   </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>Buyer Assistance</h3> </div>
 
     <img src={imge} alt="" className="header-image"  style={{width:'100%'}}/>
+     
+    <div className="w-100 d-flex justify-content-around align-items-center mt-3">
+        <button style={{
+          ...baseStyle,
+          opacity: 0.6,
+          cursor: "not-allowed",
+        }}
+        disabled
+        >Add Buyer Assistant</button>
+        <button   style={{
+          ...baseStyle,
+          ...(hovered ? hoverStyle : {}),
+        }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onClick={() => navigate(`/Buyer-List-Filter`)}
+
+   >view Buyer List</button>
+
+      </div>
+
       <h4 className="form-title mt-2" style={{color: '#2F747F', fontSize:"15px", fontWeight:"bold"}}>Buyer Assistance</h4>
 
-
-      <div>
-      {message && <div className="alert text-success text-bold">{message}</div>}
-      {/* Your existing component structure goes here */}
-    </div>
       {showConfirmPopup && (
   <div
     style={{
@@ -231,8 +293,7 @@ const navigate = useNavigate();
 )}
 
 
-
-      <form onSubmit={handleSubmit} className="mt-3 p-3">
+      <form onSubmit={handleSubmit} className=" p-3">
   
 <div className="row mb-3 justify-content-around">
 <div className="col-5 p-0">
@@ -658,7 +719,9 @@ const navigate = useNavigate();
 
 
 
-export default BuyerAssistance;
+export default PropertyAssistanceSearch;
+
+
 
 
 

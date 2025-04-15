@@ -142,7 +142,7 @@ const MyProperty = () => {
       // setMessage("Error fetching property data.");
     }
   };
-  
+
 
   const handleDelete = async (ppcId) => {
     try {

@@ -2,6 +2,20 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import App from '../App'
 import Nopage from './Nopage'
@@ -95,6 +109,17 @@ import FAQ from './FAQ';
 import PrivacyPolicyWeb from './PrivacyPolicyWeb';
 import PropertyAssistance from './BuyerAssistance';
 import MyInterestSend from './MyInterestSend';
+import FormComponent from './FormComponent';
+import CardsComponent from './CardsComponent';
+import BuyerListFilter from './BuyerListFilter';
+import PropertyAssistanceSearch from './PropertyAssistanceSearch';
+import SortProperty from './SortProperty';
+import OldDate from './OldDate';
+import NewDate from './NewDate';
+import LowtoHigh from './LowtoHigh';
+import HightoLow from './HightoLow';
+import PhotosWith from './PhotosWith';
+import NotViewProperty from './NotViewProperty';
 
 
 
@@ -170,6 +195,18 @@ export default function RouterPage() {
         {/* <Route path='/buyer-lists' element={< BuyerList />} /> */}
         <Route path='/buyer-lists' element={< BuyerLists/>} />
         <Route path='/buyer-list' element={< BuyerList/>} />
+        <Route path='/FormComponent' element={< FormComponent/>} />
+        <Route path='/cards' element={< CardsComponent/>} />
+        <Route path='/Buyer-List-Filter' element={< BuyerListFilter/>} />
+        <Route path='/Property-Assistance-Search/:phoneNumber' element={< PropertyAssistanceSearch/>} />
+        <Route path='/Sort-Property' element={< SortProperty/>} />
+        <Route path='/sort/old-to-new' element={< OldDate/>} />
+        <Route path='/sort/new-to-old' element={< NewDate/>} />
+        <Route path='/sort/low-to-high' element={< LowtoHigh/>} />
+        <Route path='/sort/high-to-low' element={< HightoLow/>} />
+        <Route path='/sort/with-image' element={< PhotosWith/>} />
+
+
 
         <Route path='/details/:ppcId' element={isAuthenticated ? <DetailProperty phone={phoneNumber} /> : <App to="/" />} />
 
@@ -210,6 +247,10 @@ export default function RouterPage() {
         <Route path='/removed-property' element={isAuthenticated ? <Removedproperty phone={phoneNumber} /> : <App to="/" />} />
         {/* <Route path='/notification/:phoneNumber' element={<NotificationList{isAuthenticated ? <MobileViews phone={phoneNumber} /> : <App to="/" />} /> */}
         <Route path='/zero-view' element={isAuthenticated ? <ZeroView phone={phoneNumber} /> : <App to="/" />} />
+        <Route path='/sort/zero-view' element={isAuthenticated ? <NotViewProperty phone={phoneNumber} /> : <App to="/" />} />
+
+        {/* <Route path='/sort/zero-view' element={isAuthenticated ? <ZeroView phone={phoneNumber} /> : <App to="/" />} /> */}
+
         <Route path='/favorite-remove-owner/:phoneNumber' element={isAuthenticated ? <FavoriteRemovedOwner phone={phoneNumber} /> : <App to="/" />} />
         <Route path='/favorite-remove-buyer/:phoneNumber' element={isAuthenticated ? <FavoriteRemovedBuyer phone={phoneNumber} /> : <App to="/" />} />
         <Route path='/notification' element={isAuthenticated ? <Notification phone={phoneNumber} /> : <App to="/" />} />
@@ -232,6 +273,9 @@ export default function RouterPage() {
     </BrowserRouter> 
   )
 }
+
+
+
 
 
 

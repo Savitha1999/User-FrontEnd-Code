@@ -9,7 +9,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import myImage from '../../Assets/Rectangle 146.png'; // Correct path
 import myImage1 from '../../Assets/Rectangle 145.png'; // Correct path
 import pic from '../../Assets/Default image_PP-01.png'; // Correct path
-import { toast } from "react-toastify";
 import { MdCall } from 'react-icons/md';
 import profil from '../../Assets/xd_profile.png'
 import {  FaCalendarAlt } from "react-icons/fa";
@@ -24,23 +23,43 @@ const PropertyCard = ({ property, onRemove, onUndo }) => {
   const [message, setMessage] = useState({ text: "", type: "" });
 
 
-  const handleContactLog = async () => {
-    try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/contact`, {
-        ppcId: property.ppcId,
-        viewerPhoneNumber: property.viewerPhoneNumber,
-        uniqueId: property.uniqueId,
-      });
-      console.log('Contact logged successfully');
-    } catch (error) {
-      console.error('Error logging contact:', error);
-    }
-  };
+  // const handleContactLog = async () => {
+  //   try {
+  //     await axios.post(`${process.env.REACT_APP_API_URL}/contact`, {
+  //       ppcId: property.ppcId,
+  //       viewerPhoneNumber: property.viewerPhoneNumber,
+  //       uniqueId: property.uniqueId,
+  //     });
+  //     setMessage('Contact logged successfully');
+  //   } catch (error) {
+  //     setMessage('Error logging contact:', error);
+  //   }
+  // };
 
-  const handleCallClick = () => {
-    handleContactLog();
+  
+    // 1. Create a handler function to log contact and initiate call
+const handleContactLog = async () => {
+  try {
+    // Call the /contact API
+    await axios.post(`${process.env.REACT_APP_API_URL}/contact`, {
+      ppcId: property.ppcId,
+      viewerPhoneNumber: property.viewerPhoneNumber,
+      uniqueId: property.uniqueId,
+    });
+    setMessage({ text: "Contact logged successfully", type: "success" });
+
+    // Open dialer
     window.location.href = `tel:${property.viewerPhoneNumber}`;
-  };
+  } catch (error) {
+    setMessage({ text: "Failed to log contact", type: "error" });
+  }
+};
+
+
+  // const handleCallClick = () => {
+  //   handleContactLog();
+  //   window.location.href = `tel:${property.viewerPhoneNumber}`;
+  // };
 
   return (
     <>
@@ -68,6 +87,9 @@ const PropertyCard = ({ property, onRemove, onUndo }) => {
             <div className='text-center rounded-1 w-100 mb-1' style={{ border: "2px solid #30747F", color: "#30747F", fontSize: "13px" }}>
               INTERESTED BUYER
             </div>
+
+            {message && <p style={{ color: message.type === "success" ? "green" : "red" }}>{message.text}</p>}
+
             <div className="d-flex">
               <p className="mb-1" style={{ color: "#474747", fontWeight: "500", fontSize: "12px" }}>
                 PUC- {property.ppcId}
