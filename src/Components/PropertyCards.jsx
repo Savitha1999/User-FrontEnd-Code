@@ -366,64 +366,7 @@ const PropertyCards = ({phoneNumber}) => {
       </Helmet>
       <Row className="g-3 w-100 ">
         <Col lg={12} className="d-flex align-items-center justify-content-center pt-2 m-0">
-          {/* <div
-            className="d-flex flex-column justify-content-center align-items-center " 
-              data-bs-toggle="modal"
-        data-bs-target="#propertyModal"
-            style={{
-              height: '50px', width: '50px', background: '#2F747F', borderRadius: '50%',
-              position: 'fixed',
-              right: 'calc(50% - 187.5px + 10px)', // Center - half of 375px + some offset
-              bottom: '15%', 
-              zIndex: '1',
-            }}
-            // onClick={() => setIsFilterPopupOpen(true)}
-          >
-            <BiSearchAlt fontSize={24} color="#fff" />
-          </div>
-      <div
-        className="modal fade"
-        id="propertyModal"
-        tabIndex="-1"
-          data-bs-backdrop="false"
-  data-bs-keyboard="false"
-
-      >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content rounded-4 shadow">
-            <div className="modal-body py-4">
-              <div className="d-grid gap-2 mb-2">
-                <button className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3"
-                //  onClick={() => setIsFilterPopupOpen(true)}
-                >
-                  <FaHome className="me-2" /> Search Property
-                </button>
-
-                <button className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3">
-                  <FaUsers className="me-2" /> Tenant Search
-                </button>
-
-                <button className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3">
-                  <FaSortAmountDownAlt className="me-2" /> Quick Sort
-                </button>
-
-                <button className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3">
-                  <FaHeadset className="me-2" /> Property Assistance
-                </button>
-              </div>
-
-              <div className="text-center">
-                <button
-                  className="btn btn-primary rounded-pill px-4 mt-3"
-                  data-bs-dismiss="modal"
-                >
-                  CANCEL
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> */}
+       
       <div
   className="d-flex flex-column justify-content-center align-items-center"
   data-bs-toggle="modal"
@@ -471,12 +414,12 @@ const PropertyCards = ({phoneNumber}) => {
             <FaHome className="me-2" /> Search Property
           </button>
 
-          {/* Tenant Search */}
+          {/* Buyer Search */}
           <button style={{background:"#DFDFDF" , color:"#5E5E5E" , fontWeight:600 , fontSize:"15px"}}
           className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3"
                 onClick={() => navigate(`/FormComponent`)}
 >
-            <FaUsers className="me-2" /> Tenant Search
+            <FaUsers className="me-2" /> Buyer Search
           </button>
 
           {/* Quick Sort */}
