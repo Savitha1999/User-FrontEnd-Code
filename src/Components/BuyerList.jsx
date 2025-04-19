@@ -149,10 +149,7 @@ const BuyerLists = () => {
         const sortedInterestData = interestResponse.data.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
-  
-        // You can either:
-        // 1. Show both separately (recommended for clarity), or
-        // 2. Combine them into one if needed.
+
   
         setAssistanceData(sortedAssistanceData); // regular assistance requests
         setInterestData(sortedInterestData); // buyer-assistance-interest entries
@@ -199,10 +196,31 @@ const BuyerLists = () => {
     >
          <div className='d-flex flex-column ' style={{maxWidth:"500px", width:"100%"}}>
     <div className="d-flex align-items-center justify-content-start w-100 pt-2 pb-2" style={{background:"#EFEFEF" }}>
-              <button className="pe-5"
-               onClick={() => navigate('/mobileviews')}
-               ><FaArrowLeft color="#30747F"/> 
-            </button> <h3 className="m-0 ms-3" style={{fontSize:"15px", fontWeight:"bold"}}> BUYER LIST</h3> </div>
+    <button
+      onClick={() => navigate(-1)}
+      className="pe-5"
+      style={{
+        backgroundColor: '#f0f0f0',
+        border: 'none',
+        padding: '10px 20px',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease-in-out',
+        display: 'flex',
+        alignItems: 'center',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = '#f0f4f5'; // Change background
+        e.currentTarget.querySelector('svg').style.color = '#ffffff'; // Change icon color
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = '#f0f0f0';
+        e.currentTarget.querySelector('svg').style.color = '#30747F';
+      }}
+    >
+      <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
+    </button>
+            
+               <h3 className="m-0 ms-3" style={{fontSize:"15px", fontWeight:"bold"}}> BUYER LIST</h3> </div>
 
       <h5 className="text-center mt-2">Buyer List Datas</h5>
       {message && <div className="alert text-success fw-bold">{message}</div>}

@@ -1,13 +1,13 @@
 
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './MoreComponent.css';
 import imge1 from '../Assets/myaccountmore.png';
 import imge2 from '../Assets/sellermore.png';
 import imge3 from '../Assets/buyermore.png';
 import more2 from '../Assets/bottom.png';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { FaArrowLeft } from 'react-icons/fa';
 
 
 // MenuLink Component
@@ -23,7 +23,7 @@ const MenuLink = ({ to, label , count }) => (
     </Link>
 );
 
-const MoreComponent = ({ phoneNumber }) => {
+const MoreSidebar = ({ phoneNumber }) => {
     const [activeTab, setActiveTab] = useState('myAccount');
       const [loading, setLoading] = useState(false);
     
@@ -162,7 +162,7 @@ useEffect(() => {
   
       try {
         const { data } = await axios.get(
-          `${process.env.REACT_APP_API_URL}/notification-unread-count?phoneNumber=${phoneNumber}`
+          `${process.env.REACT_APP_API_URL}/notification-user-count?phoneNumber=${phoneNumber}`
         );
         setNotificationUserCount(data.count);
       } catch (error) {
@@ -590,49 +590,60 @@ fetchContactBuyerCount();
 
     
 
-    // const handleAddProperty = async () => {
-    //     if (!phoneNumber) {
-    //         console.error("Missing phone number");
-    //         return;
-    //     }
+    const handleAddProperty = async () => {
+        if (!phoneNumber) {
+            console.error("Missing phone number");
+            return;
+        }
     
-    //     try {
-    //         const response = await axios.post(
-    //             `${process.env.REACT_APP_API_URL}/store-data`,
-    //             { phoneNumber }
-    //         );
+        try {
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_URL}/store-data`,
+                { phoneNumber }
+            );
     
-    //         if (response.status === 201) {
-    //             const ppcId = response.data.ppcId;
+            if (response.status === 201) {
+                const ppcId = response.data.ppcId;
     
-    //             // Corrected navigation
-    //             // navigate(`/add-property`, { state: { ppcId, phoneNumber } });
-    //             navigate(`/add-property/${phoneNumber}?ppcId=${ppcId}`);
+                // Corrected navigation
+                // navigate(`/add-property`, { state: { ppcId, phoneNumber } });
+                navigate(`/add-property/${phoneNumber}?ppcId=${ppcId}`);
 
-    //         }
-    //     } catch (error) {
-    //         console.error("Error adding property:", error);
-    //     }
-    // };
-
-    const handleAddProperty = () => {
-        navigate(`/add-property/${phoneNumber}`);
+            }
+        } catch (error) {
+            console.error("Error adding property:", error);
+        }
     };
-    
     
 
     return (
-        <div className="container mb-4 p-1" 
-        // style={{ fontFamily: "Inter, sans-serif", width: "100%", maxWidth: '600px' }}
-        style={{
-            fontFamily: "Inter, sans-serif",
-            width: "100%",
-            // maxWidth: "600px",
-            // height: "80vh", // Adjust as needed
-            overflowY: "auto",
-            scrollbarWidth:"none"
-        }}
-        >
+    <div className="container d-flex align-items-center justify-content-center p-0">
+    <div className="d-flex flex-column align-items-center justify-content-center m-0" style={{ maxWidth: '500px', margin: 'auto', width: '100%' , background:"#F7F7F7" , fontFamily: 'Inter, sans-serif'}}>
+    <div className="d-flex align-items-center justify-content-start w-100" style={{background:"#EFEFEF" }}>
+        <button
+             onClick={() => navigate(-1)}
+             className="pe-5"
+             style={{
+               backgroundColor: '#f0f0f0',
+               border: 'none',
+               padding: '10px 20px',
+               cursor: 'pointer',
+               transition: 'all 0.3s ease-in-out',
+               display: 'flex',
+               alignItems: 'center',
+             }}
+             onMouseEnter={(e) => {
+               e.currentTarget.style.backgroundColor = '#f0f4f5'; // Change background
+               e.currentTarget.querySelector('svg').style.color = '#ffffff'; // Change icon color
+             }}
+             onMouseLeave={(e) => {
+               e.currentTarget.style.backgroundColor = '#f0f0f0';
+               e.currentTarget.querySelector('svg').style.color = '#30747F';
+             }}
+           >
+             <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
+           </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>MORE  </h3> </div>
+<div className="row g-2 w-100">
             {/* Navigation Tabs */}
             <ul className="nav nav-tabs d-flex flex-row flex-nowrap justify-content-between align-items-center w-100">
                 <li className="nav-item">
@@ -938,10 +949,13 @@ fetchContactBuyerCount();
             {/* Footer Image */}
             <img src={more2} alt="Footer" style={{ width: '100%', marginTop: '20px' }} />
         </div>
+        </div>
+        </div>
+
     );
 };
 
-export default MoreComponent;
+export default MoreSidebar;
 
 
 

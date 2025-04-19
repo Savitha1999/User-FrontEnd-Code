@@ -1,6 +1,19 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
@@ -53,6 +66,7 @@ const PropertyCards = ({phoneNumber}) => {
   const [hoverSearch, setHoverSearch] = useState(false);
   const [hoverAdvance, setHoverAdvance] = useState(false);
   const [imageCounts, setImageCounts] = useState({}); // Store image count for each property
+  const [loading, setLoading] = useState(true); 
 
 
   const [advancedFilters, setAdvancedFilters] = useState({
@@ -100,20 +114,63 @@ const PropertyCards = ({phoneNumber}) => {
 
 
 
-    useEffect(() => {
-      const fetchProperties = async () => {
-        try {
-          const response = await axios.get(`${process.env.REACT_APP_API_URL}/fetch-active-users`);
-          const allProperties = response.data.users;
+    // useEffect(() => {
+    //   const fetchProperties = async () => {
+    //     try {
+    //       const response = await axios.get(`${process.env.REACT_APP_API_URL}/fetch-active-users`);
+    //       const allProperties = response.data.users;
     
-          setProperties(allProperties); // Directly setting the fetched data
-        } catch (error) {
-          console.error("Error fetching properties:", error);
-        }
-      };
+    //       setProperties(allProperties); // Directly setting the fetched data
+    //     } catch (error) {
+    //       console.error("Error fetching properties:", error);
+    //     }
+    //   };
     
-      fetchProperties();
-    }, []);
+    //   fetchProperties();
+    // }, []);
+
+    
+//  useEffect(() => {
+//   const fetchProperties = async () => {
+//     try {
+//       const response = await axios.get(`${process.env.REACT_APP_API_URL}/fetch-active-users`);
+//       const allProperties = response.data.users;
+
+//       // Sort by createdAt in descending order (newest first)
+//       const sortedProperties = allProperties.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+//       setProperties(sortedProperties);
+//     } catch (error) {
+//       console.error("Error fetching properties:", error);
+//     }
+//   };
+
+//   fetchProperties();
+// }, []);
+
+
+useEffect(() => {
+  const fetchProperties = async () => {
+    setLoading(true); // Start loading
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/fetch-active-users`);
+      const allProperties = response.data.users;
+
+      // Sort by createdAt in descending order (newest first)
+      const sortedProperties = allProperties.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      setProperties(sortedProperties);
+    } catch (error) {
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
+
+  fetchProperties();
+}, []);
+
     
     const [dropdownState, setDropdownState] = useState({
       activeDropdown: null,
@@ -366,7 +423,64 @@ const PropertyCards = ({phoneNumber}) => {
       </Helmet>
       <Row className="g-3 w-100 ">
         <Col lg={12} className="d-flex align-items-center justify-content-center pt-2 m-0">
-       
+          {/* <div
+            className="d-flex flex-column justify-content-center align-items-center " 
+              data-bs-toggle="modal"
+        data-bs-target="#propertyModal"
+            style={{
+              height: '50px', width: '50px', background: '#2F747F', borderRadius: '50%',
+              position: 'fixed',
+              right: 'calc(50% - 187.5px + 10px)', // Center - half of 375px + some offset
+              bottom: '15%', 
+              zIndex: '1',
+            }}
+            // onClick={() => setIsFilterPopupOpen(true)}
+          >
+            <BiSearchAlt fontSize={24} color="#fff" />
+          </div>
+      <div
+        className="modal fade"
+        id="propertyModal"
+        tabIndex="-1"
+          data-bs-backdrop="false"
+  data-bs-keyboard="false"
+
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content rounded-4 shadow">
+            <div className="modal-body py-4">
+              <div className="d-grid gap-2 mb-2">
+                <button className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3"
+                //  onClick={() => setIsFilterPopupOpen(true)}
+                >
+                  <FaHome className="me-2" /> Search Property
+                </button>
+
+                <button className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3">
+                  <FaUsers className="me-2" /> Tenant Search
+                </button>
+
+                <button className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3">
+                  <FaSortAmountDownAlt className="me-2" /> Quick Sort
+                </button>
+
+                <button className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3">
+                  <FaHeadset className="me-2" /> Property Assistance
+                </button>
+              </div>
+
+              <div className="text-center">
+                <button
+                  className="btn btn-primary rounded-pill px-4 mt-3"
+                  data-bs-dismiss="modal"
+                >
+                  CANCEL
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> */}
       <div
   className="d-flex flex-column justify-content-center align-items-center"
   data-bs-toggle="modal"
@@ -414,12 +528,12 @@ const PropertyCards = ({phoneNumber}) => {
             <FaHome className="me-2" /> Search Property
           </button>
 
-          {/* Buyer Search */}
+          {/* Tenant Search */}
           <button style={{background:"#DFDFDF" , color:"#5E5E5E" , fontWeight:600 , fontSize:"15px"}}
           className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3"
                 onClick={() => navigate(`/FormComponent`)}
 >
-            <FaUsers className="me-2" /> Buyer Search
+            <FaUsers className="me-2" /> Tenant Search
           </button>
 
           {/* Quick Sort */}
@@ -642,7 +756,7 @@ const PropertyCards = ({phoneNumber}) => {
 
         {/* Advance Filter Button */}
         <div className="text-center mt-3 ">
-        <button
+        <button  aria-label="Close"  data-bs-dismiss="modal"
         type="button"
         className="btn w-100"
         style={{
@@ -674,17 +788,6 @@ const PropertyCards = ({phoneNumber}) => {
       </button>
         </div>
       </div>
-
-      {/* <div className="modal-footer">
-        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
-          Close
-        </button>
-        <button type="button" className="btn btn-primary"
-        //  onClick={applyFilters}
-         >
-          Apply Filters
-        </button>
-      </div> */}
     </div>
   </div>
 </div>
@@ -2192,7 +2295,20 @@ const PropertyCards = ({phoneNumber}) => {
 
           <div className="w-100">
             <div style={{ overflowY: 'auto', fontFamily:"Inter, sans-serif" }}>
-              {filteredProperties.length > 0 ? (
+            {loading ? (
+      <div className="text-center my-4"
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+
+      }}>
+        <span className="spinner-border text-primary" role="status" />
+        <p className="mt-2">Loading properties...</p>
+      </div>
+    ) : 
+              filteredProperties.length > 0 ? (
                 filteredProperties.map((property) => (
                   <div 
                     key={property._id}
@@ -2209,7 +2325,7 @@ const PropertyCards = ({phoneNumber}) => {
  src={
   property.photos && property.photos.length > 0
   ? `http://localhost:5006/${property.photos[0].replace(/\\/g, "/")}`
-  : pic // Use the imported local image if no photos are available
+  : "https://d17r9yv50dox9q.cloudfront.net/car_gallery/default.jpg" // Use the imported local image if no photos are available
   }      
       style={{
         objectFit: "cover",
@@ -2288,7 +2404,7 @@ const PropertyCards = ({phoneNumber}) => {
                <div className="col-6 d-flex align-items-center mt-1 mb-1">
                  {/* <FaBed className="me-2" color="#2F747F"/> */}
                  <img src={bed} alt="" width={12} className="me-2"/>
-                 <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>{property.bedrooms || 'N/A'}</span>
+                 <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>{property.bedrooms || 'N/A'} BHK</span>
                </div>
                <div className="col-6 d-flex align-items-center mt-1 mb-1 ps-1 pe-1">
                  {/* <FaUserAlt className="me-2" color="#2F747F"/> */}
@@ -2335,8 +2451,180 @@ const PropertyCards = ({phoneNumber}) => {
               )}
             </div>
           </div>
+
         </Col>
       </Row>
+
+      {/* Basic Filters Popup */}
+     {/* {isFilterPopupOpen && (
+  <div 
+  style={{
+    position: 'fixed', // <-- 'fixed' works better than 'absolute' for modals
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    zIndex: 1080, // higher than Bootstrap modal
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }}
+  onClick={(e) => e.stopPropagation()}
+  >
+    <style>
+      {`
+        ::-webkit-scrollbar {
+          display: none;
+        }
+      `}
+    </style>
+
+    <h4>
+      <FaFilter className="me-2" /> Filter Properties
+    </h4>
+    <div>
+   
+  <div className="form-group">
+  <label>ID</label>
+  <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
+    <FaIdCard className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
+    <input
+      type="text"
+      name="id"
+      value={filters.id}
+      onChange={handleFilterChange}
+      className="form-input m-0"
+      placeholder="ID"
+      style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
+    />
+  </div>
+  </div>
+  
+  <div className="form-group">
+  <label>Min Price  </label>
+  <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
+    <FaRupeeSign className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
+    <input
+      type="tel"
+      name="minPrice"
+      value={filters.minPrice}
+      onChange={handleFilterChange}
+      className="form-input m-0"
+      placeholder="Min Price"
+      style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
+    />
+  </div>
+  </div>
+
+  <div className="form-group">
+  <label>maxPrice  </label>
+  <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
+    <FaRupeeSign className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
+    <input
+      type="tel"
+      name="maxPrice"
+      value={filters.maxPrice}
+      onChange={handleFilterChange}
+      className="form-input m-0"
+      placeholder="Max Price"
+      style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
+    />
+  </div>
+  </div>
+     
+  <div className="form-group">
+  <label style={{ width: "100%" }}>
+    <label>Property Mode</label>
+    <div style={{ display: "flex", alignItems: "center" }}>
+      <div style={{ flex: "1" }}>
+        <select
+          name="propertyMode"
+          value={filters.propertyMode || ""}
+          onChange={handleFilterChange}
+          className="form-control"
+          style={{ display: "none" }} 
+        >
+          <option value="">Select Property Mode</option>
+          {dataList.propertyMode?.map((option, index) => (
+            <option key={index} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+
+        <button
+          className="m-0"
+          type="button"
+          onClick={() => toggleDropdown("propertyMode")}
+          style={{
+            cursor: "pointer",
+            border: "1px solid #2F747F",
+            padding: "10px",
+            background: "#fff",
+            borderRadius: "5px",
+            width: "100%",
+            textAlign: "left",
+            color: "#2F747F",
+          }}
+        >
+          <span style={{ marginRight: "10px" }}>
+            <MdApproval />
+          </span>
+          {filters.propertyMode || "Select Property Mode"}
+        </button>
+
+        {renderDropdown("propertyMode")}
+      </div>
+    </div>
+  </label>
+</div>
+
+    
+        <div className="form-group">
+        <label>city </label>
+        <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
+          <FaRupeeSign className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
+          <input
+            type="tel"
+            name="city"
+            value={filters.city}
+            onChange={handleFilterChange}
+            className="form-input m-0"
+            placeholder="city"
+            style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
+          />
+        </div>
+        </div>
+      <button
+      style={{background:"#F01963", color:'#fff', border:'0'}}
+        className="btn me-2 rounded-0 w-30"
+        onClick={() => setIsFilterPopupOpen(false)}
+      >
+        <FaCheck className="me-1" /> Apply Filters
+      </button>
+      <button
+        className="btn rounded-0 w-30" style={{background:"#FF9D3C", color:'#fff', border:'0'}}
+        onClick={() => {
+          setIsFilterPopupOpen(false);
+          setIsAdvancedPopupOpen(true);
+        }}
+      >
+        <FaTools className="me-1" /> Advanced Filters
+      </button>
+      <button
+        className="btn rounded-0 mt-1 ms-1 w-30" style={{background:"black", color:"#ffffff"}}
+        onClick={() => setIsFilterPopupOpen(false)}
+      >
+        <FaTimes className="me-1" /> Cancel
+      </button>
+      
+    </div>
+  </div>
+)} */}
+
+
+      {/* Advanced Filters Popup */}
 
 
     </Container>
@@ -2344,6 +2632,7 @@ const PropertyCards = ({phoneNumber}) => {
 };
 
 export default PropertyCards;
+
 
 
 

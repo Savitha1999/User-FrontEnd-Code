@@ -5,368 +5,6 @@
 
 
 
-
-
-
-
-
-
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-// import { useLocation, useNavigate } from "react-router-dom";
-// import { FaArrowLeft, FaCamera } from "react-icons/fa";
-// // import pic from "../Assets/Mask Group 3@2x.png";
-// import pic from '../Assets/Default image_PP-01.png'; // Correct path
-
-
-// const LastViewedProperty = () => {
-//   const location = useLocation();
-//   const navigate = useNavigate();
-//   const phoneNumber =
-//     location.state?.phoneNumber || localStorage.getItem("phoneNumber") || "";
-
-//   const [properties, setProperties] = useState([]);
-//   const [error, setError] = useState("");
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const fetchLastViewed = async () => {
-//       try {
-//         const response = await axios.get(
-//           `${process.env.REACT_APP_API_URL}/user-last-10-days-views/${phoneNumber}`
-//         );
-  
-//         const allProperties = response.data.properties || [];
-  
-//         // Filter by unique ppcId
-//         const uniqueProperties = [];
-//         const seenPpcIds = new Set();
-  
-//         for (let property of allProperties) {
-//           const id = property.ppcId || property._id;
-//           if (!seenPpcIds.has(id)) {
-//             seenPpcIds.add(id);
-//             uniqueProperties.push(property);
-//           }
-//         }
-  
-//         setProperties(uniqueProperties);
-//       } catch (err) {
-//         setError(err.response?.data?.message || "Something went wrong");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-  
-//     if (phoneNumber) fetchLastViewed();
-//   }, [phoneNumber]);
-  
-
-//   if (loading) return <p>Loading...</p>;
-//   if (error) return <p className="text-danger">{error}</p>;
-
-//   const handlePageNavigation = () => {
-//     navigate('/mobileviews'); // Redirect to the desired path
-//   };
-
-//   return (
-//     <div className="container d-flex align-items-center justify-content-center p-0">
-//     <div className="d-flex flex-column align-items-center justify-content-center m-0" style={{ maxWidth: '500px', margin: 'auto', width: '100%' }}>
-    
-//     <div className="d-flex align-items-center justify-content-start w-100" style={{background:"#EFEFEF" }}>
-//           <button className="pe-5" onClick={handlePageNavigation}><FaArrowLeft color="#30747F"/> 
-//         </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>My Last Viewed Property  </h3> </div>
-// <div className="row g-2 w-100">
-
-
-
-
-
-//       {properties.length === 0 ? (
-//         <p>No recently viewed properties.</p>
-//       ) : (
-//         properties.map((property, index) => (
-//           <div
-//             key={index}
-//             className="card mb-3 shadow rounded-4"
-//             style={{ background: "#F9F9F9" }}
-//           >
-//             <div className="row g-0">
-//               {/* Left Image Section */}
-//               <div className="col-4">
-//                 {/* <img
-//                   src={property.photos?.[0] || pic}
-//                   alt="property"
-//                   className="img-fluid rounded-start"
-//                   style={{ height: "100%", objectFit: "cover" }}
-//                 /> */}
-//                 <img
-//   src={pic}
-//   alt="property"
-//   className="img-fluid rounded-start"
-//   style={{ height: "100%", objectFit: "cover" }}
-// />
-
-//               </div>
-
-//               {/* Right Content Section */}
-//               <div className="col-8 p-2">
-//                 <h6 className="mb-1 text-truncate">
-//                   {property.propertyType || "Property"}
-//                 </h6>
-//                 <p className="m-0">
-//                   Area: {property.totalArea} {property.areaUnit}
-//                 </p>
-//                 <p className="m-0">₹ {property.price?.toLocaleString()}</p>
-//                 <p className="m-0">
-//                   City: {property.city}, {property.state}
-//                 </p>
-//                 <p className="m-0">
-//                   ppcId: {property.ppcId}
-//                 </p>
-//                 <p className="m-0 text-muted" style={{ fontSize: "12px" }}>
-//                   Viewed: {new Date(property.viewedAt).toLocaleString()}
-//                 </p>
-//                 <div className="d-flex justify-content-end">
-//                   {/* <span className="badge bg-secondary d-flex align-items-center">
-//                     <FaCamera className="me-1" />
-//                     {property.photos?.length || 0}
-//                   </span> */}
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         ))
-//       )}
-//     </div>
-//     </div>
-//     </div>
-//   );
-// };
-
-// export default LastViewedProperty;
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-// import { useLocation, useNavigate } from "react-router-dom";
-// import { FaArrowLeft } from "react-icons/fa";
-// import pic from '../Assets/Default image_PP-01.png';
-
-// const LastViewedProperty = () => {
-//   const location = useLocation();
-//   const navigate = useNavigate();
-//   const phoneNumber = location.state?.phoneNumber || localStorage.getItem("phoneNumber") || "";
-
-//   const [properties, setProperties] = useState([]);
-//   const [removedPpcIds, setRemovedPpcIds] = useState(() => {
-//     const stored = localStorage.getItem(`viewed_removed_${phoneNumber}`);
-//     return stored ? JSON.parse(stored) : [];
-//   });
-//   const [activeTab, setActiveTab] = useState("all");
-//   const [loading, setLoading] = useState(true);
-//   const [modal, setModal] = useState({ show: false, type: "", property: null });
-//   const [message, setMessage] = useState("");
-
-//   const saveToLocalStorage = (ppcIds) => {
-//     localStorage.setItem(`viewed_removed_${phoneNumber}`, JSON.stringify(ppcIds));
-//   };
-
-//   const handleRemove = (property) => {
-//     setModal({ show: true, type: "remove", property });
-//   };
-
-//   const handleUndo = (property) => {
-//     setModal({ show: true, type: "undo", property });
-//   };
-
-//   const updateRemovedList = (ppcId, type) => {
-//     let updated = [...removedPpcIds];
-//     if (type === "remove") updated.push(ppcId);
-//     else if (type === "undo") updated = updated.filter(id => id !== ppcId);
-//     setRemovedPpcIds(updated);
-//     saveToLocalStorage(updated);
-//   };
-
-//   const handleRemoveConfirm = async () => {
-//     const { ppcId } = modal.property;
-//     try {
-//       await axios.post(`${process.env.REACT_APP_API_URL}/delete-detail-property`, { ppcId, phoneNumber });
-//       updateRemovedList(ppcId, "remove");
-//       setMessage("Property removed successfully.");
-//     } catch {
-//       setMessage("Error removing property.");
-//     } finally {
-//       setModal({ show: false, type: "", property: null });
-//     }
-//   };
-
-//   const handleUndoConfirm = async () => {
-//     const { ppcId } = modal.property;
-//     try {
-//       await axios.post(`${process.env.REACT_APP_API_URL}/undo-delete-detail`, { ppcId, phoneNumber });
-//       updateRemovedList(ppcId, "undo");
-//       setMessage("Property status reverted!");
-//     } catch {
-//       setMessage("Error undoing property.");
-//     } finally {
-//       setModal({ show: false, type: "", property: null });
-//     }
-//   };
-
-//   const fetchLastViewed = async () => {
-//     try {
-//       const response = await axios.get(`${process.env.REACT_APP_API_URL}/user-last-10-days-views/${phoneNumber}`);
-//       const allProperties = response.data.properties || [];
-
-//       const uniqueProperties = [];
-//       const seenPpcIds = new Set();
-//       for (let property of allProperties) {
-//         const id = property.ppcId || property._id;
-//         if (!seenPpcIds.has(id)) {
-//           seenPpcIds.add(id);
-//           uniqueProperties.push(property);
-//         }
-//       }
-
-//       setProperties(uniqueProperties);
-//     } catch (err) {
-//       console.error(err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (phoneNumber) fetchLastViewed();
-//   }, [phoneNumber]);
-
-//   const handlePageNavigation = () => navigate("/mobileviews");
-
-//   const allViews = properties.filter(prop => !removedPpcIds.includes(prop.ppcId));
-//   const removedViews = properties.filter(prop => removedPpcIds.includes(prop.ppcId));
-
-//   return (
-//     <div className="container d-flex align-items-center justify-content-center p-0">
-//       <div className="d-flex flex-column align-items-center justify-content-center w-100" style={{ maxWidth: "500px", margin: "auto" }}>
-//         <div className="d-flex align-items-center justify-content-start w-100" style={{ background: "#EFEFEF" }}>
-//           <button className="pe-5" onClick={handlePageNavigation}><FaArrowLeft color="#30747F" /></button>
-//           <h3 className="m-0 ms-3" style={{ fontSize: "20px" }}>My Last Viewed Property</h3>
-//         </div>
-
-//         {/* Tabs */}
-//         <div className="d-flex justify-content-around w-100 my-3">
-//           <button className={`btn ${activeTab === "all" ? "btn-primary" : "btn-light"}`} onClick={() => setActiveTab("all")}>All Views</button>
-//           <button className={`btn ${activeTab === "removed" ? "btn-primary" : "btn-light"}`} onClick={() => setActiveTab("removed")}>Removed Views</button>
-//         </div>
-
-//         {/* Properties */}
-//         <div className="row g-2 w-100">
-//           {loading ? (
-//             <p>Loading...</p>
-//           ) : (
-//             <>
-//               {activeTab === "all" && allViews.length === 0 && <p>No viewed properties found.</p>}
-//               {activeTab === "removed" && removedViews.length === 0 && <p>No removed properties found.</p>}
-
-//               {(activeTab === "all" ? allViews : removedViews).map((property, index) => (
-//                 <div key={index} className="card mb-3 shadow rounded-4" style={{ background: "#F9F9F9" }}
-//                 onClick={() => navigate(`/detail/${property.ppcId}`)}>
-//                   <div className="row g-0">
-//                     <div className="col-4">
-//                       <img src={pic} alt="property" className="img-fluid rounded-start" style={{ height: "100%", objectFit: "cover" }} />
-//                     </div>
-//                     <div className="col-8 p-2">
-//                       <h6 className="mb-1 text-truncate">{property.propertyType || "Property"}</h6>
-//                       <p className="m-0">Area: {property.totalArea} {property.areaUnit}</p>
-//                       <p className="m-0">₹ {property.price?.toLocaleString()}</p>
-//                       <p className="m-0">City: {property.city}, {property.state}</p>
-//                       <p className="m-0">ppcId: {property.ppcId}</p>
-//                       <p className="m-0 text-muted" style={{ fontSize: "12px" }}>Viewed: {new Date(property.viewedAt).toLocaleString()}</p>
-
-//                       <div className="d-flex justify-content-end">
-//                         {activeTab === "all" ? (
-//                           // <button className="btn btn-sm btn-danger" onClick={() => handleRemove(property)}>Remove</button>
-//                           <button
-//                           className="btn btn-sm btn-danger"
-//                           onClick={(e) => {
-//                             e.stopPropagation();
-//                             handleRemove(property);
-//                           }}
-//                         >
-//                           Remove
-//                         </button>
-                        
-//                         ) : (
-//                           // <button className="btn btn-sm btn-success" onClick={() => handleUndo(property)}>Undo</button>
-//                           <button
-//                           className="btn btn-sm btn-success"
-//                           onClick={(e) => {
-//                             e.stopPropagation();
-//                             handleUndo(property);
-//                           }}
-//                         >
-//                           Undo
-//                         </button>
-                        
-//                        )}
-//                       </div>
-//                     </div>
-//                   </div>
-//                 </div>
-//               ))}
-//             </>
-//           )}
-//         </div>
-
-//         {/* Modal */}
-//         {modal.show && (
-//           <div className="modal d-block" tabIndex="-1">
-//             <div className="modal-dialog">
-//               <div className="modal-content">
-//                 <div className="modal-header">
-//                   <h5 className="modal-title">{modal.type === "remove" ? "Confirm Removal" : "Undo Removal"}</h5>
-//                   <button type="button" className="btn-close" onClick={() => setModal({ show: false, type: "", property: null })}></button>
-//                 </div>
-//                 <div className="modal-body">
-//                   <p>Are you sure you want to {modal.type === "remove" ? "remove" : "undo"} this property?</p>
-//                 </div>
-//                 <div className="modal-footer">
-//                   <button type="button" className="btn btn-secondary" onClick={() => setModal({ show: false, type: "", property: null })}>Cancel</button>
-//                   <button type="button" className="btn btn-primary" onClick={modal.type === "remove" ? handleRemoveConfirm : handleUndoConfirm}>
-//                     {modal.type === "remove" ? "Remove" : "Undo"}
-//                   </button>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         )}
-
-//         {/* Message */}
-//         {message && <div className="alert alert-info mt-2">{message}</div>}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default LastViewedProperty;
-
-
-
-
-
-
-
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -537,8 +175,29 @@ const LastViewedProperty = () => {
     <div className="container d-flex align-items-center justify-content-center p-0">
       <div className="d-flex flex-column align-items-center justify-content-center w-100" style={{ maxWidth: "500px", margin: "auto" }}>
         <div className="d-flex align-items-center justify-content-start w-100" style={{ background: "#EFEFEF" }}>
-          <button className="pe-5" onClick={handlePageNavigation}><FaArrowLeft color="#30747F" /></button>
-          <h3 className="m-0 ms-3" style={{ fontSize: "20px" }}>My Last Viewed Property</h3>
+ <button
+      onClick={() => navigate(-1)}
+      className="pe-5"
+      style={{
+        backgroundColor: '#f0f0f0',
+        border: 'none',
+        padding: '10px 20px',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease-in-out',
+        display: 'flex',
+        alignItems: 'center',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = '#f0f4f5'; // Change background
+        e.currentTarget.querySelector('svg').style.color = '#ffffff'; // Change icon color
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = '#f0f0f0';
+        e.currentTarget.querySelector('svg').style.color = '#30747F';
+      }}
+    >
+      <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
+    </button>          <h3 className="m-0 ms-3" style={{ fontSize: "20px" }}>My Last Viewed Property</h3>
         </div>
         <div className="row g-2 w-100">
 
@@ -562,7 +221,7 @@ const LastViewedProperty = () => {
 
 
         {/* Properties */}
-        <div className="row g-2 w-100">
+        <div className="col-12 mb-1 p-1">
           {loading ? (
             <p>Loading...</p>
           ) : (
@@ -579,7 +238,7 @@ const LastViewedProperty = () => {
  </div>
 
 
- <div style={{ position: "relative", width: "100%", height:'160px'}}>
+ <div style={{ position: "relative", width: "100%", height:'180px'}}>
             <img
                                         src={property.photos?.length ? `http://localhost:5006/${property.photos[0]}` : pic}
                                         alt="Property"

@@ -21,9 +21,7 @@ const NotViewProperty = () => {
   const [error, setError] = useState(null); // Error state
   const navigate = useNavigate(); // ✅ use hook only inside component body
 
-  const handlePageNavigation = () => {
-    navigate('/mobileviews'); // ✅ This is the correct usage
-  };
+
   // Fetch properties with zero views
   useEffect(() => {
     const fetchZeroViewProperties = async () => {
@@ -46,8 +44,29 @@ const NotViewProperty = () => {
  
        <div className="row g-2 w-100">
          <div className="d-flex align-items-center justify-content-start w-100" style={{background:"#EFEFEF" }}>
-           <button className="pe-5" onClick={handlePageNavigation}><FaArrowLeft color="#30747F"/> 
-         </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>Not Viewed Property</h3> </div>
+          <button
+               onClick={() => navigate(-1)}
+               className="pe-5"
+               style={{
+                 backgroundColor: '#f0f0f0',
+                 border: 'none',
+                 padding: '10px 20px',
+                 cursor: 'pointer',
+                 transition: 'all 0.3s ease-in-out',
+                 display: 'flex',
+                 alignItems: 'center',
+               }}
+               onMouseEnter={(e) => {
+                 e.currentTarget.style.backgroundColor = '#f0f4f5'; // Change background
+                 e.currentTarget.querySelector('svg').style.color = '#ffffff'; // Change icon color
+               }}
+               onMouseLeave={(e) => {
+                 e.currentTarget.style.backgroundColor = '#f0f0f0';
+                 e.currentTarget.querySelector('svg').style.color = '#30747F';
+               }}
+             >
+               <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
+             </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>Not Viewed Property</h3> </div>
             
            <div className="w-100">
               {loading ? (
@@ -159,10 +178,12 @@ const NotViewProperty = () => {
                </div>
                <div className="col-6 d-flex align-items-center mt-1 mb-1">
                  <img src={calendar} alt="" width={12} className="me-2"/>
-                  <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>
-                  {property.bestTimeToCall
-  ? property.bestTimeToCall.charAt(0).toUpperCase() + property.bestTimeToCall.slice(1)
-  : 'N/A'}
+                 <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>
+                  {property.createdAt ? new Date(property.createdAt).toLocaleDateString('en-IN', {
+                                                     year: 'numeric',
+                                                     month: 'short',
+                                                     day: 'numeric'
+                                                   }) : 'N/A'}
                   </span>
                </div>
                <div className="col-12 d-flex flex-col align-items-center mt-1 mb-1 ps-1">

@@ -85,7 +85,7 @@ const Carousel = () => {
                     <div className="card w-100 h-100" style={{ display: "flex", flexDirection: "column" }}>
                       <img
                         src={property.photos && property.photos.length > 0
-                          ? `http://localhost:5000/${property.photos[0]}`
+                          ? `http://localhost:5006/${property.photos[0]}`
                           : "https://d17r9yv50dox9q.cloudfront.net/car_gallery/default.jpg"
                         }
                         className="card-img-top"

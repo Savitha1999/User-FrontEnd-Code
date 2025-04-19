@@ -238,7 +238,7 @@ const FormComponent = () => {
   };
 
   const handlePageNavigation = () => {
-    navigate('/mobileviews'); // Redirect to the desired path
+    navigate(-1); // Redirect to the desired path
   };
   return (
     <div className="container d-flex align-items-center justify-content-center p-0">

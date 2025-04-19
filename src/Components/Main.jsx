@@ -84,10 +84,10 @@ const Main = () => {
     { icon: logo, text: 'Py Property', content: 'topPyProperty' },
     { icon: logo2, text: 'All Property', content: 'topAllProperty' },
     { icon: logo3, text: 'Buyer List', content: 'topMBuyerList' },
-    { icon: logo4, text: 'Rent Property', content: 'topRentProperty' },
-    { icon: logo5, text: 'Used Cars', content: 'topUsedCars' },
-    { icon: logo6, text: 'Pm Groom', content: 'topPmGroom' },
-    { icon: logo6, text: 'Pm Bride', content: 'topPmBride' },
+    // { icon: logo4, text: 'Rent Property', content: 'topRentProperty' },
+    // { icon: logo5, text: 'Used Cars', content: 'topUsedCars' },
+    // { icon: logo6, text: 'Pm Groom', content: 'topPmGroom' },
+    // { icon: logo6, text: 'Pm Bride', content: 'topPmBride' },
     { icon: logo7, text: 'Feature Property', content: 'topFeatureProperty' },
     { icon: nvprop50, text: 'Not Viewed Property', content: 'topNotViewedProperty' },
     { icon: logo9, text: 'My Property', content: 'topMyProperty' },
@@ -110,10 +110,10 @@ const Main = () => {
       case 'topPyProperty': return <PyProperty />;
       case 'topAllProperty': return <AllProperty phoneNumber={`${phoneNumber}`}  />;
       case 'topMBuyerList': return <BuyerLists phoneNumber={`${phoneNumber}`} />;
-      case 'topRentProperty': return <Building />;
-      case 'topUsedCars': return <Building />;
-      case 'topPmGroom': return <Building />;
-      case 'topPmBride': return <Building />;
+      // case 'topRentProperty': return <Building />;
+      // case 'topUsedCars': return <Building />;
+      /// case 'topPmGroom': return <Building />;/
+      // case 'topPmBride': return <Building />;
       case 'topFeatureProperty': return <FeaturedProperty />;
       case 'topNotViewedProperty': return <ZeroView />;
       case 'topMyProperty': return <MyProperty phoneNumber={`${phoneNumber}`} />;

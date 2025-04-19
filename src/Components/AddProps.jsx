@@ -5,6 +5,7 @@
 
 
 
+
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Button } from "react-bootstrap";
@@ -1312,7 +1313,7 @@ const handleEdit = () => {
  
   {/* Length */} 
   <div className="form-group">
-  <label>length</label>
+  <label>Length</label>
   <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
     <AiOutlineColumnHeight className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
     <input
@@ -1328,7 +1329,7 @@ const handleEdit = () => {
 </div>
   {/* Breadth */}
   <div className="form-group">
-  <label>breadth:</label>
+  <label>Breadth:</label>
   <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
     <AiOutlineColumnWidth className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
     <input
@@ -1472,7 +1473,7 @@ const handleEdit = () => {
 
 <div className="form-group">
     <label style={{ width: '100%'}}>
-    <label>bedrooms </label>
+    <label>Bedrooms </label>
 
       <div style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flex: "1" }}>
@@ -1616,7 +1617,7 @@ const handleEdit = () => {
     {/* balconies */}
     <div className="form-group">
     <label style={{ width: '100%'}}>
-    <label>balconies </label>
+    <label>Balconies </label>
 
       <div style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flex: "1" }}>
@@ -1664,7 +1665,7 @@ const handleEdit = () => {
     {/* floorNo */}
     <div className="form-group">
     <label style={{ width: '100%'}}>
-    <label>floorNo </label>
+    <label>FloorNo </label>
 
       <div style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flex: "1" }}>
@@ -1722,7 +1723,7 @@ const handleEdit = () => {
 
     <div className="form-group">
     <label style={{ width: '100%'}}>
-    <label>property Approved</label>
+    <label>Property Approved</label>
 
       <div style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flex: "1" }}>
@@ -1873,7 +1874,7 @@ const handleEdit = () => {
     <div className="form-group">
 
     <label style={{ width: '100%'}}>
-    <label>facing</label>
+    <label>Facing</label>
 
       <div style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flex: "1" }}>
@@ -1922,7 +1923,7 @@ const handleEdit = () => {
 
     <div className="form-group">
     <label style={{ width: '100%'}}>
-    <label>sales Mode</label>
+    <label>Sales Mode</label>
 
       <div style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flex: "1" }}>
@@ -2021,7 +2022,7 @@ const handleEdit = () => {
    {/* postedBy */}
    <div className="form-group">
     <label style={{ width: '100%'}}>
-    <label>postedBy <span style={{ color: 'red' }}>* </span> </label>
+    <label>PostedBy <span style={{ color: 'red' }}>* </span> </label>
 
       <div style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flex: "1" }}>
@@ -2092,7 +2093,7 @@ const handleEdit = () => {
     name="description"
     onChange={handleFieldChange}
     className="form-control"
-    placeholder="Enter Description"
+    placeholder="Maximum 250 characters"
     maxLength={250} // Limits input to 250 characters
   ></textarea>
   <small className="text-muted">Maximum 250 characters allowed.</small>
@@ -2102,7 +2103,7 @@ const handleEdit = () => {
   {/* furnished */}
   <div className="form-group">
     <label style={{width:"100%"}}>
-    <label>furnished</label>
+    <label>Furnished</label>
 
       <div style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flex: "1" }}>
@@ -2150,7 +2151,7 @@ const handleEdit = () => {
     {/*lift */}
     <div className="form-group">
     <label style={{ width: '100%'}}>
-      <label>lift</label>
+      <label>Lift</label>
       <div style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flex: "1" }}>
           <select
@@ -2198,7 +2199,7 @@ const handleEdit = () => {
       {/*attachedBathrooms */}
       <div className="form-group">
     <label style={{ width: '100%'}}>
-    <label>attached Bathrooms</label>
+    <label>Attached Bathrooms</label>
 
       <div style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flex: "1" }}>
@@ -2247,7 +2248,7 @@ const handleEdit = () => {
     <div className="form-group">
 
     <label style={{ width: '100%'}}>
-    <label>western</label>
+    <label>Western</label>
 
       <div style={{ display: "flex", alignItems: "center"}}>
         <div style={{ flex: "1" }}>
@@ -2296,7 +2297,7 @@ const handleEdit = () => {
     <div className="form-group">
 
     <label style={{ width: '100%'}}>
-    <label>number Of Floors</label>
+    <label>Number Of Floors</label>
 
       <div style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flex: "1" }}>
@@ -2345,7 +2346,7 @@ const handleEdit = () => {
 
     <div className="form-group">
     <label style={{ width: '100%'}}>
-    <label>car Parking</label>
+    <label>Car Parking</label>
 
       <div style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flex: "1" }}>
@@ -2682,7 +2683,7 @@ const handleEdit = () => {
   {/* Best Time to Call */}
   <div className="form-group" >
     <label style={{width:'100%'}}>
-    <label>best Time To Call</label>
+    <label>Best Time To Call</label>
 
       <div style={{ display: "flex", alignItems: "center" }}>
         <div style={{ flex: "1" }}>
@@ -2779,6 +2780,17 @@ const handleEdit = () => {
                 <Button
                   type="submit"
                   style={{ marginTop: '15px', backgroundColor: "rgb(47,116,127)" }}
+                  onMouseOver={(e) => {
+                    e.target.style.background = "#029bb3"; // Brighter neon on hover
+                    e.target.style.fontWeight = 600; // Brighter neon on hover
+                    e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+          
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.background = "#2F747F"; // Original orange
+                    e.target.style.fontWeight = 400; // Brighter neon on hover
+          
+                  }}
                   onClick={handlePreview}
                 >
                   PreView
@@ -2867,7 +2879,7 @@ if (detail.heading) {
   return (
     <div key={index} className="col-12">
       <h4
-        className="mb-3 fw-bold"
+        className="m-0 fw-bold"
         style={{ color: "#000000", fontFamily: "Inter, sans-serif", fontSize: "16px" }}
       >
         {detail.label}
@@ -2885,11 +2897,11 @@ const columnClass = isDescription ? "col-12" : "col-6";
 return (
   <div key={index} className={columnClass}>
     <div
-      className="d-flex align-items-center border rounded p-3 mb-1"
+      className="d-flex align-items-center border-0 rounded p-1 mb-1"
       style={{
-        backgroundColor: "#F9F9F9", // Background for the item
+        // backgroundColor: "#F9F9F9", // Background for the item
         width: "100%",
-        height: isDescription ? "auto" : "100px",
+        height: isDescription ? "auto" : "55px",
         wordBreak: "break-word",
         // height: detail.label === "Description" || detail.value === formData.description ? "auto" : "100px", // Full height for description
       }}
@@ -2898,12 +2910,15 @@ return (
         {detail.icon} 
       </span>
       <div>
-      {!isDescription && <h6 className="mb-1">{detail.label || "N/A"}</h6>}  {/* ✅ Hide label for description */}
+      {!isDescription && <span className="mb-1" style={{fontSize:"12px", color:"grey"}}>{detail.label || "N/A"}</span>}  {/* ✅ Hide label for description */}
 
       {/* <h6 className="mb-1">{isDescription ? "Description" : detail.label || "N/A"}</h6> */}
         <p
           className="mb-0 p-0"
           style={{
+            fontSize:"14px",
+            color:"grey",
+            fontWeight:"600",
             padding: "10px",
             borderRadius: "5px",
             width: "100%", // Ensure the value takes full width
@@ -2923,6 +2938,17 @@ return (
       <button
         type="button"
         style={{ background: "#2F747F", color: "#fff" }}
+        onMouseOver={(e) => {
+          e.target.style.background = "#029bb3"; // Brighter neon on hover
+          e.target.style.fontWeight = 600; // Brighter neon on hover
+          e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+
+        }}
+        onMouseOut={(e) => {
+          e.target.style.background = "#2F747F"; // Original orange
+          e.target.style.fontWeight = 400; // Brighter neon on hover
+
+        }}
         onClick={handleEdit}
       >
         Edit
@@ -2930,6 +2956,17 @@ return (
       <button
         type="button"
         style={{ border: "1px solid #2F747F",background:"none" , color: "#2F747F" , marginLeft: '10px', fontWeight:"bold"}}
+        onMouseOver={(e) => {
+          e.target.style.background = "#029bb3"; // Brighter neon on hover
+          e.target.style.fontWeight = 600; // Brighter neon on hover
+          e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+
+        }}
+        onMouseOut={(e) => {
+          e.target.style.background = "#2F747F"; // Original orange
+          e.target.style.fontWeight = 400; // Brighter neon on hover
+
+        }}
         onClick={handleSubmit}
       >
         Submit Property

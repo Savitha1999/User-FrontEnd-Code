@@ -128,9 +128,6 @@ useEffect(() => {
       ? calls.filter((item) => !removedItems.includes(item._id))
       : calls.filter((item) => removedItems.includes(item._id));
 
-  const handlePageNavigation = () => {
-    navigate('/mobileviews');
-  };
 
   return (
     <div className="container d-flex align-items-center justify-content-center p-0" style={{ fontFamily: "Inter, sans-serif" }}>
@@ -138,9 +135,29 @@ useEffect(() => {
 
         {/* Header */}
         <div className="d-flex align-items-center justify-content-start w-100" style={{ background: "#EFEFEF" }}>
-          <button className="pe-5" onClick={handlePageNavigation}>
-            <FaArrowLeft color="#30747F" />
-          </button>
+        <button
+             onClick={() => navigate(-1)}
+             className="pe-5"
+             style={{
+               backgroundColor: '#f0f0f0',
+               border: 'none',
+               padding: '10px 20px',
+               cursor: 'pointer',
+               transition: 'all 0.3s ease-in-out',
+               display: 'flex',
+               alignItems: 'center',
+             }}
+             onMouseEnter={(e) => {
+               e.currentTarget.style.backgroundColor = '#f0f4f5'; // Change background
+               e.currentTarget.querySelector('svg').style.color = '#ffffff'; // Change icon color
+             }}
+             onMouseLeave={(e) => {
+               e.currentTarget.style.backgroundColor = '#f0f0f0';
+               e.currentTarget.querySelector('svg').style.color = '#30747F';
+             }}
+           >
+             <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
+           </button>
           <h3 className="m-0 ms-3" style={{ fontSize: "20px" }}>MY CALLED LIST</h3>
         </div>
 

@@ -2,6 +2,9 @@
 
 
 
+
+
+
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Button } from "react-bootstrap";
@@ -1307,7 +1310,7 @@ onClick={() => removePhoto(index)}>
 
   {/* Length */} 
   <div className="form-group">
-  <label>length:</label>
+  <label>Length:</label>
   <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
     <AiOutlineColumnHeight className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
     <input
@@ -2686,6 +2689,17 @@ onClick={() => removePhoto(index)}>
                 <Button
                   type="submit"
                   style={{ marginTop: '15px', backgroundColor: "rgb(47,116,127)" }}
+                  onMouseOver={(e) => {
+                    e.target.style.background = "#029bb3"; // Brighter neon on hover
+                    e.target.style.fontWeight = 600; // Brighter neon on hover
+                    e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+          
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.background = "#2F747F"; // Original orange
+                    e.target.style.fontWeight = 400; // Brighter neon on hover
+          
+                  }}
                   onClick={handlePreview}
                 >
                   PreView
@@ -2817,13 +2831,13 @@ onClick={() => removePhoto(index)}>
             </p>
 )}
   
-{propertyDetailsList.map((detail, index) => {
+  {propertyDetailsList.map((detail, index) => {
 // Check if it's a heading, which should always be full-width (col-12)
 if (detail.heading) {
   return (
     <div key={index} className="col-12">
       <h4
-        className="mb-3 fw-bold"
+        className="m-0 fw-bold"
         style={{ color: "#000000", fontFamily: "Inter, sans-serif", fontSize: "16px" }}
       >
         {detail.label}
@@ -2839,13 +2853,13 @@ const isDescription = detail.label === "Description";
 const columnClass = isDescription ? "col-12" : "col-6";
 
 return (
-  <div key={index} className={columnClass} style={{padding:"0"}}>
+  <div key={index} className={columnClass}>
     <div
-      className="d-flex align-items-center border rounded p-1 m-1"
+      className="d-flex align-items-center border-0 rounded p-1 mb-1"
       style={{
-        backgroundColor: "#F9F9F9", // Background for the item
-        // width: "100%",
-        height: isDescription ? "auto" : "100px",
+        // backgroundColor: "#F9F9F9", // Background for the item
+        width: "100%",
+        height: isDescription ? "auto" : "55px",
         wordBreak: "break-word",
         // height: detail.label === "Description" || detail.value === formData.description ? "auto" : "100px", // Full height for description
       }}
@@ -2854,11 +2868,15 @@ return (
         {detail.icon} 
       </span>
       <div>
-      {!isDescription && <h6 className="mb-1">{detail.label || "N/A"}</h6>}  
+      {!isDescription && <span className="mb-1" style={{fontSize:"12px", color:"grey"}}>{detail.label || "N/A"}</span>}  {/* ✅ Hide label for description */}
 
+      {/* <h6 className="mb-1">{isDescription ? "Description" : detail.label || "N/A"}</h6> */}
         <p
           className="mb-0 p-0"
           style={{
+            fontSize:"14px",
+            color:"grey",
+            fontWeight:"600",
             padding: "10px",
             borderRadius: "5px",
             width: "100%", // Ensure the value takes full width
@@ -2878,6 +2896,17 @@ return (
           className=""
             type="button"
             style={{ background: "#2F747F", color: "#fff" }}
+            onMouseOver={(e) => {
+              e.target.style.background = "#029bb3"; // Brighter neon on hover
+              e.target.style.fontWeight = 600; // Brighter neon on hover
+              e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+    
+            }}
+            onMouseOut={(e) => {
+              e.target.style.background = "#2F747F"; // Original orange
+              e.target.style.fontWeight = 400; // Brighter neon on hover
+    
+            }}
             onClick={handleEdit}
           >
             Edit Number
@@ -2926,6 +2955,7 @@ return (
 }
 
 export default EditForm;
+
 
 
 

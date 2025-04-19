@@ -121,10 +121,19 @@ const PropertyCard = ({ property, onRemove, onUndo, setMessage }) => {
             <p
               className="m-0 ps-3 pe-3"
               style={{
-                background: "#FF0000",
+                fontSize: "12px",
+    
+                background: "#FF4F00", // Neon orange
                 color: "white",
                 cursor: "pointer",
                 borderRadius: "0px 0px 0px 15px",
+                transition: "all 0.2s ease-in-out",
+              }}
+              onMouseOver={(e) => {
+                e.target.style.background = "#ff7300"; // Brighter neon on hover
+              }}
+              onMouseOut={(e) => {
+                e.target.style.background = "#FF4F00"; // Original orange
               }}
               onClick={(e) => {
                 e.stopPropagation();
@@ -138,10 +147,19 @@ const PropertyCard = ({ property, onRemove, onUndo, setMessage }) => {
             <p
               className="m-0 ps-3 pe-3"
               style={{
-                background: "green",
+                background: "green", // Vibrant green
                 color: "white",
                 cursor: "pointer",
                 borderRadius: "0px 0px 0px 15px",
+                transition: "all 0.2s ease-in-out",
+                fontSize: "12px",
+    
+              }}
+              onMouseOver={(e) => {
+                e.target.style.background = "#32cd32"; // Neon green on hover
+              }}
+              onMouseOut={(e) => {
+                e.target.style.background = "#39ff14"; // Original green
               }}
               onClick={(e) => {
                 e.stopPropagation();
@@ -336,16 +354,35 @@ const App = () => {
   const removedProperties = properties.filter((property) => property.status === "delete");
   const navigate = useNavigate();
 
-  const handlePageNavigation = () => {
-    navigate('/mobileviews'); // Redirect to the desired path
-  };
+ 
   return (
     <div className="container d-flex align-items-center justify-content-center p-0">
       <div className="d-flex flex-column align-items-center justify-content-center m-0" 
         style={{ maxWidth: '500px', margin: 'auto', width: '100%' , background:"#F7F7F7",fontFamily: 'Inter, sans-serif'}}>
         <div className="d-flex align-items-center justify-content-start w-100" style={{background:"#EFEFEF" }}>
-          <button className="pe-5" onClick={handlePageNavigation}><FaArrowLeft color="#30747F"/> 
-        </button> <h3 className="m-0 ms-3" style={{fontSize:"15px"}}>CONTACT OWNER </h3> </div>
+        <button
+      onClick={() => navigate(-1)}
+      className="pe-5"
+      style={{
+        backgroundColor: '#f0f0f0',
+        border: 'none',
+        padding: '10px 20px',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease-in-out',
+        display: 'flex',
+        alignItems: 'center',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = '#f0f4f5'; // Change background
+        e.currentTarget.querySelector('svg').style.color = '#ffffff'; // Change icon color
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = '#f0f0f0';
+        e.currentTarget.querySelector('svg').style.color = '#30747F';
+      }}
+    >
+      <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
+    </button> <h3 className="m-0 ms-3" style={{fontSize:"15px"}}>CONTACT OWNER </h3> </div>
         {/* Buttons for filtering */}
         <div className="row g-2 w-100">
           <div className="col-6 p-0">

@@ -192,16 +192,17 @@ const SidebarApp = () => {
       )}
 
       {/* Sidebar links with hover effect */}
+    
       <li className="nav-item">
         <a
           className="nav-link"
-          style={getLinkStyle('home')}
-          onMouseEnter={() => handleMouseEnter('home')}
+          style={getLinkStyle('my-profile')}
+          onMouseEnter={() => handleMouseEnter('my-profile')}
           onMouseLeave={handleMouseLeave}
-          href="/mobileviews"
-          onClick={() => handleLinkClick("/mobileviews")}
+          href={`/my-profile/${phoneNumber}`}
+          onClick={() => handleLinkClick(`/my-profile/${phoneNumber}`)}
         >
-          <FaHome className="me-2" style={{ color: '#30747F' }} /> Home
+          <FaUserCircle className="me-2" style={{ color: '#30747F' }} /> My Profile
         </a>
       </li>
 
@@ -231,18 +232,6 @@ const SidebarApp = () => {
         </a>
       </li>
 
-      <li className="nav-item">
-        <a
-          className="nav-link"
-          style={getLinkStyle('my-profile')}
-          onMouseEnter={() => handleMouseEnter('my-profile')}
-          onMouseLeave={handleMouseLeave}
-          href={`/my-profile/${phoneNumber}`}
-          onClick={() => handleLinkClick(`/my-profile/${phoneNumber}`)}
-        >
-          <FaUserCircle className="me-2" style={{ color: '#30747F' }} /> My Profile
-        </a>
-      </li>
 
       <li className="nav-item">
         <a
@@ -264,8 +253,8 @@ const SidebarApp = () => {
           style={getLinkStyle('more')}
           onMouseEnter={() => handleMouseEnter('more')}
           onMouseLeave={handleMouseLeave}
-          href="/mobileviews"
-          onClick={() => handleLinkClick("/mobileviews")}
+          href="/more"
+          onClick={() => handleLinkClick("/more")}
         >
           <FaCogs className="me-2" style={{ color: '#30747F' }} /> More
         </a>
@@ -342,8 +331,8 @@ const SidebarApp = () => {
           style={getLinkStyle('more-app')}
           onMouseEnter={() => handleMouseEnter('more-app')}
           onMouseLeave={handleMouseLeave}
-          href="/mobileviews"
-          onClick={() => handleLinkClick("/mobileviews")}
+          href="https://play.google.com/store/apps/dev?id=5743868169001839900&hl=en"
+          onClick={() => handleLinkClick("https://play.google.com/store/apps/dev?id=5743868169001839900&hl=en")}
         >
           <RiApps2AiFill className="me-2" style={{ color: '#30747F' }} /> More App
         </a>
@@ -355,8 +344,8 @@ const SidebarApp = () => {
           style={getLinkStyle('share-app')}
           onMouseEnter={() => handleMouseEnter('share-app')}
           onMouseLeave={handleMouseLeave}
-          href="/mobileviews"
-          onClick={() => handleLinkClick("/mobileviews")}
+          href="https://play.google.com/store/apps/dev?id=5743868169001839900&hl=en"
+          onClick={() => handleLinkClick("https://play.google.com/store/apps/dev?id=5743868169001839900&hl=en")}
         >
           <FaShare className="me-2" style={{ color: '#30747F' }} /> Share App
         </a>
@@ -368,8 +357,8 @@ const SidebarApp = () => {
           style={getLinkStyle('rate-app')}
           onMouseEnter={() => handleMouseEnter('rate-app')}
           onMouseLeave={handleMouseLeave}
-          href="/mobileviews"
-          onClick={() => handleLinkClick("/mobileviews")}
+          href="https://play.google.com/store/apps/details?id=com.deepseek.chat&hl=en#review"
+          onClick={() => handleLinkClick("https://play.google.com/store/apps/details?id=com.deepseek.chat&hl=en#review")}
         >
           <FaStar className="me-2" style={{ color: '#30747F' }} /> Rate App
         </a>
@@ -407,10 +396,10 @@ const SidebarApp = () => {
           style={getLinkStyle('login')}
           onMouseEnter={() => handleMouseEnter('login')}
           onMouseLeave={handleMouseLeave}
-          href="/mobileviews"
-          onClick={() => handleLinkClick("/mobileviews")}
+          href="/login"
+          onClick={() => handleLinkClick("/login")}
         >
-          <BiSolidLogIn  className="me-2" style={{ color: '#30747F' }} /> Login
+          <BiSolidLogIn  className="me-2" style={{ color: '#30747F' }} /> LogOut
         </a>
       </li>
     </ul>

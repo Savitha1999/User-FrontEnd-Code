@@ -120,6 +120,7 @@ import LowtoHigh from './LowtoHigh';
 import HightoLow from './HightoLow';
 import PhotosWith from './PhotosWith';
 import NotViewProperty from './NotViewProperty';
+import MoreSidebar from './MoreSidebar';
 
 
 
@@ -206,6 +207,7 @@ export default function RouterPage() {
         <Route path='/sort/high-to-low' element={< HightoLow/>} />
         <Route path='/sort/with-image' element={< PhotosWith/>} />
 
+        <Route path='/more' element={< MoreSidebar/>} />
 
 
         <Route path='/details/:ppcId' element={isAuthenticated ? <DetailProperty phone={phoneNumber} /> : <App to="/" />} />
@@ -227,7 +229,7 @@ export default function RouterPage() {
         <Route path='/confirm-model' element={<ConfirmationModal />} />
         <Route path='/Frequently-Asked-Questions' element={<FAQ />} />
         <Route path='/privacy-web' element={<PrivacyPolicyWeb />} />
-
+        <Route path='/add-property/:phoneNumber' element={<AddProperty />} />
 
 
         <Route path='/interest-owner/:phoneNumber' element={isAuthenticated ? <InterestOwner phone={phoneNumber} /> : <App to="/" />} />
@@ -242,7 +244,7 @@ export default function RouterPage() {
         <Route path='/soldout-buyer/:phoneNumber' element={isAuthenticated ? <SoldOutBuyer phone={phoneNumber} /> : <App to="/" />} />
         <Route path='/favorite-owner/:phoneNumber' element={isAuthenticated ? <FavoriteOwner phone={phoneNumber} /> : <App to="/" />} />
         <Route path='/favorite-buyer/:phoneNumber' element={isAuthenticated ? <FavoriteBuyer phone={phoneNumber} /> : <App to="/" />} />
-        <Route path='/add-property/:phoneNumber' element={isAuthenticated ? <AddProperty phone={phoneNumber} /> : <App to="/" />} />
+        {/* <Route path='/add-property/:phoneNumber' element={isAuthenticated ? <AddProperty phone={phoneNumber} /> : <App to="/" />} /> */}
         <Route path='/my-property' element={isAuthenticated ? <MyProperties phone={phoneNumber} /> : <App to="/" />} />
         <Route path='/removed-property' element={isAuthenticated ? <Removedproperty phone={phoneNumber} /> : <App to="/" />} />
         {/* <Route path='/notification/:phoneNumber' element={<NotificationList{isAuthenticated ? <MobileViews phone={phoneNumber} /> : <App to="/" />} /> */}

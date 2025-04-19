@@ -67,8 +67,27 @@ const ConfirmationModal = ({ show, onClose, onConfirm, message }) => {
         <h5>Confirmation</h5>
         <p>{message}</p>
         <div style={styles.buttons}>
-        <button style={styles.yes} onClick={onConfirm}>Yes</button>
-          <button style={styles.no} onClick={onClose}>No</button>
+        <button style={styles.yes} onClick={onConfirm}   onMouseOver={(e) => {
+          e.target.style.background = "#029bb3"; // Brighter neon on hover
+          e.target.style.fontWeight = 600; // Brighter neon on hover
+          e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+
+        }}
+        onMouseOut={(e) => {
+          e.target.style.background = "#2F747F"; // Original orange
+          e.target.style.fontWeight = 400; // Brighter neon on hover
+
+        }}>Yes</button>
+          <button style={styles.no} onClick={onClose}    onMouseOver={(e) => {
+          e.target.style.background = "#FF6700"; // Brighter neon on hover
+          e.target.style.fontWeight = 600; // Brighter neon on hover
+          e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+        }}
+        onMouseOut={(e) => {
+          e.target.style.background = "#FF4500"; // Original orange
+          e.target.style.fontWeight = 400; // Brighter neon on hover
+
+        }}>No</button>
         </div>
       </div>
     </div>
@@ -189,8 +208,22 @@ const PropertyCard = ({ property, onRemove, onUndo }) => {
 
                  
 {onRemove && (
-            <p className="m-0 ps-3 pe-3" style={{ background: "#FF0000", color: "white", cursor: "pointer", borderRadius: '0px 0px 0px 15px' }}
-              onClick={(e) => {
+            <p className="m-0 ps-3 pe-3" 
+            style={{
+              fontSize: "12px",
+  
+              background: "#FF4F00", // Neon orange
+              color: "white",
+              cursor: "pointer",
+              borderRadius: "0px 0px 0px 15px",
+              transition: "all 0.2s ease-in-out",
+            }}
+            onMouseOver={(e) => {
+              e.target.style.background = "#ff7300"; // Brighter neon on hover
+            }}
+            onMouseOut={(e) => {
+              e.target.style.background = "#FF4F00"; // Original orange
+            }}              onClick={(e) => {
                 e.stopPropagation();
                 onRemove(property);
               }}
@@ -198,8 +231,22 @@ const PropertyCard = ({ property, onRemove, onUndo }) => {
           )}
 
           {onUndo && (
-            <p className="m-0 ps-3 pe-3" style={{ background: "green", color: "white", cursor: "pointer", borderRadius: '0px 0px 0px 15px' }}
-              onClick={(e) => {
+            <p className="m-0 ps-3 pe-3"
+            style={{
+              background: "green", // Vibrant green
+              color: "white",
+              cursor: "pointer",
+              borderRadius: "0px 0px 0px 15px",
+              transition: "all 0.2s ease-in-out",
+              fontSize: "12px",
+  
+            }}
+            onMouseOver={(e) => {
+              e.target.style.background = "#32cd32"; // Neon green on hover
+            }}
+            onMouseOut={(e) => {
+              e.target.style.background = "#39ff14"; // Original green
+            }}              onClick={(e) => {
                 e.stopPropagation();
                 onUndo(property);
               }}
@@ -368,16 +415,35 @@ const App = () => {
   const removedProperties = properties.filter((property) => property.status === "delete");
   const navigate = useNavigate();
 
-  const handlePageNavigation = () => {
-    navigate('/mobileviews'); // Redirect to the desired path
-  };
+ 
   return (
     <div className="container d-flex align-items-center justify-content-center p-0">
       <div className="d-flex flex-column align-items-center justify-content-center m-0" 
         style={{ maxWidth: '500px', margin: 'auto', width: '100%', background:"#F7F7F7", fontFamily: 'Inter, sans-serif' }}>
                 <div className="d-flex align-items-center justify-content-start w-100" style={{background:"#EFEFEF" }}>
-          <button className="pe-5" onClick={handlePageNavigation}><FaArrowLeft color="#30747F"/> 
-        </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>REPORT PROPERTY OWNER </h3> </div>
+                <button
+      onClick={() => navigate(-1)}
+      className="pe-5"
+      style={{
+        backgroundColor: '#f0f0f0',
+        border: 'none',
+        padding: '10px 20px',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease-in-out',
+        display: 'flex',
+        alignItems: 'center',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = '#f0f4f5'; // Change background
+        e.currentTarget.querySelector('svg').style.color = '#ffffff'; // Change icon color
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = '#f0f0f0';
+        e.currentTarget.querySelector('svg').style.color = '#30747F';
+      }}
+    >
+      <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
+    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>REPORT PROPERTY OWNER </h3> </div>
         {/* Buttons for filtering */}
         <div className="row g-2 w-100">
           <div className="col-6 p-0">

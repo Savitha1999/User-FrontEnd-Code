@@ -47,9 +47,7 @@ const MyPlan = () => {
   }, [phoneNumber]);
   const navigate = useNavigate();
 
-  const handlePageNavigation = () => {
-    navigate('/mobileviews'); // Redirect to the desired path
-  };
+ 
   return (
     <div className="d-flex flex-column mx-auto custom-scrollbar"
     style={{
@@ -61,8 +59,29 @@ const MyPlan = () => {
       fontFamily: 'Inter, sans-serif'
     }}>
       <div className="d-flex align-items-center justify-content-start w-100" style={{background:"#EFEFEF" }}>
-              <button className="pe-5" onClick={handlePageNavigation}><FaArrowLeft color="#30747F"/> 
-            </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>My Plan</h3> </div>
+              <button
+                   onClick={() => navigate(-1)}
+                   className="pe-5"
+                   style={{
+                     backgroundColor: '#f0f0f0',
+                     border: 'none',
+                     padding: '10px 20px',
+                     cursor: 'pointer',
+                     transition: 'all 0.3s ease-in-out',
+                     display: 'flex',
+                     alignItems: 'center',
+                   }}
+                   onMouseEnter={(e) => {
+                     e.currentTarget.style.backgroundColor = '#f0f4f5'; // Change background
+                     e.currentTarget.querySelector('svg').style.color = '#ffffff'; // Change icon color
+                   }}
+                   onMouseLeave={(e) => {
+                     e.currentTarget.style.backgroundColor = '#f0f0f0';
+                     e.currentTarget.querySelector('svg').style.color = '#30747F';
+                   }}
+                 >
+                   <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
+                 </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>My Plan</h3> </div>
             
             <h4 className="mt-2" style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>  Active Plan  </h4>             
 

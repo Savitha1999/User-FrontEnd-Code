@@ -50,10 +50,9 @@ const TopBar = ({ items, setActive, activeItem }) => {
           gap: "10px",
           padding: "10px",
           paddingRight: "20px", // Ensures the last item has breathing room
-
           margin: "0",
           listStyle: "none",
-          
+          paddingBottom:"0px"
         }}
       >
         {items.map((item, index) => (
@@ -68,8 +67,6 @@ const TopBar = ({ items, setActive, activeItem }) => {
               flexDirection: "column",
               alignItems: "center",
               flexShrink: 0, // Prevents shrinking
-
-              
             }}
             onClick={() => setActive(item.content)}
           >
@@ -78,8 +75,19 @@ const TopBar = ({ items, setActive, activeItem }) => {
               alt={item.text}
               style={{ width: "28px", height: "28px", objectFit: "cover" }}
             />
-            <span style={{ marginTop: "5px" , color:"#fff", fontSize:"10px"
-}}>{item.text}</span>
+            <span 
+               style={{
+                marginTop: "5px",
+                color: activeItem === item.content ? "#B3D5CF" : "#fff", // 👈 Text color changes if active
+                fontSize: "10px",
+                paddingBottom: "3px",
+                borderBottom: activeItem === item.content ? "3px solid #00A193" : "2px solid transparent",
+                width: "100%", // Optional, depending on desired width
+                display: "inline-block",
+                fontWeight: activeItem === item.content ? 600 : 400, // 👈 semibold text
+
+              }}
+>{item.text}</span>
           </li>
         ))}
       </ul>

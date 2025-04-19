@@ -122,21 +122,21 @@ const AllProperty = () => {
            <div className="row g-0 ">
 <div className="col-md-4 col-4 d-flex flex-column align-items-center">
 
-<div style={{ position: "relative", width: "100%", height: "170px" }}>
+<div style={{ position: "relative", width: "100%", height: window.innerWidth <= 640 ? "180px" : "170px", }}>
 {/* Image */}
 <img
-src={
-property.photos && property.photos.length > 0
-? `http://localhost:5006/${property.photos[0].replace(/\\/g, "/")}`
-: pic // Use the imported local image if no photos are available
-}      
-style={{
-objectFit: "cover",
-objectPosition: "center",
-width: "100%",
-height: "100%",
-}}
-/>
+ src={
+  property.photos && property.photos.length > 0
+  ? `http://localhost:5006/${property.photos[0].replace(/\\/g, "/")}`
+  : "https://d17r9yv50dox9q.cloudfront.net/car_gallery/default.jpg" // Use the imported local image if no photos are available
+  }      
+      style={{
+        objectFit: "cover",
+        objectPosition: "center",
+        width: "100%",
+        height: "100%",
+      }}
+    />
 
 
 

@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -12,13 +13,13 @@ import { BiBed, BiBath, BiCar, BiMap, BiCalendar, BiUser, BiCube } from "react-i
 import { AiOutlineEye, AiOutlineColumnWidth, AiOutlineColumnHeight } from "react-icons/ai";
 import { MdOutlineCurrencyRupee, MdElevator, MdOutlineChair, MdCall } from "react-icons/md";
 import { TbArrowLeftRight } from "react-icons/tb";
-import { BsGraphUp, BsBank } from "react-icons/bs";
+import { BsGraphUp, BsBank, BsFilterCircle } from "react-icons/bs";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
 import { RiLayoutLine } from "react-icons/ri";
-import { FaFacebook, FaRegHeart , FaLinkedin, FaPhone, FaRupeeSign, FaShareAlt, FaTwitter, FaUserAlt, FaWhatsapp, FaHeart, FaArrowLeft, FaClock, FaUser, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
+import { FaFacebook, FaRegHeart , FaLinkedin, FaPhone, FaRupeeSign, FaShareAlt, FaTwitter, FaUserAlt, FaWhatsapp, FaHeart, FaArrowLeft, FaClock, FaUser, FaEnvelope, FaPhoneAlt, FaRegListAlt } from "react-icons/fa";
 import icon1 from '../Assets/ico_interest_xd.png';
 import icon2 from '../Assets/ico_report_soldout_xd.png';
 import icon4 from '../Assets/Shortlist Bike-01.png';
@@ -47,16 +48,155 @@ import {
   WhatsappIcon,
   LinkedinIcon,
 } from "react-share";
+import { Modal, Button, Form } from "react-bootstrap";
+import { FiAlertCircle } from "react-icons/fi";
+import ConfirmationModal from "./ConfirmationModal";
 
 const Details = () => {
+  const [popupType, setPopupType] = useState(""); // "report" or "help"
+
   const [imageError, setImageError] = useState({});
   const [showOptions, setShowOptions] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
+  const [showPropertyModal, setShowPropertyModal] = useState(false);
+  // const [showPopup, setShowPopup] = useState(false);
+  // const [popupTitle, setPopupTitle] = useState("");
+  const [popupSubmitHandler, setPopupSubmitHandler] = useState(() => () => {});
+  // const [reason, setReason] = useState("");
+  // const [comment, setComment] = useState("");
+  // const handleOpenPopup = (title, submitHandler) => {
+  //   setPopupTitle(title);
+  //   setPopupSubmitHandler(() => submitHandler);
+  //   setShowPopup(true);
+  // };
+  // const [showPopup, setShowPopup] = useState(false);
+  const [popupTitle, setPopupTitle] = useState("Report Property");
+  const [reason, setReason] = useState("");
+  const [comment, setComment] = useState("");
+  // const [propertyClicked, setPropertyClicked] = useState(false);
+
+  const handleOpenPopup = () => {
+    setPopupTitle("Report Property");
+    setShowPopup(true);
+  };
+
+  // const ReporthandleSubmit = async () => {
+  //   if (!reason) {
+  //     setMessage("Please select a valid reason");
+  //     return;
+  //   }
+
+  //   try {
+  //     const res = await axios.post(`${process.env.REACT_APP_API_URL}/report-property`, {
+  //       phoneNumber: userPhoneNumber,
+  //       ppcId: ppcId,
+  //       reason: comment,
+  //       selectReasons: reason,
+  //     });
+
+  //     setMessage(res.data.message);
+  //     setPropertyClicked(true);
+  //     setShowPopup(false);
+  //   } catch (err) {
+  //     console.error("Report Error:", err);
+  //     setMessage(err.response?.data?.message || "Something went wrong");
+  //   }
+  // };
+
+  const ReporthandleSubmit = async () => {
+    if (!reason) {
+      setMessage("Please select a valid reason");
+      return;
+    }
+  
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/report-property`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phoneNumber: userPhoneNumber,
+          ppcId: ppcId,
+          reason: comment,
+          selectReasons: reason,
+        }),
+      });
+  
+      const result = await response.json();
+  
+      if (response.ok) {
+        setPropertyClicked(true);
+        setMessage(result.message || "Report submitted successfully.");
+        setShowPopup(false);
+      } else {
+        if (result.status === "alreadyReported") {
+          setPropertyClicked(true);
+          setMessage("You have already submitted this report.");
+        } else {
+          setMessage(result.message || "Failed to submit report.");
+        }
+      }
+    } catch (error) {
+      console.error("Report submission error:", error);
+      setMessage("An error occurred while submitting the report.");
+    }
+  };
+  
+  const handleHelpSubmit = async ({ reason, comment }) => {
+    if (!reason) {
+      setMessage("Please select a valid help reason.");
+      return;
+    }
+  
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/need-help`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phoneNumber: userPhoneNumber, // get this from logged-in user state
+          ppcId: ppcId, // this should come from the selected property
+          selectHelpReason: reason,
+          comment,
+        }),
+      });
+  
+      const result = await response.json();
+  
+      if (response.ok) {
+        setHelpClicked(true);
+        setMessage(result.message || "Help request submitted.");
+        setShowPopup(false);
+      } else {
+        if (result.status === "alreadyRequested") {
+          setHelpClicked(true);
+          setMessage("You have already submitted this help request.");
+        } else {
+          setMessage(result.message || "Failed to submit help request.");
+        }
+      }
+    } catch (error) {
+      console.error("Help submission error:", error);
+      setMessage("An error occurred while submitting help request.");
+    }
+  };
+  
+
+  // const ReporthandleSubmit = () => {
+  //   if (!reason) {
+  //     alert("Please select a reason.");
+  //     return;
+  //   }
+  //   popupSubmitHandler({ reason, comment });
+  //   setReason("");
+  //   setComment("");
+  //   setShowPopup(false);
+  // };
 
   const handleImageError = (index) => {
     setImageError((prev) => ({ ...prev, [index]: true }));
   };
   const [videoUrl, setVideoUrl] = useState(null);
   const [showPopup, setShowPopup] = useState(false);  // State for controlling the popup/modal
+  const [Popup, setPopup] = useState(false);  // State for controlling the popup/modal
 
   const [showModal, setShowModal] = useState(false);
   const [showOwnerContact, setShowOwnerContact] = useState(false);
@@ -82,6 +222,9 @@ const Details = () => {
   const [showShareOptions, setShowShareOptions] = useState(false);
   const [interestClicked, setInterestClicked] = useState(false);
 
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingOfferData, setPendingOfferData] = useState(null);
+
   const location = useLocation();
   const { ppcId } = useParams();
 
@@ -98,7 +241,6 @@ const Details = () => {
   const [isHeartClicked, setIsHeartClicked] = useState(() => {
     // Check if there's a saved state in localStorage for this ppcId
     const storedState = localStorage.getItem(`isHeartClicked-${ppcId}`);
-    console.log(`Initializing state for ppcId ${ppcId}:`, storedState);
     return storedState ? JSON.parse(storedState) : false;
   });
 
@@ -113,12 +255,7 @@ const Details = () => {
     }
   }, [ppcId]);
 
-  
-//    // State to track if each action has been completed
-//  const [interestClicked, setInterestClicked] = useState(
-//   JSON.parse(localStorage.getItem(`interestSent-${ppcId}`)) || false
-// );
-
+ 
 
 const [soldOutClicked, setSoldOutClicked] = useState(
   JSON.parse(localStorage.getItem(`soldOutReported-${ppcId}`)) || false
@@ -176,11 +313,7 @@ const fetchImageCount = async () => {
     }
   }, [phoneNumber, ppcId]);
 
-  // useEffect(() => {
-  //   if (ppcId) {
-  //     fetchPropertyViews();
-  //   }
-  // }, [ppcId]);
+ 
 
   useEffect(() => {
     const savedState = localStorage.getItem("isHeartClicked");
@@ -211,6 +344,8 @@ const fetchPropertyDetails = async (ppcId) => {
 }, [ppcId]);
 
 
+
+
 // ✅ Fetch stored phone number from localStorage on component mount
 useEffect(() => {
   const storedPhoneNumber = localStorage.getItem("userPhoneNumber");
@@ -218,36 +353,82 @@ useEffect(() => {
     setUserPhoneNumber(storedPhoneNumber);
 
     // ✅ Call API only if userPhoneNumber & ppcId exist
-    if (ppcId) {
-      storeUserViewedProperty(storedPhoneNumber, ppcId);
-    }
+   
   }
 }, [ppcId]); // ✅ Runs only when ppcId changes
 
-// ✅ Function to store viewed property in the database
-const storeUserViewedProperty = async (phoneNumber, ppcId) => {
+
+
+// // ✅ Function to store viewed property in the database
+// const storeUserViewedProperty = async (phoneNumber, ppcId) => {
+//   try {
+//     const response = await axios.post(
+//       `${process.env.REACT_APP_API_URL}/user-viewed-property`,
+//       { phoneNumber, ppcId }
+//     );
+//     fetchUserViewedProperties(phoneNumber); // Fetch updated viewed properties
+//   } catch (error) {
+//   }
+// };
+
+//  // ✅ Fetch viewed properties for the logged-in user
+//  const fetchUserViewedProperties = async (phoneNumber) => {
+//   try {
+//     const response = await axios.get(
+//       `${process.env.REACT_APP_API_URL}/user-viewed-properties?phoneNumber=${phoneNumber}`
+//     );
+//     setViewedProperties(response.data.viewedProperties);
+//   } catch (error) {
+//   }
+// };
+
+// // ✅ Fetch viewed properties when userPhoneNumber changes
+// useEffect(() => {
+//   if (userPhoneNumber) {
+//     fetchUserViewedProperties(userPhoneNumber);
+//   }
+// }, [userPhoneNumber]);
+
+
+// const handleSubmit = async (e) => {
+//       e.preventDefault();
+
+//       try {
+//           const response = await axios.post(`${process.env.REACT_APP_API_URL}/offer`, { price ,phoneNumber ,ppcId  });
+//           alert('Offer saved successfully');
+//           setPrice(''); // Clear the input field after successful submission
+//       } catch (error) {
+//           alert('Error saving offer');
+//       }
+//   };
+
+
+const handleSubmit = async ({ price, phoneNumber, ppcId }) => {
   try {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/user-viewed-property`,
-      { phoneNumber, ppcId }
-    );
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/offer`, {
+      price,
+      phoneNumber,
+      ppcId,
+    });
+
+    const { message, status } = response.data;
+
+    if (status === "offerSaved") {
+      setMessage("Offer saved successfully.");
+      setPrice('');
+    } else if (status === "offerExists") {
+      setMessage("An offer has already been made for this property.");
+    } else {
+      setMessage(message || "Offer submitted.");
+    }
   } catch (error) {
+    const errMsg = error.response?.data?.message || "Error saving offer.";
+    setMessage(errMsg);
+  } finally {
+    setPendingOfferData(null);
   }
 };
 
-
-
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-
-      try {
-          const response = await axios.post(`${process.env.REACT_APP_API_URL}/offer`, { price ,phoneNumber ,ppcId  });
-          alert('Offer saved successfully');
-          setPrice(''); // Clear the input field after successful submission
-      } catch (error) {
-          alert('Error saving offer');
-      }
-  };
   useEffect(() => {
     const fetchPropertyData = async () => {
       try {
@@ -266,9 +447,9 @@ const storeUserViewedProperty = async (phoneNumber, ppcId) => {
   useEffect(() => {
     // Ensure propertyDetails is not null or undefined before accessing `video`
     if (propertyDetails?.video) {
-      setVideoUrl(`http://localhost:5000/${propertyDetails.video}`);
+      setVideoUrl(`http://localhost:5006/${propertyDetails.video}`);
     } else {
-      setVideoUrl("http://localhost:5000/default-video-url.mp4"); // Fallback to a default video
+      setVideoUrl("http://localhost:5006/default-video-url.mp4"); // Fallback to a default video
     }
     console.log('Video URL:', videoUrl); // For debugging
   }, [propertyDetails?.video]); // Runs when `propertyDetails.video` changes
@@ -293,35 +474,6 @@ const storeUserViewedProperty = async (phoneNumber, ppcId) => {
   const closeModal = () => setShowModal(false);
 
 
-  // const handleOwnerContactClick = async () => {
-  //   try {
-  
-  //     if (!phoneNumber || !ppcId) {
-  //       setMessage("Phone number and Property ID are required.");
-  //       return;
-  //     }
-  
-  //     // Send data to the backend to request owner contact details
-  //     const response = await axios.post(`${process.env.REACT_APP_API_URL}/contact`, {
-  //       phoneNumber,
-  //       ppcId,
-  //     });
-  
-  //     // Get the postedUserPhoneNumber from the response
-  //     const postedUserPhoneNumber = response.data.postedUserPhoneNumber;
-  
-  //     // Handle the response message and display the property owner's phone number
-  //     setMessage(`Owner's Phone: ${postedUserPhoneNumber}`);
-  //     setPostedUserPhoneNumber(postedUserPhoneNumber); // Save the phone number for later use/display
-  //     // setShowOwnerContact(true);  
-
-  //     toggleContactDetails(); 
-  //   } catch (error) {
-  //     setMessage("Failed to fetch owner contact details.");
-  //   }
-  // };
-
- 
 
   const toggleContactDetails = () => {
     setShowContactDetails(prevState => !prevState);
@@ -409,32 +561,6 @@ const storeUserViewedProperty = async (phoneNumber, ppcId) => {
 
 
 
-// const handleInterestClick = async () => {
-//   if (!phoneNumber || !ppcId) {
-//     setMessage("Phone number and Property ID are required.");
-//     return;
-//   }
-
-//   try {
-//     const response = await axios.post(`${process.env.REACT_APP_API_URL}/send-interests`, {
-//       phoneNumber,
-//       ppcId,
-//     });
-
-//     const { message, status } = response.data;
-
-//     if (status === "sendInterest") {
-//       setMessage("Interest sent successfully!");
-//       setInterestClicked(true);
-//       localStorage.setItem(`interestSent-${ppcId}`, JSON.stringify(true));
-//     } else if (status === "alreadySaved") {
-//       setMessage("Interest already recorded for this property.");
-//     }
-//   } catch (error) {
-//     setMessage(error.response?.data?.message || "Something went wrong.");
-//   }
-// };
-
 const handleOwnerContactClick = async () => {
   try {
     if (!phoneNumber || !ppcId) {
@@ -442,35 +568,25 @@ const handleOwnerContactClick = async () => {
       return;
     }
 
-    // Check if the user has already requested this owner's contact
-    const contactSaved = localStorage.getItem(`ownerContact-${ppcId}`);
-    if (contactSaved) {
-      setMessage("You have already requested the owner's contact.");
-      return;
-    }
-
-    // Send request to fetch owner contact details
     const response = await axios.post(`${process.env.REACT_APP_API_URL}/contact`, {
       phoneNumber,
       ppcId,
     });
 
-    const { postedUserPhoneNumber, status } = response.data;
+    const { success, postedUserPhoneNumber, message } = response.data;
 
-    if (status === "alreadySaved") {
-      setMessage("Owner contact request is already saved.");
-    } else {
-      setMessage(`Owner's Phone: ${postedUserPhoneNumber}`);
+    if (success) {
+      // setMessage(`Owner's Phone: ${postedUserPhoneNumber}`);
       setPostedUserPhoneNumber(postedUserPhoneNumber);
-      localStorage.setItem(`ownerContact-${ppcId}`, JSON.stringify(true)); // Store in localStorage
+    } else {
+      // setMessage(message || "Unable to retrieve contact info.");
     }
 
     toggleContactDetails();
   } catch (error) {
-    setMessage("Failed to fetch owner contact details.");
+    // setMessage(error.response?.data?.message || "Failed to fetch contact details.");
   }
 };
-
 
 
 const handleInterestClick = async () => {
@@ -607,6 +723,7 @@ const confirmActionHandler = (actionType, actionMessage) => {
   });
 };
 
+
 const cards = [
   {
     img: icon1,
@@ -630,28 +747,59 @@ const cards = [
       confirmActionHandler(handleReportSoldOut, "Are you sure you want to report this property as sold out?");
     },
   },
-  {
-    img: icon4,
-    text: propertyClicked ? "Property Reported" : "Report Property",
-    onClick: () => {
-      if (propertyClicked) {
-        setMessage("This property is already reported.");
-        return;
-      }
-      confirmActionHandler(handleReportProperty, "Are you sure you want to report this property?");
-    },
+//   {
+
+//   img: icon4,
+//   text: propertyClicked ? "Property Reported" : "Report Property",
+//   onClick: () => {
+//     if (propertyClicked) {
+//       setMessage("This property is already reported.");
+//       return;
+//     }
+//     handleOpenPopup("Report Property", ReporthandleSubmit);
+//   },
+// },
+//   {
+
+//     img: icon3,
+//     text: helpClicked ? "Help Requested" : "Need Help",
+//     onClick: () => {
+//       if (helpClicked) {
+//         setMessage("Help request already submitted.");
+//         return;
+//       }
+//       handleOpenPopup("Need Help", handleHelpSubmit);
+//     },
+  
+//   }  
+
+{
+  img: icon4,
+  text: propertyClicked ? "Property Reported" : "Report Property",
+  onClick: () => {
+    if (propertyClicked) {
+      setMessage("This property is already reported.");
+      return;
+    }
+    setPopupTitle("Report Property");
+    setPopupType("report");
+    setPopup(true);
   },
-  {
-    img: icon3,
-    text: helpClicked ? "Help Requested" : "Need Help",
-    onClick: () => {
-      if (helpClicked) {
-        setMessage("Help request already submitted.");
-        return;
-      }
-      confirmActionHandler(handleNeedHelp, "Are you sure you need help?");
-    },
+},
+{
+  img: icon3,
+  text: helpClicked ? "Help Requested" : "Need Help",
+  onClick: () => {
+    if (helpClicked) {
+      setMessage("Help request already submitted.");
+      return;
+    }
+    setPopupTitle("Need Help");
+    setPopupType("help");
+    setPopup(true);
   },
+}
+
 ];
 
 
@@ -745,9 +893,7 @@ const priceInWords = propertyDetails && propertyDetails.price
   
   
 
-const handlePageNavigation = () => {
-  navigate('/mobileviews'); // Redirect to the desired path
-};
+
 
 
   const toggleShareOptions = () => {
@@ -764,11 +910,35 @@ const currentUrl = `${window.location.origin}${location.pathname}`; // <- Works 
     > */}
             <div className="d-flex flex-column align-items-center justify-content-center m-0" style={{fontFamily: "Inter, sans-serif", maxWidth: '500px', margin: 'auto', width: '100%' }}>
             <div className="row g-2 w-100">
-
-            <div className="d-flex align-items-center justify-content-start w-100" style={{background:"#EFEFEF" }}>
-        <button className="pe-5" onClick={handlePageNavigation}><FaArrowLeft color="#30747F"/> 
-      </button> <h3 className="m-0 ms-3" style={{fontSize:"15px"}}>DETAIL PROPERTY</h3> </div>
-
+{/* 
+            <div className="d-flex align-items-center justify-content-start w-100 " style={{background:"#EFEFEF" }}>
+        <button className="pe-5"  onClick={handlePageNavigation}><FaArrowLeft color="#30747F"/> 
+      </button> <h3 className="m-0 ms-3 " style={{fontSize:"15px"}}>DETAIL PROPERTY</h3> </div> */}
+ <div className="d-flex align-items-center justify-content-start w-100 " style={{background:"#EFEFEF" }}>
+ <button
+      onClick={() => navigate(-1)}
+      className="pe-5"
+      style={{
+        backgroundColor: '#f0f0f0',
+        border: 'none',
+        padding: '10px 20px',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease-in-out',
+        display: 'flex',
+        alignItems: 'center',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = '#f0f4f5'; // Change background
+        e.currentTarget.querySelector('svg').style.color = '#ffffff'; // Change icon color
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = '#f0f0f0';
+        e.currentTarget.querySelector('svg').style.color = '#30747F';
+      }}
+    >
+      <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
+    </button>
+<h3 className="m-0 ms-3 " style={{fontSize:"15px"}}>DETAIL PROPERTY</h3> </div>
       {showShareOptions && (
         <div
           className="d-flex flex-column gap-2 mt-4 pt-3 p-3"
@@ -924,6 +1094,8 @@ const currentUrl = `${window.location.origin}${location.pathname}`; // <- Works 
         <p className="text-start m-0" style={{ color: "black" , fontSize:"18px" , paddingLeft:"10px"}}>
        <strong>{propertyDetails.propertyMode} |  {propertyDetails.propertyType}</strong>  
         </p>
+
+
          <h6
         className="p-2 mt-3 "
         style={{
@@ -1006,61 +1178,25 @@ const currentUrl = `${window.location.origin}${location.pathname}`; // <- Works 
           </LinkedinShareButton>
         </div>
       )}
-       {/* {showOptions && (
-        <div
-          onClick={toggleShareOptions}
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            backgroundColor: "rgba(0,0,0,0.4)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 999,
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              display: "flex",
-              gap: "15px",
-              padding: "20px",
-              background: "#fff",
-              borderRadius: "12px",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-              transform: showOptions ? "scale(1)" : "scale(0.9)",
-              opacity: showOptions ? 1 : 0,
-              transition: "all 0.3s ease",
-            }}
-          >
-            <FacebookShareButton url={currentUrl}>
-              <FacebookIcon size={40} round />
-            </FacebookShareButton>
-
-            <TwitterShareButton url={currentUrl} title={currentUrl}>
-              <TwitterIcon size={40} round />
-            </TwitterShareButton>
-
-            <WhatsappShareButton url={currentUrl} title={currentUrl}>
-              <WhatsappIcon size={40} round />
-            </WhatsappShareButton>
-
-            <LinkedinShareButton url={currentUrl}>
-              <LinkedinIcon size={40} round />
-            </LinkedinShareButton>
-          </div>
-        </div>
-      )} */}
+      
         </div>
       </div>
       <p style={{paddingLeft:"10px", paddingRight:"10px"}}>({priceInWords})</p>
 
         <h4 className="fw-bold mt-0" style={{fontSize:"15px",paddingLeft:"10px"}}>Make an offer</h4>
-            <form onSubmit={handleSubmit} className="d-flex">
-               
+        <form
+  onSubmit={(e) => {
+    e.preventDefault();
+    if (!price || !phoneNumber || !ppcId) {
+      setMessage("Price, Phone number, and Property ID are required.");
+      return;
+    }
+    setPendingOfferData({ price, phoneNumber, ppcId });
+    setShowConfirmModal(true);
+  }}
+  className="d-flex"
+>
+  
                   <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%' }}>
                      <FaRupeeSign style={{ position: 'absolute', left: '10px', color: '#30747F' }} />
                      <input 
@@ -1167,13 +1303,7 @@ return (
 </div>
       {showContactDetails && (
         <div className="mt-3">
-          {/* <p style={{color:'red'}}><strong style={{color:'black'}}>Name:</strong> {propertyDetails.ownerName || "Not Available"}</p>
-          <p style={{color:'red'}}><strong style={{color:'black'}}>Phone Number:</strong> <a href={`tel:${propertyDetails.phoneNumber}`} style={{ color: "red", textDecoration: "none" }}>{propertyDetails.phoneNumber || "Not Available"}</a></p>
-          <p style={{color:'red'}}><strong style={{color:'black'}}>Alternate Number:</strong> {propertyDetails.phoneNumber || "Not Available"}</p>
-          <p style={{color:'red'}}><strong style={{color:'black'}}>email:</strong> {propertyDetails.email || "Not Available"}</p>
-          <p style={{color:'red'}}><strong style={{color:'black'}}>Address:</strong> {propertyDetails.city || "Not Available"}</p>
-          <p style={{color:'red'}}><strong style={{color:'black'}}>Best Time to Call:</strong> {propertyDetails.bestTimeToCall || "Not Available"}</p>
-        */}
+      
    <div className="row g-3">
 
 {/* Name */}
@@ -1254,13 +1384,7 @@ return (
 </div>
 
           <span className="d-flex justify-content-end align-items-center">
-  {/* <button
-    className="btn btn-link p-0"
-    style={{ color: "#30747F", textDecoration: "underline" }}
-    onClick={toggleContactDetails}
-  >
-    Show less
-  </button> */}
+
 
   <button
     className="btn btn-outline-#30747F m-0 d-flex align-items-center gap-2"
@@ -1327,6 +1451,108 @@ return (
           ))}
         </div>
       </div>
+   
+{Popup && (
+  <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+    <div className="modal-dialog modal-dialog-centered">
+      <div className="modal-content rounded-5 shadow p-4 border-0">
+        <h5 className="text-center mb-4 text-uppercase fw-bold text-secondary">
+          {popupTitle}
+        </h5>
+
+        {/* Dropdown reasons */}
+        <Form.Group className="mb-3 position-relative">
+          <BsFilterCircle
+            className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"
+            style={{ fontSize: "1.2rem", zIndex: 1 }}
+          />
+          <Form.Select
+            className="form-select ps-5 fw-bold text-center bg-light border-0 rounded popSelect"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+          >
+            <option value="">Select Reason</option>
+            {popupType === "report" ? (
+              <>
+                <option value="Already Sold">Already Sold</option>
+                <option value="Wrong Information">Wrong Information</option>
+                <option value="Not Responding">Not Responding</option>
+                <option value="Fraud">Fraud</option>
+                <option value="Duplicate Ads">Duplicate Ads</option>
+                <option value="Other">Other</option>
+              </>
+            ) : (
+              <>
+                <option value="Help Me to Buy this Property">Help Me to Buy this Property</option>
+                <option value="Book for Property Visit">Book for Property Visit</option>
+                <option value="Loan Help">Loan Help</option>
+                <option value="Property Valuation">Property Valuation</option>
+                <option value="Document Verification">Document Verification</option>
+                <option value="Property Surveying">Property Surveying</option>
+                <option value="EC">EC</option>
+                <option value="Patta Name Change">Patta Name Change</option>
+                <option value="Registration Help">Registration Help</option>
+                <option value="Others">Others</option>
+              </>
+            )}
+          </Form.Select>
+        </Form.Group>
+
+        {/* Comment box */}
+        <Form.Group className="mb-3">
+          <Form.Control
+            as="textarea"
+            rows={1}
+            placeholder="Add Comment"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            className="form-control rounded p-3 fw-medium text-secondary"
+          />
+        </Form.Group>
+
+        {/* Buttons */}
+        <div className="d-flex justify-content-between">
+          <button
+            type="button"
+            className="btn btn-light flex-fill me-2 fw-medium rounded"
+            onClick={() => setPopup(false)}
+          >
+            CANCEL
+          </button>
+          <button
+            type="button"
+            className="btn flex-fill ms-2 fw-medium rounded"
+            style={{ backgroundColor: "#4b3aa8", color: "#fff", border: "none" }}
+            onClick={popupType === "report" ? ReporthandleSubmit : () => handleHelpSubmit({ reason, comment })}
+          >
+            SUBMIT
+          </button>
+        </div>
+
+        {/* Optional message */}
+        {message && (
+          <div
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              background: "white",
+              padding: "20px",
+              borderRadius: "10px",
+              textAlign: "center",
+              width: "300px",
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+              zIndex: 1000,
+            }}
+          >
+            <p>{message}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
 
       {showPopup && (
   <div
@@ -1378,16 +1604,7 @@ return (
     </div>
   </div>
 )}
-{/* 
-     {showPopup && (
-  <div className="popup">
-    <div className="popup-content">
-      <p>{popupMessage}</p>
-      <button onClick={() => { confirmAction(); setShowPopup(false); }}>Yes</button>
-      <button onClick={() => setShowPopup(false)}>No</button>
-    </div>
-  </div>
-)} */}
+
 
 
 {message && (
@@ -1412,6 +1629,18 @@ return (
 )}
 
 
+<ConfirmationModal
+  show={showConfirmModal}
+  message="Are you sure you want to submit this offer?"
+  onConfirm={() => {
+    setShowConfirmModal(false);
+    if (pendingOfferData) handleSubmit(pendingOfferData);
+  }}
+  onCancel={() => {
+    setShowConfirmModal(false);
+    setPendingOfferData(null);
+  }}
+/>
     </div>
     </div>
 
@@ -1424,5 +1653,16 @@ return (
 };
 
 export default Details;
+
+
+
+
+
+
+
+
+
+
+
 
 

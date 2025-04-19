@@ -25,7 +25,7 @@ const MoblieView = () => {
       if (!confirmLeave) {
         window.history.pushState(null, "", location.pathname); // Stay on page
       } else {
-        navigate(-1); // Allow navigation
+        navigate('/login'); // Allow navigation
       }
     };
 

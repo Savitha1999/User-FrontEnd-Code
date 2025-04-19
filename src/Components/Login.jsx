@@ -440,7 +440,17 @@ const Login = ({ onLogin }) => {
   </style>
     <div className="d-flex justify-content-center">
     
-      <Button type="submit" style={{ backgroundColor: "orangered", border: "2px solid orangered" }} className="btn w-50 btn-small mx-2">
+      <Button type="submit" style={{ backgroundColor: "orangered", border: "2px solid orangered" }} className="btn w-50 btn-small mx-2"
+        onMouseOver={(e) => {
+          e.target.style.background = "#FF6700"; // Brighter neon on hover
+          e.target.style.fontWeight = 600; // Brighter neon on hover
+          e.target.style.border = "2px solid orangered"; // Brighter neon on hover
+          e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+        }}
+        onMouseOut={(e) => {
+          e.target.style.background = "#FF4500"; // Original orange
+          e.target.style.fontWeight = 400; // Brighter neon on hover
+        }}>
         LOGIN
       </Button>
     </div>
@@ -462,7 +472,6 @@ const Login = ({ onLogin }) => {
         placeholder="Enter OTP"
         value={otp}
         onChange={(e) => setOtp(e.target.value)}
-        disabled={isDisabled}
 
         required
         className="custom-background small-input fw-normal  rounded-0"
@@ -512,20 +521,30 @@ const Login = ({ onLogin }) => {
     {otpTimer > 0 && !canResendOtp && (
       <p className="text-center mt-2">Resend OTP in {otpTimer} seconds</p>
     )}
+        {!isChecked && (
+        <div style={{ color: "#fff", marginTop: "8px", fontSize: "14px" }}>
+          Please accept the condition
+        </div>
+      )}
     <div className="d-flex justify-content-center">
-    <Button type="submit" style={{ backgroundColor: "orangered", border: "2px solid orangered" }} className="btn-small w-50">
+
+    <Button type="submit" style={{ backgroundColor: "orangered", border: "2px solid orangered" }} className="btn-small w-50"
+            disabled={isDisabled}
+            onMouseOver={(e) => {
+              e.target.style.background = "#FF6700"; // Brighter neon on hover
+              e.target.style.fontWeight = 600; // Brighter neon on hover
+              e.target.style.border = "2px solid orangered"; // Brighter neon on hover
+              e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+            }}
+            onMouseOut={(e) => {
+              e.target.style.background = "#FF4500"; // Original orange
+              e.target.style.fontWeight = 400; // Brighter neon on hover
+            }}
+>
       VERIFY OTP
     </Button>
     </div>
     <div>
-      {/* Clickable text */}
-      {/* <label>
-        <input
-          type="checkbox"
-          checked={isChecked}
-          onChange={handleCheckboxChange}
-        />
-      </label> */}
        <label>
       <input
         type="checkbox"
@@ -536,8 +555,6 @@ const Login = ({ onLogin }) => {
       <span
         onClick={() => setShowPopup(true)}
         style={{
-          // color: 'blue',
-          // textDecoration: 'underline',
           cursor: 'pointer',
           fontSize: '16px',
         }}

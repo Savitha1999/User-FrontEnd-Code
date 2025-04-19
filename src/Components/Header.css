@@ -1,6 +1,10 @@
 
 
-
+.popSelect:focus,
+.popSelect:active {
+  outline: none !important;
+  box-shadow: none !important;
+  border: 0 !important;}
 
    .weblogin{
     height: 40px;

@@ -8,8 +8,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AddPlan.css';
-import {ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 
 
@@ -37,16 +35,16 @@ const createOrUpdatePlan = async () => {
         } else {
             await axios.post(`${process.env.REACT_APP_API_URL}/store-plan`, formData);
         }
-        toast.success(`Plan ${editingPlanId ? 'updated' : 'created'} successfully!`);
+        // toast.success(`Plan ${editingPlanId ? 'updated' : 'created'} successfully!`);
         fetchPlans();
         resetForm();
     } catch (error) {
         console.error(`Error ${editingPlanId ? 'updating' : 'creating'} plan`, error);
 
         if (error.response && error.response.status === 400) {
-            toast.error(error.response.data.message || "Plan name already exists. Please choose a different name.");
+            // toast.error(error.response.data.message || "Plan name already exists. Please choose a different name.");
         } else {
-            toast.error("An error occurred. Please try again.");
+            // toast.error("An error occurred. Please try again.");
         }
     }
 };
@@ -115,7 +113,6 @@ const createOrUpdatePlan = async () => {
 
     return (
         <div className="App">
-            <ToastContainer />
             <h1 className='mb-5 text-center'>Plan Management</h1>
             <form>
                 <div className="form-row">

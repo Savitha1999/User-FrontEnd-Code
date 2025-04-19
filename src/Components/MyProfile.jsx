@@ -53,20 +53,32 @@ const MyProfile = () => {
     setActionType(type);
     setShowModal(true);
   };
-  // Fetch Profile Data on Mount
-  useEffect(() => {
-    if (phoneNumber) {
-      axios.get(`${process.env.REACT_APP_API_URL}/profile/mobile/${phoneNumber}`)
-        .then((res) => {
-          if (res.data) {
-            setProfile(res.data); // Ensure correct data structure
-            setIsEditing(true);
-            setIsLoggedIn(true);
-          }
-        })
-        .catch(() => console.error("Profile not found"));
-    }
-  }, [phoneNumber]);
+
+  const [loading, setLoading] = useState(false);
+
+useEffect(() => {
+  if (phoneNumber) {
+    setLoading(true);
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/profile/mobile/${phoneNumber}`)
+      .then((res) => {
+        setProfile(res.data);
+        setIsEditing(true);
+        setIsLoggedIn(true);
+      })
+      .catch((err) => {
+        if (err.response?.status === 404) {
+          setProfile({ name: "", email: "", address: "", mobile: phoneNumber });
+          setIsEditing(false);
+          setIsLoggedIn(true);
+        } else {
+          console.error("Error fetching profile:", err.response?.data || err.message);
+        }
+      })
+      .finally(() => setLoading(false));
+  }
+}, [phoneNumber]);
+
 
   // Handle Input Change
   const handleChange = (e) => {
@@ -150,9 +162,29 @@ const MyProfile = () => {
         style={{ maxWidth: '450px', margin: 'auto', width: '100%' , fontFamily: 'Inter, sans-serif'}}>        
         {/* Header */}
         <div className="d-flex align-items-center justify-content-start w-100" style={{background:"#EFEFEF" }}>
-        <button className="pe-5" onClick={() => navigate("/mobileviews")}>
-            <FaArrowLeft color="#30747F" size={20} />
-          </button>
+         <button
+              onClick={() => navigate(-1)}
+              className="pe-5"
+              style={{
+                backgroundColor: '#f0f0f0',
+                border: 'none',
+                padding: '10px 20px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease-in-out',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#f0f4f5'; // Change background
+                e.currentTarget.querySelector('svg').style.color = '#ffffff'; // Change icon color
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#f0f0f0';
+                e.currentTarget.querySelector('svg').style.color = '#30747F';
+              }}
+            >
+              <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
+            </button>
           <h3 className="m-0 ms-3" style={{ fontSize: "20px", color: "#30747F" }}>My Profile</h3>
         </div>
         <div className="row g-2 w-100">

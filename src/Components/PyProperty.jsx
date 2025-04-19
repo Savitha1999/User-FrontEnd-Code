@@ -99,21 +99,21 @@ const PyProperty = () => {
            <div className="row g-0 ">
 <div className="col-md-4 col-4 d-flex flex-column align-items-center">
 
-<div style={{ position: "relative", width: "100%", height: "170px" }}>
+<div style={{ position: "relative", width: "100%",height: window.innerWidth <= 640 ? "180px" : "170px", }}>
 {/* Image */}
 <img
-src={
-property.photos && property.photos.length > 0
-? `http://localhost:5006/${property.photos[0].replace(/\\/g, "/")}`
-: pic // Use the imported local image if no photos are available
-}      
-style={{
-objectFit: "cover",
-objectPosition: "center",
-width: "100%",
-height: "100%",
-}}
-/>
+ src={
+  property.photos && property.photos.length > 0
+  ? `http://localhost:5006/${property.photos[0].replace(/\\/g, "/")}`
+  : "https://d17r9yv50dox9q.cloudfront.net/car_gallery/default.jpg" // Use the imported local image if no photos are available
+  }      
+      style={{
+        objectFit: "cover",
+        objectPosition: "center",
+        width: "100%",
+        height: "100%",
+      }}
+    />
 
 
 
@@ -150,7 +150,7 @@ justifyContent: "space-between",
                      <div className="col-6 d-flex align-items-center mt-1 mb-1">
                                <FaBed className="me-2" color="#2F747F" />
                                <span style={{ fontSize: '13px', color: '#5E5E5E' }}>
-                                 {property.bedrooms || 'N/A'}BHK
+                                 {property.bedrooms || 'N/A'} BHK
                                </span>
                              </div>
                              <div className="col-6 d-flex align-items-center mt-1 mb-1">

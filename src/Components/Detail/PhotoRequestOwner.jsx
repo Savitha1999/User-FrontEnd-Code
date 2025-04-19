@@ -147,11 +147,19 @@ const PropertyCard = ({ property , onRemove , onUndo }) => {
         <p
           className="mb-0 ps-3 pe-3 text-center pt-1"
           style={{
-            background: "#FF0000",
+            fontSize: "12px",
+
+            background: "#FF4F00", // Neon orange
             color: "white",
             cursor: "pointer",
             borderRadius: "0px 0px 0px 15px",
-            fontSize: "12px",
+            transition: "all 0.2s ease-in-out",
+          }}
+          onMouseOver={(e) => {
+            e.target.style.background = "#ff7300"; // Brighter neon on hover
+          }}
+          onMouseOut={(e) => {
+            e.target.style.background = "#FF4F00"; // Original orange
           }}
           onClick={() => handleClick('remove')}
         >
@@ -161,11 +169,19 @@ const PropertyCard = ({ property , onRemove , onUndo }) => {
         <p
           className="mb-0 ps-3 pe-3 text-center pt-1"
           style={{
-            background: "green",
+            background: "green", // Vibrant green
             color: "white",
             cursor: "pointer",
             borderRadius: "0px 0px 0px 15px",
+            transition: "all 0.2s ease-in-out",
             fontSize: "12px",
+
+          }}
+          onMouseOver={(e) => {
+            e.target.style.background = "#32cd32"; // Neon green on hover
+          }}
+          onMouseOut={(e) => {
+            e.target.style.background = "#39ff14"; // Original green
           }}
           onClick={() => handleClick('undo')}
         >
@@ -193,8 +209,27 @@ const PropertyCard = ({ property , onRemove , onUndo }) => {
             color:"#007C7C", fontSize:"12px"
           }}>Are you sure you want to {confirmAction} this Property?</p>
           <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
-            <button className='p-1' style={{ background:  "#2F747F", width: "80px", fontSize: "13px", border:"none" }} onClick={handleConfirmYes}>Yes</button>
-            <button className="ms-3 p-1" style={{ background:  "#FF0000", width: "80px", fontSize: "13px" , border:"none"}} onClick={handleConfirmNo}>No</button>
+            <button className='p-1' style={{ background:  "#2F747F", width: "80px", fontSize: "13px", border:"none" }} onClick={handleConfirmYes}   onMouseOver={(e) => {
+          e.target.style.background = "#029bb3"; // Brighter neon on hover
+          e.target.style.fontWeight = 600; // Brighter neon on hover
+          e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+
+        }}
+        onMouseOut={(e) => {
+          e.target.style.background = "#2F747F"; // Original orange
+          e.target.style.fontWeight = 400; // Brighter neon on hover
+
+        }}>Yes</button>
+            <button className="ms-3 p-1" style={{ background:  "#FF0000", width: "80px", fontSize: "13px" , border:"none"}} onClick={handleConfirmNo}    onMouseOver={(e) => {
+          e.target.style.background = "#FF6700"; // Brighter neon on hover
+          e.target.style.fontWeight = 600; // Brighter neon on hover
+          e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+        }}
+        onMouseOut={(e) => {
+          e.target.style.background = "#FF4500"; // Original orange
+          e.target.style.fontWeight = 400; // Brighter neon on hover
+
+        }}>No</button>
           </div>
         </div>
       )}
@@ -397,17 +432,36 @@ const App = () => {
   };
   const navigate = useNavigate();
 
-const handlePageNavigation = () => {
-  navigate('/mobileviews'); // Redirect to the desired path
-};
+
   return (
     <div style={{ maxWidth: '500px', margin: 'auto', background:"#F7F7F7" , fontFamily: 'Inter, sans-serif' }}>
       <Tab.Container activeKey={activeKey} onSelect={(key) => setActiveKey(key)}>
         <Row className="g-3">
           <Col lg={12} className="d-flex flex-column align-items-center">
           <div className="d-flex align-items-center justify-content-start w-100" style={{background:"#EFEFEF" }}>
-          <button className="pe-5" onClick={handlePageNavigation}><FaArrowLeft color="#30747F"/> 
-        </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>PHOTO REQUEST OWNER </h3> </div>
+          <button
+      onClick={() => navigate(-1)}
+      className="pe-5"
+      style={{
+        backgroundColor: '#f0f0f0',
+        border: 'none',
+        padding: '10px 20px',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease-in-out',
+        display: 'flex',
+        alignItems: 'center',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = '#f0f4f5'; // Change background
+        e.currentTarget.querySelector('svg').style.color = '#ffffff'; // Change icon color
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = '#f0f0f0';
+        e.currentTarget.querySelector('svg').style.color = '#30747F';
+      }}
+    >
+      <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
+    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>PHOTO REQUEST OWNER </h3> </div>
 
 
             <Nav variant="tabs" className="mb-3" style={{ width: '100%' }}>
