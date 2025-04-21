@@ -1,7 +1,5 @@
 
 
-
-
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -352,8 +350,10 @@ useEffect(() => {
   if (storedPhoneNumber) {
     setUserPhoneNumber(storedPhoneNumber);
 
-    // ✅ Call API only if userPhoneNumber & ppcId exist
-   
+    // // ✅ Call API only if userPhoneNumber & ppcId exist
+    // if (ppcId) {
+    //   storeUserViewedProperty(storedPhoneNumber, ppcId);
+    // }
   }
 }, [ppcId]); // ✅ Runs only when ppcId changes
 
@@ -893,9 +893,6 @@ const priceInWords = propertyDetails && propertyDetails.price
   
   
 
-
-
-
   const toggleShareOptions = () => {
     setShowOptions(!showOptions);
   };
@@ -1210,6 +1207,17 @@ const currentUrl = `${window.location.origin}${location.pathname}`; // <- Works 
                     <button className="m-0"
                         type="submit" 
                         style={{ padding: "8px 12px", borderRadius: "4px", border: "1px solid #30747F", backgroundColor: "#30747F", color: "#fff" }}
+                        onMouseOver={(e) => {
+                          e.target.style.background = "#029bb3"; // Brighter neon on hover
+                          e.target.style.fontWeight = 600; // Brighter neon on hover
+                          e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+                
+                        }}
+                        onMouseOut={(e) => {
+                          e.target.style.background = "#2F747F"; // Original orange
+                          e.target.style.fontWeight = 400; // Brighter neon on hover
+                
+                        }}
                     >
                         Submit
                     </button>
@@ -1277,13 +1285,7 @@ return (
   </div>
 );
 })}
-{/* <div>
-      <h5 className="pt-3 fw-bold"> Video </h5>
-      <video width="100%" height="auto" controls>
-        <source src="path_to_your_video.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-    </div> */}
+
 
       {/* Contact Info Section */}
       <h5 className="pt-3 fw-bold">Contact Info</h5>
@@ -1292,6 +1294,21 @@ return (
 <div 
   className="btn rounded-1 p-2 text-center d-flex align-items-center justify-content-center" 
   style={{ background: 'transparent', border: '1px solid #30747F', color: '#30747F' }} 
+  onMouseOver={(e) => {
+    e.target.style.background = "#46AFAA";
+    e.target.style.color = "#fff";
+
+    e.target.style.fontWeight = 500;
+    e.target.style.transition = "background 0.3s ease";
+  }}
+  onMouseOut={(e) => {
+    e.target.style.border = "'1px solid #30747F'";
+    e.target.style.fontWeight = 400;
+    e.target.style.background = "transparent";
+    e.target.style.color = "#30747F";
+
+
+  }}
   onClick={handleOwnerContactClick}
 >
   <img 
@@ -1390,8 +1407,18 @@ return (
     className="btn btn-outline-#30747F m-0 d-flex align-items-center gap-2"
     style={{ color: "white",backgroundColor:" #30747F", border: "1px solid #30747F" }}
     onClick={() => (window.location.href = `tel:${propertyDetails.phoneNumber}`)}
+    onMouseOver={(e) => {
+      e.target.style.background = "#029bb3";
+      e.target.style.fontWeight = 600;
+      e.target.style.transition = "background 0.3s ease";
+    }}
+    onMouseOut={(e) => {
+      e.target.style.background = "#2F747F";
+      e.target.style.fontWeight = 400;
+    }}
   >
-    <FaPhoneAlt /> Call
+    <FaPhoneAlt style={{  transition: 'color 0.3s ease-in-out' , background:"transparent"}}/> Call
+    
   </button>
 </span>
         </div>
@@ -1588,6 +1615,15 @@ return (
           setShowPopup(false);
         }}
         style={{ background:  "#2F747F", width: "80px", fontSize: "13px" }}
+        onMouseOver={(e) => {
+          e.target.style.background = "#029bb3";
+          e.target.style.fontWeight = 600;
+          e.target.style.transition = "background 0.3s ease";
+        }}
+        onMouseOut={(e) => {
+          e.target.style.background = "#2F747F";
+          e.target.style.fontWeight = 400;
+        }}
 
       >
         Yes
@@ -1597,6 +1633,16 @@ return (
 
         onClick={() => setShowPopup(false)}
         style={{ background:  "#FF0000", width: "80px", fontSize: "13px" }}
+        onMouseOver={(e) => {
+          e.target.style.background = "#FF6700"; // Brighter neon on hover
+          e.target.style.fontWeight = 600; // Brighter neon on hover
+          e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+        }}
+        onMouseOut={(e) => {
+          e.target.style.background = "#FF0000"; // Original orange
+          e.target.style.fontWeight = 400; // Brighter neon on hover
+
+        }}
 
       >
         No
@@ -1653,6 +1699,12 @@ return (
 };
 
 export default Details;
+
+
+
+
+
+
 
 
 

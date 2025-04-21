@@ -161,7 +161,7 @@ justifyContent: "space-between",
 </div>
 </div>
 <div className="col-md-8 col-8 " style={{paddingLeft:"10px", paddingTop:"7px"}}>
-          <div className="d-flex justify-content-start"><p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500 }}>{property.propertyMode
+          <div className="d-flex justify-content-start"><p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500 , fontSize:"13px"}}>{property.propertyMode
   ? property.propertyMode.charAt(0).toUpperCase() + property.propertyMode.slice(1)
   : 'N/A'}
 </p> 
@@ -170,7 +170,7 @@ justifyContent: "space-between",
   ? property.propertyType.charAt(0).toUpperCase() + property.propertyType.slice(1) 
   : 'N/A'}
 </p>
-           <p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500}}>{property.city
+           <p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500 , fontSize:"13px"}}>{property.city
   ? property.city.charAt(0).toUpperCase() + property.city.slice(1)
   : 'N/A'} , {property.district
   ? property.district.charAt(0).toUpperCase() + property.district.slice(1)
@@ -187,7 +187,7 @@ justifyContent: "space-between",
                   
                  </span>
                </div>
-               <div className="col-6 d-flex align-items-center mt-1 mb-1">
+               <div className="col-6 d-flex align-items-center mt-1 mb-1 ps-1 pe-1">
                  {/* <FaBed className="me-2" color="#2F747F"/> */}
                  <img src={bed} alt="" width={12} className="me-2"/>
                  <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>{property.bedrooms || 'N/A'}</span>
@@ -201,7 +201,7 @@ justifyContent: "space-between",
   : 'N/A'}
                  </span>
                </div>
-               <div className="col-6 d-flex align-items-center mt-1 mb-1">
+               <div className="col-6 d-flex align-items-center mt-1 mb-1 ps-1 pe-1">
                  <img src={calendar} alt="" width={12} className="me-2"/>
                   <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>
                   {property.createdAt ? new Date(property.createdAt).toLocaleDateString('en-IN', {

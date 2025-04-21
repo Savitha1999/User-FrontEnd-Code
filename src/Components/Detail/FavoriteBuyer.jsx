@@ -63,32 +63,62 @@ const [showPopup, setShowPopup] = useState(false);
     localStorage.setItem("removedFavoriteProperties", JSON.stringify(removedFavorites));
   }, [removedFavorites]);
 
+  // useEffect(() => {
+  //   if (!phoneNumber) {
+  //     setLoading(false);
+  //     return;
+  //   }
+  //   const fetchFavoriteRequests = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-favorite-buyer`, {
+  //         params: { postedPhoneNumber: phoneNumber },
+  //       });
+
+  //       if (response.status === 200) {
+
+  //         setFavorites(response.data.favoriteRequestsData);
+  //         localStorage.setItem("favoriteProperties", JSON.stringify(response.data.favoriteRequestsData));
+  //       }
+  //     } catch (error) {
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchFavoriteRequests();
+  // }, [phoneNumber]);
+
+  
   useEffect(() => {
     if (!phoneNumber) {
       setLoading(false);
       return;
     }
+  
     const fetchFavoriteRequests = async () => {
       try {
         setLoading(true);
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-favorite-buyer`, {
           params: { postedPhoneNumber: phoneNumber },
         });
-
+  
         if (response.status === 200) {
-          setFavorites(response.data.favoriteRequestsData);
-          localStorage.setItem("favoriteProperties", JSON.stringify(response.data.favoriteRequestsData));
+          const sortedFavorites = response.data.favoriteRequestsData.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+          setFavorites(sortedFavorites);
+          localStorage.setItem("favoriteProperties", JSON.stringify(sortedFavorites));
         }
       } catch (error) {
+        // handle error if needed
       } finally {
         setLoading(false);
       }
     };
+  
     fetchFavoriteRequests();
   }, [phoneNumber]);
-
   
-
 
   const handleRemoveFavorite = async (ppcId, favoriteUser) => {
     confirmAction("Are you sure you want to remove this favorite request?", async () => {

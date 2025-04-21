@@ -365,8 +365,18 @@ useEffect(() => {
 
 <button
   className="btn text-white px-3 py-1 mx-1"
-  style={{ background: "orangered", fontSize: "13px" }}
-  onClick={() => handleSendInterest(card._id)}
+  style={{ background: "#3660FF", fontSize: "13px" }}
+  onMouseOver={(e) => {
+    e.target.style.background = "#0739f5"; // Brighter neon on hover
+    e.target.style.fontWeight = 500; // Brighter neon on hover
+    e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+
+  }}
+  onMouseOut={(e) => {
+    e.target.style.background = "#3660FF"; // Original orange
+    e.target.style.fontWeight = 400; // Brighter neon on hover
+
+  }}  onClick={() => handleSendInterest(card._id)}
 >
   Send Interest
 </button>
@@ -374,6 +384,17 @@ useEffect(() => {
 <button
   className="btn text-white px-3 py-1 mx-1"
   style={{ background: "#2F747F", fontSize: "13px" }}
+  onMouseOver={(e) => {
+    e.target.style.background = "#029bb3"; // Brighter neon on hover
+    e.target.style.fontWeight = 600; // Brighter neon on hover
+    e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+
+  }}
+  onMouseOut={(e) => {
+    e.target.style.background = "#2F747F"; // Original orange
+    e.target.style.fontWeight = 400; // Brighter neon on hover
+
+  }}
   onClick={() =>
     handleConfirmCall(
       card.interestedUserPhone ? "buyer" : "owner",

@@ -195,7 +195,8 @@ const PropertyCard = ({ property, onRemove, onUndo }) => {
 
                  </div>
                  <div className="col-md-8 col-8" style={{paddingLeft:"10px", background:"#F5F5F5"}}>
-                  <div className="d-flex justify-content-between"><p className="m-0 fw-bold" style={{ color:'#5E5E5E' }}>{property.propertyMode || 'N/A'}</p>
+                  <div className="d-flex justify-content-between">
+                    <p className="m-0" style={{ color:'#5E5E5E' , fontSize:"13px"}}>{property.propertyMode || 'N/A'}</p>
 {onRemove && (
             <p className="m-0 ps-3 pe-3" 
             style={{
@@ -234,7 +235,7 @@ const PropertyCard = ({ property, onRemove, onUndo }) => {
               e.target.style.background = "#32cd32"; // Neon green on hover
             }}
             onMouseOut={(e) => {
-              e.target.style.background = "#39ff14"; // Original green
+              e.target.style.background = "green"; // Original green
             }}              onClick={(e) => {
                 e.stopPropagation();
                 onUndo(property);
@@ -242,8 +243,8 @@ const PropertyCard = ({ property, onRemove, onUndo }) => {
             >Undo</p>
           )}
                   </div>
-                   <p className="fw-bold m-0" style={{ color:'#000000' }}>{property.propertyType || 'N/A'}</p>
-                   <p className=" fw-bold m-0" style={{ color:'#5E5E5E'}}>{property.city || 'N/A'}</p>
+                   <p className="fw-bold m-0" style={{ color:'#000000' , fontSize:"15px"}}>{property.propertyType || 'N/A'}</p>
+                   <p className=" m-0" style={{ color:'#5E5E5E', fontSize:"13px"}}>{property.city || 'N/A'}</p>
                    <div className="card-body ps-2 m-0 pt-0 pe-2 d-flex flex-column justify-content-center">
                      <div className="row">
                        <div className="col-6 d-flex align-items-center  p-1">
@@ -334,29 +335,61 @@ const MatchedProperties = () => {
   }, [message]);
 
   
+  // // Fetch matched properties from API
+  // const fetchMatchedProperties = useCallback(async () => {
+  //   if (!phoneNumber) return;
+
+  //   try {
+  //     setLoading(true);
+  //     const apiUrl = `${process.env.REACT_APP_API_URL}/fetch-owner-matched-properties`;
+  //     const { data } = await axios.get(apiUrl, { params: { phoneNumber } });
+
+  //     console.log("Fetched Properties:", data.properties); // Debugging
+
+  //     setProperties(data.properties || []); // Ensure 'properties' key is accessed correctly
+  //     localStorage.setItem("matchedProperties", JSON.stringify(data.properties || []));
+  //   } catch (error) {
+  //     setMessage({ text: "Failed to fetch matched properties.", type: "error" });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [phoneNumber]);
+
+  // useEffect(() => {
+  //   fetchMatchedProperties();
+  // }, [fetchMatchedProperties]);
+
+
+
   // Fetch matched properties from API
-  const fetchMatchedProperties = useCallback(async () => {
-    if (!phoneNumber) return;
+const fetchMatchedProperties = useCallback(async () => {
+  if (!phoneNumber) return;
 
-    try {
-      setLoading(true);
-      const apiUrl = `${process.env.REACT_APP_API_URL}/fetch-owner-matched-properties`;
-      const { data } = await axios.get(apiUrl, { params: { phoneNumber } });
+  try {
+    setLoading(true);
+    const apiUrl = `${process.env.REACT_APP_API_URL}/fetch-owner-matched-properties`;
+    const { data } = await axios.get(apiUrl, { params: { phoneNumber } });
 
-      console.log("Fetched Properties:", data.properties); // Debugging
+    // 🔁 Sort New → Old by createdAt
+    const sorted = (data.properties || []).sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
 
-      setProperties(data.properties || []); // Ensure 'properties' key is accessed correctly
-      localStorage.setItem("matchedProperties", JSON.stringify(data.properties || []));
-    } catch (error) {
-      setMessage({ text: "Failed to fetch matched properties.", type: "error" });
-    } finally {
-      setLoading(false);
-    }
-  }, [phoneNumber]);
+    console.log("Fetched & Sorted Properties:", sorted);
 
-  useEffect(() => {
-    fetchMatchedProperties();
-  }, [fetchMatchedProperties]);
+    setProperties(sorted);
+    localStorage.setItem("matchedProperties", JSON.stringify(sorted));
+  } catch (error) {
+    setMessage({ text: "Failed to fetch matched properties.", type: "error" });
+  } finally {
+    setLoading(false);
+  }
+}, [phoneNumber]);
+
+useEffect(() => {
+  fetchMatchedProperties();
+}, [fetchMatchedProperties]);
+
 
 
   const handleRemoveConfirm = async () => {

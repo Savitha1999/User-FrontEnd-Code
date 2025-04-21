@@ -120,13 +120,43 @@ const App = () => {
 
   const { phoneNumber } = useParams();
 
+  // useEffect(() => {
+  //   if (!phoneNumber) {
+  //     setMessage("Phone number is missing.");
+  //     setLoading(false);
+  //     return;
+  //   }
+
+  //   const fetchViewedProperties = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         `${process.env.REACT_APP_API_URL}/photo-requests/buyer/${phoneNumber}`
+  //       );
+  //       if (response.status === 200) {
+  //         console.log("Fetched Properties:", response.data);
+  //         setProperties(response.data);
+  //       } else {
+  //         setMessage("No photo requests found.");
+  //       }
+  //     } catch (error) {
+  //       setMessage("Error fetching photo requests.");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchViewedProperties();
+  // }, [phoneNumber]);
+  
+  
+
   useEffect(() => {
     if (!phoneNumber) {
       setMessage("Phone number is missing.");
       setLoading(false);
       return;
     }
-
+  
     const fetchViewedProperties = async () => {
       try {
         const response = await axios.get(
@@ -134,7 +164,13 @@ const App = () => {
         );
         if (response.status === 200) {
           console.log("Fetched Properties:", response.data);
-          setProperties(response.data);
+          
+          // Assuming `response.data` contains the properties with a `createdAt` field
+          const sortedProperties = response.data.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+  
+          setProperties(sortedProperties); // Set sorted properties
         } else {
           setMessage("No photo requests found.");
         }
@@ -144,9 +180,11 @@ const App = () => {
         setLoading(false);
       }
     };
-
+  
     fetchViewedProperties();
-  }, [phoneNumber]); // Removed setProperties from dependencies
+  }, [phoneNumber]); // Trigger effect when `phoneNumber` changes
+  
+
    
 useEffect(() => {
   if (message) {

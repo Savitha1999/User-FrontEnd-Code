@@ -38,7 +38,7 @@ const FeaturedProperty = () => {
 
   return (
     <div className="container mb-4">
-      <h2 className="text-center mb-4">Featured Properties</h2>
+      {/* <h2 className="text-center mb-4">Featured Properties</h2> */}
       <div className="row p-1">
         {properties.map((property) => (
          

@@ -607,7 +607,7 @@ fetchContactBuyerCount();
     
     //             // Corrected navigation
     //             // navigate(`/add-property`, { state: { ppcId, phoneNumber } });
-    //             navigate(`/add-property/${phoneNumber}?ppcId=${ppcId}`);
+    //             navigate(`/add-property/${phoneNumber}/${ppcId}`);
 
     //         }
     //     } catch (error) {

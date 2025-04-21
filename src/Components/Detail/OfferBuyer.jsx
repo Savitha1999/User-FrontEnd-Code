@@ -57,30 +57,61 @@ const App = () => {
     localStorage.setItem("removedOffers", JSON.stringify(removedOffers));
   }, [offers, removedOffers]);
 
+  // // Fetch offers based on phoneNumber
+  // useEffect(() => {
+  //   const fetchOffers = async () => {
+  //     if (!phoneNumber) return;
+
+  //     setLoading(true);
+  //     try {
+  //       const response = await axios.get(`${process.env.REACT_APP_API_URL}/offers/buyer/${phoneNumber}`);
+  //       if (response.status === 200) {
+  //         const fetchedOffers = response.data.offers || [];
+  //         setOffers(fetchedOffers);
+  //         const updatedOffers = await axios.get(`${process.env.REACT_APP_API_URL}/offers/buyer/${phoneNumber}`);
+  //         setOffers(updatedOffers.data.offers);
+  //       } else {
+  //         setMessage({ text: "No buyers found for this offer user.", type: "danger" });
+  //       }
+  //     } catch (error) {
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchOffers();
+  // }, [phoneNumber]);
+
+
+
+
   // Fetch offers based on phoneNumber
-  useEffect(() => {
-    const fetchOffers = async () => {
-      if (!phoneNumber) return;
+useEffect(() => {
+  const fetchOffers = async () => {
+    if (!phoneNumber) return;
 
-      setLoading(true);
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/offers/buyer/${phoneNumber}`);
-        if (response.status === 200) {
-          const fetchedOffers = response.data.offers || [];
-          setOffers(fetchedOffers);
-          const updatedOffers = await axios.get(`${process.env.REACT_APP_API_URL}/offers/buyer/${phoneNumber}`);
-          setOffers(updatedOffers.data.offers);
-        } else {
-          setMessage({ text: "No buyers found for this offer user.", type: "danger" });
-        }
-      } catch (error) {
-      } finally {
-        setLoading(false);
+    setLoading(true);
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/offers/buyer/${phoneNumber}`);
+      if (response.status === 200) {
+        const fetchedOffers = response.data.offers || [];
+        
+        // Sort the offers by createdAt (new to old)
+        const sortedOffers = fetchedOffers.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        setOffers(sortedOffers);
+      } else {
+        setMessage({ text: "No buyers found for this offer user.", type: "danger" });
       }
-    };
+    } catch (error) {
+      setMessage({ text: "Failed to fetch offers. Please try again later.", type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchOffers();
-  }, [phoneNumber]);
+  fetchOffers();
+}, [phoneNumber]);
 
 
   const handleRemoveProperty = async (ppcId, buyerPhoneNumber) => {

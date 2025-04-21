@@ -598,7 +598,7 @@ fetchContactBuyerCount();
     
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}/store-data`,
+                `${process.env.REACT_APP_API_URL}/store-id`,
                 { phoneNumber }
             );
     

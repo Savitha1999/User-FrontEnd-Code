@@ -328,6 +328,45 @@ const App = () => {
   }, [properties]);
 
 
+// useEffect(() => {
+//   if (!phoneNumber) return;
+
+//   const fetchViewedProperties = async () => {
+//     setLoading(true);
+//     try {
+//       const response = await axios.get(`${process.env.REACT_APP_API_URL}/property-buyer-viewed`, { params: { phoneNumber } });
+//       const viewedUsers = response.data.viewedUsers || [];
+
+//       const apiProperties = viewedUsers.flatMap((user, index) =>
+//         user.viewedProperties.map((property, propIndex) => ({
+//           ...property,
+//           viewerPhoneNumber: user.viewerPhoneNumber,
+//           uniqueId: `${index}-${propIndex}`, // Unique identifier
+//           status: "active" // Default status from API
+//         }))
+//       );
+
+//       // Merge LocalStorage and API data
+//       const storedProperties = JSON.parse(localStorage.getItem("viewedProperties")) || [];
+//       const mergedProperties = apiProperties.map((apiProp) => {
+//         const storedProp = storedProperties.find((sp) => sp.uniqueId === apiProp.uniqueId);
+//         return storedProp || apiProp; // Use local data if available
+//       });
+
+//       setProperties(mergedProperties);
+//       localStorage.setItem("viewedProperties", JSON.stringify(mergedProperties));
+
+//     } catch (err) {
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   fetchViewedProperties();
+// }, [phoneNumber]);
+
+
+
 useEffect(() => {
   if (!phoneNumber) return;
 
@@ -342,21 +381,27 @@ useEffect(() => {
           ...property,
           viewerPhoneNumber: user.viewerPhoneNumber,
           uniqueId: `${index}-${propIndex}`, // Unique identifier
-          status: "active" // Default status from API
+          status: "active", // Default status
         }))
       );
 
-      // Merge LocalStorage and API data
+      // 🔽 Sort by createdAt (newest first)
+      const sortedApiProperties = apiProperties.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      // Merge with localStorage data
       const storedProperties = JSON.parse(localStorage.getItem("viewedProperties")) || [];
-      const mergedProperties = apiProperties.map((apiProp) => {
+      const mergedProperties = sortedApiProperties.map((apiProp) => {
         const storedProp = storedProperties.find((sp) => sp.uniqueId === apiProp.uniqueId);
-        return storedProp || apiProp; // Use local data if available
+        return storedProp || apiProp; // Use local version if exists
       });
 
       setProperties(mergedProperties);
       localStorage.setItem("viewedProperties", JSON.stringify(mergedProperties));
 
     } catch (err) {
+      // Optionally set error message
     } finally {
       setLoading(false);
     }
@@ -364,6 +409,8 @@ useEffect(() => {
 
   fetchViewedProperties();
 }, [phoneNumber]);
+
+
 
 const handleRemoveProperty = async (ppcId, phoneNumber, uniqueId) => {
   confirmAction("Are you sure you want to remove this viewd buyer ?", async () => {

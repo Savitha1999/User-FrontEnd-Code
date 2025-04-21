@@ -208,9 +208,11 @@ export default function RouterPage() {
         <Route path='/sort/with-image' element={< PhotosWith/>} />
 
         <Route path='/more' element={< MoreSidebar/>} />
+        <Route path='/details/:ppcId' element={< DetailProperty/>} />
 
 
-        <Route path='/details/:ppcId' element={isAuthenticated ? <DetailProperty phone={phoneNumber} /> : <App to="/" />} />
+
+        {/* <Route path='/details/:ppcId' element={isAuthenticated ? <DetailProperty phone={phoneNumber} /> : <App to="/" />} /> */}
 
         <Route path='/owner' element={< Owner />} />
         <Route path='/RefundPolicy' element={< RefundPolicy />} />

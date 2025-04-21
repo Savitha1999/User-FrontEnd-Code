@@ -1,19 +1,5 @@
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
@@ -2296,14 +2282,14 @@ useEffect(() => {
           <div className="w-100">
             <div style={{ overflowY: 'auto', fontFamily:"Inter, sans-serif" }}>
             {loading ? (
-      <div className="text-center my-4"
+      <div className="text-center my-4 "
       style={{
         position: 'fixed',
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
 
-      }}>
+      }}>
         <span className="spinner-border text-primary" role="status" />
         <p className="mt-2">Loading properties...</p>
       </div>
@@ -2319,7 +2305,7 @@ useEffect(() => {
                      <div className="row g-0 ">
          <div className="col-md-4 col-4 d-flex flex-column align-items-center">
       
- <div style={{ position: "relative", width: "100%",height: window.innerWidth <= 640 ? "180px" : "170px",  }}>
+ <div style={{ position: "relative", width: "100%",height: "160px",  }}>
     {/* Image */}
     <img
  src={
@@ -2375,16 +2361,16 @@ useEffect(() => {
   </div>
          </div>
          <div className="col-md-8 col-8 " style={{paddingLeft:"10px", paddingTop:"7px"}}>
-          <div className="d-flex justify-content-start"><p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500 }}>{property.propertyMode
+          <div className="d-flex justify-content-start"><p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500 , fontSize:"13px"}}>{property.propertyMode
   ? property.propertyMode.charAt(0).toUpperCase() + property.propertyMode.slice(1)
   : 'N/A'}
 </p> 
           </div>
-           <p className="fw-bold m-0 " style={{ color:'#000000' }}>{property.propertyType 
+           <p className="fw-bold m-0 " style={{ color:'#000000', fontSize:"15px" }}>{property.propertyType 
   ? property.propertyType.charAt(0).toUpperCase() + property.propertyType.slice(1) 
   : 'N/A'}
 </p>
-           <p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500}}>{property.city
+           <p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500 , fontSize:"13px"}}>{property.city
   ? property.city.charAt(0).toUpperCase() + property.city.slice(1)
   : 'N/A'} , {property.district
   ? property.district.charAt(0).toUpperCase() + property.district.slice(1)
@@ -2401,7 +2387,7 @@ useEffect(() => {
                   
                  </span>
                </div>
-               <div className="col-6 d-flex align-items-center mt-1 mb-1">
+               <div className="col-6 d-flex align-items-center mt-1 mb-1 ps-1 pe-1">
                  {/* <FaBed className="me-2" color="#2F747F"/> */}
                  <img src={bed} alt="" width={12} className="me-2"/>
                  <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>{property.bedrooms || 'N/A'} BHK</span>
@@ -2415,7 +2401,7 @@ useEffect(() => {
   : 'N/A'}
                  </span>
                </div>
-               <div className="col-6 d-flex align-items-center mt-1 mb-1">
+               <div className="col-6 d-flex align-items-center mt-1 mb-1 ps-1 pe-1">
                  <img src={calendar} alt="" width={12} className="me-2"/>
                   <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>
                   {property.createdAt ? new Date(property.createdAt).toLocaleDateString('en-IN', {

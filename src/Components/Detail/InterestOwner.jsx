@@ -191,7 +191,7 @@ const PropertyCard = ({ property, onRemoveClick, onUndoClick }) => {
 
       <div className="col-md-8 col-8" style={{paddingLeft:"10px", background:"#F5F5F5"}}>
       <div className="d-flex justify-content-between">
-          <p className="mb-1 fw-bold " style={{ color: '#5E5E5E' }}>{property.propertyMode || 'N/A'}</p>
+          <p className="m-0 " style={{ color: '#5E5E5E' , fontSize:"13px"}}>{property.propertyMode || 'N/A'}</p>
 
           {onRemoveClick && (
             <p className="m-0 ps-3 pe-3" 
@@ -231,7 +231,7 @@ const PropertyCard = ({ property, onRemoveClick, onUndoClick }) => {
               e.target.style.background = "#32cd32"; // Neon green on hover
             }}
             onMouseOut={(e) => {
-              e.target.style.background = "#39ff14"; // Original green
+              e.target.style.background = "green"; // Original green
             }}              onClick={(e) => {
                 e.stopPropagation();
                 onUndoClick(property);
@@ -240,8 +240,8 @@ const PropertyCard = ({ property, onRemoveClick, onUndoClick }) => {
           )}
         </div>
 
-        <p className="fw-bold m-0" style={{ color: '#000000' }}>{property.propertyType || 'N/A'}</p>
-        <p className=" fw-bold m-0" style={{ color: '#5E5E5E' }}>{property.city || 'N/A'}</p>
+        <p className="fw-bold m-0" style={{ color: '#000000' , fontSize:"15px"}}>{property.propertyType || 'N/A'}</p>
+        <p className=" m-0" style={{ color: '#5E5E5E' , fontSize:"13px"}}>{property.city || 'N/A'}</p>
 
         <div className="card-body ps-2 m-0 pt-0 pe-2 d-flex flex-column justify-content-center">
           <div className="row">
@@ -319,6 +319,26 @@ const App = () => {
     }
   }, [message]);
 
+  // const fetchInterestedProperties = useCallback(async () => {
+  //   if (!phoneNumber) return;
+  //   try {
+  //     setLoading(true);
+  //     const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/get-interest-owner`, {
+  //       params: { phoneNumber }
+  //     });
+  //     setProperties(data.interestRequestsData);
+  //   } catch {
+  //     setMessage({ text: "Failed to fetch properties.", type: "error" });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [phoneNumber]);
+
+  // useEffect(() => {
+  //   fetchInterestedProperties();
+  // }, [fetchInterestedProperties]);
+
+
   const fetchInterestedProperties = useCallback(async () => {
     if (!phoneNumber) return;
     try {
@@ -326,17 +346,25 @@ const App = () => {
       const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/get-interest-owner`, {
         params: { phoneNumber }
       });
-      setProperties(data.interestRequestsData);
+  
+      // 🔁 Sort by createdAt: New → Old
+      const sortedData = data.interestRequestsData.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+  
+      setProperties(sortedData);
     } catch {
       setMessage({ text: "Failed to fetch properties.", type: "error" });
     } finally {
       setLoading(false);
     }
   }, [phoneNumber]);
-
+  
   useEffect(() => {
     fetchInterestedProperties();
   }, [fetchInterestedProperties]);
+  
+
 
   const updatePropertyStatus = (ppcId, status) => {
     const updated = properties.map(p => p.ppcId === ppcId ? { ...p, status } : p);

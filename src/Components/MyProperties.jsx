@@ -193,7 +193,7 @@ const MyProperties = () => {
     }
   
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/store-data`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/store-id`, {
         phoneNumber: `${phoneNumber}`,
       });
   
@@ -220,10 +220,13 @@ const MyProperties = () => {
 
   return (
 
-<div className="w-100 d-flex flex-column align-items-center" 
-     style={{ minHeight: "100vh", overflow: "hidden" }}> 
-  <div className="" 
-     style={{ width: "100%", maxWidth: "450px", position: "relative", overflow: "hidden" }}>
+    <div className="container d-flex align-items-center justify-content-center p-0">
+    
+    <div 
+        className="d-flex flex-column align-items-center justify-content-center m-0"
+        style={{maxWidth:"500px", width:"100%"}}>
+    <div className="row m-0 w-100">
+
        <div className="d-flex align-items-center justify-content-start w-100" style={{background:"#EFEFEF" }}>
          <button
               onClick={() => navigate(-1)}
@@ -258,7 +261,6 @@ const MyProperties = () => {
 <AddProps ppcId={ppcId} phoneNumber={`${countryCode}${phoneNumber}`} onClose={handleCloseAddForm} />
       ) : (
         <Tab.Container activeKey={activeKey} onSelect={(key) => setActiveKey(key)}>
-          <Row className="g-3 mt-3 p-1">
             <Col lg={12} className="d-flex flex-column align-items-center">
             <Nav variant="tabs" className="mb-3 d-flex flex-nowrap">
   <Nav.Item>
@@ -287,26 +289,48 @@ const MyProperties = () => {
 
               <Tab.Content className="pt-3">
                 <Tab.Pane eventKey="property">
+                  
                   {propertyUsers.length > 0 ? (
                     propertyUsers.map((user) => (
-                      <div key={user._id} className="card mb-3 shadow p-1" style={{ width: '100%', background: '#F9F9F9' }}>
-                        <div className="row g-0">
-                          <div className="col-4 d-flex flex-column align-items-center">
-                            <div className="text-white py-1 px-2 text-center" style={{ width: '100%', background: "#2F747F" }}>
-                              PUC- {user.ppcId}
-                            </div>
-                            <img
-                              src={user.photos?.length ? `http://localhost:5006/${user.photos[0]}` : "https://d17r9yv50dox9q.cloudfront.net/car_gallery/default.jpg"}
-                              alt="Property"
-                              className="img-fluid"
-                              style={{ width: '100%', height: '160px', objectFit: 'cover' }}
-                            />
-                            <div className="py-1 text-center" style={{ width: '100%', background: '#3F8D99', color: '#fff' }}>
-                              {user.status}
-                            </div>
-                          </div>
-                          
-                          <div className="col-md-8 col-8 " style={{paddingLeft:"10px", paddingTop:"7px"}}>
+
+
+<div 
+className="row g-0 rounded-4 mb-2"
+style={{
+  border: "1px solid #ddd",
+  overflow: "hidden",
+  background: "#EFEFEF",
+}}
+>
+<div className="col-md-4 col-4 d-flex flex-column justify-content-between align-items-center">
+  <div
+    className="text-white py-1 px-2 text-center"
+    style={{ width: "100%", background: "#2F747F" }}
+  >
+    PUC- {user.ppcId}
+  </div>
+
+  <div style={{ position: "relative", width: "100%", height: "200px" }}>
+    <img
+                                src={user.photos?.length ? `http://localhost:5006/${user.photos[0]}` : "https://d17r9yv50dox9q.cloudfront.net/car_gallery/default.jpg"}
+
+      alt="Property"
+      className="img-fluid"
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+
+    <div>
+    <div className="d-flex justify-content-between w-100 text-center" style={{ position: "absolute",
+          bottom: "0px" , background: '#3F8D99', color: '#fff'}}>
+        
+            <span className="w-100 text-center"> {user.status}  </span>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div className="col-md-8 col-8 " style={{paddingLeft:"10px", paddingTop:"7px" ,background:"#FAFAFA"}}>
           <div className="d-flex justify-content-start"><p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500 }}>{user.propertyMode
   ? user.propertyMode.charAt(0).toUpperCase() + user.propertyMode.slice(1)
   : 'N/A'}
@@ -321,7 +345,7 @@ const MyProperties = () => {
   : 'N/A'} , {user.district
   ? user.district.charAt(0).toUpperCase() + user.district.slice(1)
   : 'N/A'}</p>
-           <div className="card-body ps-2 m-0 pt-0 pe-2 pb-0 d-flex flex-column justify-content-center" style={{background:"#FAFAFA"}}>
+           <div className="card-body ps-2 m-0 pt-0 pe-2 pb-0 d-flex flex-column justify-content-center" >
              <div className="row">
                <div className="col-6 d-flex align-items-center mt-1 mb-1 ps-1">
                  {/* <FaRulerCombined className="me-2" color="#2F747F" /> */}
@@ -402,14 +426,22 @@ const MyProperties = () => {
       <button
         className="btn btn-sm"
         style={{
-          background: hoverEdit ? '#4ba0ad' : '#2F747F',
+          background: '#2F747F',
           color: '#fff',
           width: '40%',
           marginLeft: '8px',
           transition: 'all 0.3s ease'
         }}
-        onMouseEnter={() => setHoverEdit(true)}
-        onMouseLeave={() => setHoverEdit(false)}
+        onMouseOver={(e) => {
+          e.target.style.background = "#4ba0ad"; // Brighter neon on hover
+          e.target.style.fontWeight = 600; // Brighter neon on hover
+          e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+        }}
+        onMouseOut={(e) => {
+          e.target.style.background = "#2F747F"; // Original orange
+          e.target.style.fontWeight = 400; // Brighter neon on hover
+
+        }}
         onClick={() => confirmEdit(user)}
       >
         Edit
@@ -419,90 +451,16 @@ const MyProperties = () => {
                               </div>
               </div>
             </div>
-          </div>
+</div>
+</div>
 
-
-                          {/* <div className="col-md-8 col-8 ps-2">
-                                    <div className="d-flex justify-content-start"><p className="mb-1" style={{ color:'#5E5E5E' , fontWeight:500 }}>{user.propertyMode || 'N/A'}</p>
-                                    </div>
-                                     <p className="fw-bold m-0" style={{ color:'#000000' }}>{user.propertyType || 'N/A'}</p>
-                                     <p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500}}>{user.city || 'N/A'} , {user.district || 'N/A'}</p>
-                                     <div className="card-body ps-2 m-0 pt-0 pe-2 pb-0 d-flex flex-column justify-content-center">
-                                       <div className="row">
-                                         <div className="col-6 d-flex align-items-center mt-1 mb-1">
-                                           <FaRulerCombined className="me-2" color="#2F747F" /> <span style={{ fontSize:'13px', color:'#5E5E5E' , fontWeight:500 }}>{user.totalArea || 'N/A'}{user.areaUnit || 'N/A'}</span>
-                                         </div>
-                                         <div className="col-6 d-flex align-items-center mt-1 mb-1">
-                                           <FaBed className="me-2" color="#2F747F"/> <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>{user.bedrooms || 'N/A'}BHK</span>
-                                         </div>
-                                         <div className="col-6 d-flex align-items-center mt-1 mb-1">
-                                           <FaUserAlt className="me-2" color="#2F747F"/> <span style={{ fontSize:'13px', color:'#5E5E5E' ,fontWeight: 500 }}>{user.postedBy || 'N/A'}</span>
-                                         </div>
-                                         
-                                          <div className="col-6 d-flex align-items-center mt-1 mb-1">
-                                                                                  <FaCalendarAlt className="me-2" color="#2F747F"/> 
-                                         <span style={{ fontSize:'13px', color:'#5E5E5E', fontWeight: 500 }}>
-                                           {user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN', {
-                                             year: 'numeric',
-                                             month: 'short',
-                                             day: 'numeric'
-                                           }) : 'N/A'}
-                                         </span>     
-                                         </div>             
-                                         <div className="col-12 d-flex flex-col align-items-center mt-1 mb-1">
-                                          <h6 className="m-0">
-                                          <span style={{ fontSize:'17px', color:'#2F747F', fontWeight:'bold', letterSpacing:"1px" }}> <FaRupeeSign className="me-2" color="#2F747F"/>
-                                      {user.price || 'N/A'}
-                                          </span>                                             </h6>
-                                         </div>
-                                         <span style={{color:"grey", fontSize:"11px"}}>Edit and Submit Ad to complete</span>
-                                         <div className="d-flex justify-content-around mt-2">
-                                         
-
-<button
-        className="btn btn-sm"
-        style={{
-          background: hoverDelete ? 'red' : '#FF4500',
-          color: '#fff',
-          width: '40%',
-          transition: 'all 0.3s ease'
-        }}
-        onMouseEnter={() => setHoverDelete(true)}
-        onMouseLeave={() => setHoverDelete(false)}
-        onClick={() => confirmDelete(user.ppcId)}
-      >
-        Remove
-      </button>
-
-      <button
-        className="btn btn-sm"
-        style={{
-          background: hoverEdit ? '#4ba0ad' : '#2F747F',
-          color: '#fff',
-          width: '40%',
-          marginLeft: '8px',
-          transition: 'all 0.3s ease'
-        }}
-        onMouseEnter={() => setHoverEdit(true)}
-        onMouseLeave={() => setHoverEdit(false)}
-        onClick={() => confirmEdit(user)}
-      >
-        Edit
-      </button>
-
-
-                              </div>
-                                        </div>
-                                      </div>
-                                    </div> */}
-                        </div>
-                      </div>
                     ))
                   ) : (
                     <div className="text-center">
                       <p>No Property Data Found.</p>
                     </div>
                   )}
+
                 </Tab.Pane>
 
 
@@ -511,25 +469,44 @@ const MyProperties = () => {
 <Tab.Pane eventKey="removed">
                 {removedUsers.length > 0 ? (
                   removedUsers.map((user) => (
-                    <div key={user._id} className="card mb-3 shadow p-1" style={{ width: '100%', background: '#F9F9F9' }}>
-                      <div className="row g-0">
-                        <div className="col-4 d-flex flex-column align-items-center">
-                          <div className="text-white py-1 px-2 text-center" style={{ width: '100%', background: "#2F747F" }}>
-                            PUC- {user.ppcId}
-                          </div>
-                          <div className="img-container" style={{ width: '100%', height: '150px', overflow: 'hidden' }}>
-                            <img
-                              src={user.photos && user.photos.length > 0 ? `http://localhost:5006/${user.photos[0]}` : "https://d17r9yv50dox9q.cloudfront.net/car_gallery/default.jpg"}
-                              alt={`Property`}
-                              className="img-fluid"
-                              style={{ width: '100%', height: '150px', objectFit: 'cover' }}
-                            />
-                          </div>
-                          <div className="py-1 px-1 text-center" style={{ width: '100%', background: '#FF4500', color: '#fff' }}>
-                            {user.status || 'N/A'}
-                          </div>
-                        </div>
-                        <div className="col-md-8 col-8 " style={{paddingLeft:"10px", paddingTop:"7px"}}>
+
+<div 
+className="row g-0 rounded-4 mb-2"
+style={{
+  border: "1px solid #ddd",
+  overflow: "hidden",
+  background: "#EFEFEF",
+}}
+>
+<div className="col-md-4 col-4 d-flex flex-column justify-content-between align-items-center">
+  <div
+    className="text-white py-1 px-2 text-center"
+    style={{ width: "100%", background: "#2F747F" }}
+  >
+    PUC- {user.ppcId}
+  </div>
+
+  <div style={{ position: "relative", width: "100%", height: "180px" }}>
+    <img
+                                src={user.photos?.length ? `http://localhost:5006/${user.photos[0]}` : "https://d17r9yv50dox9q.cloudfront.net/car_gallery/default.jpg"}
+
+      alt="Property"
+      className="img-fluid"
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+
+    <div>
+    <div className="d-flex justify-content-between w-100 text-center" style={{ position: "absolute",
+          bottom: "0px" , background: '#3F8D99', color: '#fff'}}>
+        
+            <span className="w-100 text-center"> {user.status}  </span>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div className="col-md-8 col-8 " style={{paddingLeft:"10px", paddingTop:"7px" ,background:"#FAFAFA"}}>
           <div className="d-flex justify-content-start"><p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500 }}>{user.propertyMode
   ? user.propertyMode.charAt(0).toUpperCase() + user.propertyMode.slice(1)
   : 'N/A'}
@@ -544,7 +521,7 @@ const MyProperties = () => {
   : 'N/A'} , {user.district
   ? user.district.charAt(0).toUpperCase() + user.district.slice(1)
   : 'N/A'}</p>
-           <div className="card-body ps-2 m-0 pt-0 pe-2 pb-0 d-flex flex-column justify-content-center" style={{background:"#FAFAFA"}}>
+           <div className="card-body ps-2 m-0 pt-0 pe-2 pb-0 d-flex flex-column justify-content-center" >
              <div className="row">
                <div className="col-6 d-flex align-items-center mt-1 mb-1 ps-1">
                  {/* <FaRulerCombined className="me-2" color="#2F747F" /> */}
@@ -593,28 +570,38 @@ const MyProperties = () => {
                 Negotiable                </span> 
                   </h6>
                </div>
-               <div className="d-flex justify-content-center mt-2">
-<button
-      className="btn btn-sm"
-      style={{
-        background: hover ?  'green':'#19575f' , // hover vs default
-        color: hover ? '#e0f7fa' : '#fff',         // text color on hover
-        width: '50%',
-        transition: 'all 0.3s ease'
-      }}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      onClick={() => confirmUndo(user.ppcId)}
-    >
-      Undo
-    </button>
-                            </div>
+                                         <div className="d-flex justify-content-center mt-2">
+
+      <button
+        className="btn btn-sm"
+        style={{
+          background: '#2F747F',
+          color: '#fff',
+          width: '40%',
+          marginLeft: '8px',
+          transition: 'all 0.3s ease'
+        }}
+        onMouseOver={(e) => {
+          e.target.style.background = "#4ba0ad"; // Brighter neon on hover
+          e.target.style.fontWeight = 600; // Brighter neon on hover
+          e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+        }}
+        onMouseOut={(e) => {
+          e.target.style.background = "#2F747F"; // Original orange
+          e.target.style.fontWeight = 400; // Brighter neon on hover
+
+        }}
+        onClick={() => confirmUndo(user.ppcId)}
+      >
+        Undo
+      </button>
+
+
+                              </div>
               </div>
             </div>
-          </div>
-
-                      </div>
-                    </div>
+</div>
+</div>
                   ))
                 ) : (
                   <div className="text-center">
@@ -631,11 +618,11 @@ const MyProperties = () => {
 
               </Tab.Content>
             </Col>
-          </Row>
         </Tab.Container>
       )}  </div>
 </div>
 
+</div>
 
   );
 };

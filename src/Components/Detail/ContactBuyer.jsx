@@ -61,8 +61,9 @@ const ContactBuyer = () => {
         });
 
         if (response.status === 200) {
-          const transformedProperties = response.data.contactRequestsData.map((property) => ({
-            ...property,
+          const sortedProperties = response.data.propertiesData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+          const transformedProperties = sortedProperties.map((property) => ({            ...property,
             contactRequesters: property.contactRequestersPhoneNumbers.filter(
               (user) => user && user !== "undefined"
             ),

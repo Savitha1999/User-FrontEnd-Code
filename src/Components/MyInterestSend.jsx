@@ -68,8 +68,7 @@ const MyInterestSend = () => {
         const sorted = response.data.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setAssistanceData(sorted);
       } catch (err) {
-        console.error("Fetch Error:", err);
-        setError("Error fetching buyer assistance interests.");
+        setError("No buyer assistance interests.");
       } finally {
         setLoading(false);
       }
@@ -94,7 +93,6 @@ const MyInterestSend = () => {
   };
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
 
   
  
@@ -106,8 +104,35 @@ const MyInterestSend = () => {
       onWheel={handleWheelScroll}
       ref={scrollContainerRef}
     >
+          <div className="d-flex flex-column align-items-center justify-content-center m-0" style={{ maxWidth: '500px', margin: 'auto', width: '100%' , background:"#F7F7F7" , fontFamily: 'Inter, sans-serif'}}>
+
+    <div className="d-flex align-items-center justify-content-start w-100" style={{background:"#EFEFEF" }}>
+
+       <button
+                   onClick={() => navigate(-1)}
+                   className="pe-5"
+                   style={{
+                     backgroundColor: '#f0f0f0',
+                     border: 'none',
+                     padding: '10px 20px',
+                     cursor: 'pointer',
+                     transition: 'all 0.3s ease-in-out',
+                     display: 'flex',
+                     alignItems: 'center',
+                   }}
+                   onMouseEnter={(e) => {
+                     e.currentTarget.style.backgroundColor = '#f0f4f5'; // Change background
+                     e.currentTarget.querySelector('svg').style.color = '#ffffff'; // Change icon color
+                   }}
+                   onMouseLeave={(e) => {
+                     e.currentTarget.style.backgroundColor = '#f0f0f0';
+                     e.currentTarget.querySelector('svg').style.color = '#30747F';
+                   }}
+                 >
+                   <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
+                 </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>My Interest Send  </h3> </div>
         
-      <h5>Buyer Assistance Interest List</h5>
+      {/* <h5>Buyer Assistance Interest List</h5> */}
 
 
       {assistanceData.length > 0 ? (
@@ -268,7 +293,7 @@ const MyInterestSend = () => {
         </div>
       )}
     </div>
-
+</div>
   );
 };
 

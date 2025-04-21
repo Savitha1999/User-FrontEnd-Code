@@ -986,7 +986,7 @@ const PropertyCard = ({ property, onRemoveClick, onUndoClick }) => {
 
       <div className="col-md-8 col-8" style={{paddingLeft:"10px", background:"#F5F5F5"}}>
       <div className="d-flex justify-content-between">
-          <p className="mb-1 fw-bold " style={{ color: '#5E5E5E' }}>{property.propertyMode || 'N/A'}</p>
+          <p className="m-0" style={{ color: '#5E5E5E' , fontSize:"13px"}}>{property.propertyMode || 'N/A'}</p>
 
           {onRemoveClick && (
             <p className="m-0 ps-3 pe-3"
@@ -1026,7 +1026,7 @@ const PropertyCard = ({ property, onRemoveClick, onUndoClick }) => {
               e.target.style.background = "#32cd32"; // Neon green on hover
             }}
             onMouseOut={(e) => {
-              e.target.style.background = "#39ff14"; // Original green
+              e.target.style.background = "green"; // Original green
             }}              onClick={(e) => {
                 e.stopPropagation();
                 onUndoClick(property);
@@ -1035,8 +1035,8 @@ const PropertyCard = ({ property, onRemoveClick, onUndoClick }) => {
           )}
         </div>
 
-        <p className="fw-bold m-0" style={{ color: '#000000' }}>{property.propertyType || 'N/A'}</p>
-        <p className=" fw-bold m-0" style={{ color: '#5E5E5E' }}>{property.city || 'N/A'}</p>
+        <p className="fw-bold m-0" style={{ color: '#000000', fontSize:"15px" }}>{property.propertyType || 'N/A'}</p>
+        <p className=" m-0" style={{ color: '#5E5E5E', fontSize:"13px" }}>{property.city || 'N/A'}</p>
 
         <div className="card-body ps-2 m-0 pt-0 pe-2 d-flex flex-column justify-content-center">
           <div className="row">

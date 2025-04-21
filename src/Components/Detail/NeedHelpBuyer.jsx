@@ -112,31 +112,63 @@ useEffect(() => {
     localStorage.setItem("removedHelpRequests", JSON.stringify(removedHelpRequests));
   }, [removedHelpRequests]);
 
+  // useEffect(() => {
+  //   if (!phoneNumber) {
+  //     setLoading(false);
+  //     return;
+  //   }
+
+  //   const fetchHelpRequests = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-help-as-buyer`, {
+  //         params: { postedPhoneNumber: phoneNumber },
+  //       });
+
+  //       if (response.status === 200) {
+  //         setHelpRequests(response.data.helpRequestsData);
+  //         localStorage.setItem("helpRequests", JSON.stringify(response.data.helpRequestsData));
+  //       }
+  //     } catch (error) {
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchHelpRequests();
+  // }, [phoneNumber]);
+
   useEffect(() => {
     if (!phoneNumber) {
       setLoading(false);
       return;
     }
-
+  
     const fetchHelpRequests = async () => {
       try {
         setLoading(true);
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-help-as-buyer`, {
           params: { postedPhoneNumber: phoneNumber },
         });
-
+  
         if (response.status === 200) {
-          setHelpRequests(response.data.helpRequestsData);
-          localStorage.setItem("helpRequests", JSON.stringify(response.data.helpRequestsData));
+          const sortedHelpRequests = response.data.helpRequestsData.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+  
+          setHelpRequests(sortedHelpRequests);
+          localStorage.setItem("helpRequests", JSON.stringify(sortedHelpRequests));
         }
       } catch (error) {
+        // Handle error if needed
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchHelpRequests();
   }, [phoneNumber]);
+  
 
   
 const navigate = useNavigate();

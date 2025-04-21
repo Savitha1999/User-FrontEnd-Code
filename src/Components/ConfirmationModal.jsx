@@ -8,8 +8,27 @@ const ConfirmationModal = ({ show, message, onConfirm, onCancel }) => {
       <div style={styles.modal}>
         <p style={{ fontSize: '16px', marginBottom: '20px' }}>{message}</p>
         <div style={styles.buttons}>
-          <button style={styles.yes} onClick={onConfirm}>Yes</button>
-          <button style={styles.no} onClick={onCancel}>No</button>
+          <button style={styles.yes} onClick={onConfirm}
+                 onMouseOver={(e) => {
+                  e.target.style.background = "#029bb3";
+                  e.target.style.fontWeight = 600;
+                  e.target.style.transition = "background 0.3s ease";
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.background = "#2F747F";
+                  e.target.style.fontWeight = 400;
+                }}>Yes</button>
+          <button style={styles.no} onClick={onCancel}
+               onMouseOver={(e) => {
+                e.target.style.background = "#FF6700"; // Brighter neon on hover
+                e.target.style.fontWeight = 600; // Brighter neon on hover
+                e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+              }}
+              onMouseOut={(e) => {
+                e.target.style.background = "#FF0000"; // Original orange
+                e.target.style.fontWeight = 400; // Brighter neon on hover
+      
+              }}>No</button>
         </div>
       </div>
     </div>

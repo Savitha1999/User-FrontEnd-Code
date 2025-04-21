@@ -91,7 +91,6 @@ const handleSubmit = (e) => {
       }, {});
       setDataList(groupedData);
     } catch (error) {
-      console.error("Error fetching dropdown data:", error);
     }
   };
 
@@ -143,7 +142,7 @@ const handleSubmit = (e) => {
 
 
         }
-      }, 5000); // 10 seconds
+      }, 3000); // 10 seconds
   
     } catch (error) {
       setMessage("Please fill all required fields correctly.");
@@ -658,7 +657,19 @@ const handleSubmit = (e) => {
      
   
 
-        <button type="submit" className="submit-button" style={{ padding: "10px 20px", cursor: "pointer", background:"#6CBAAF", border:'none', color:'#ffffff'}}>
+        <button type="submit" className="submit-button" style={{ padding: "10px 20px", cursor: "pointer", background:"#6CBAAF", border:'none', color:'#ffffff'}}
+        
+        onMouseOver={(e) => {
+          e.target.style.background = "#017a6e"; // Brighter neon on hover
+          e.target.style.fontWeight = 500; // Brighter neon on hover
+          e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+
+        }}
+        onMouseOut={(e) => {
+          e.target.style.background = "#6CBAAF"; // Original orange
+          e.target.style.fontWeight = 400; // Brighter neon on hover
+
+        }}>
           {formData._id ? "UPDATE PROPERTY ASSISTANCE" : "ADD PROPERTY ASSISTANCE"}
         </button>
       </form>

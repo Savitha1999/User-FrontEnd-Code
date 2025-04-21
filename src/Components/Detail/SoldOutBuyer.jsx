@@ -43,18 +43,51 @@ const App = () => {
     localStorage.setItem("removedSoldOutProperties", JSON.stringify(removedProperties));
   }, [removedProperties]);
 
+  // useEffect(() => {
+  //   if (!phoneNumber) {
+  //     setLoading(false);
+  //     return;
+  //   }
+
+  //   const fetchSoldOutProperties = async () => {
+  //     try {
+  //       const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-soldout-buyer`, {
+  //         params: { postedPhoneNumber: phoneNumber },
+  //       });
+
+  //       if (response.status === 200) {
+  //         const transformedProperties = response.data.soldOutRequestsData.map((property) => ({
+  //           ...property,
+  //           soldOutRequesters: property.soldOutRequestersPhoneNumbers.filter(
+  //             (user) => user && user !== "undefined"
+  //           ),
+  //         }));
+
+  //         setProperties(transformedProperties);
+  //         localStorage.setItem("soldOutProperties", JSON.stringify(transformedProperties));
+  //       }
+  //     } catch (error) {
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchSoldOutProperties();
+  // }, [phoneNumber]);
+
+
   useEffect(() => {
     if (!phoneNumber) {
       setLoading(false);
       return;
     }
-
+  
     const fetchSoldOutProperties = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-soldout-buyer`, {
           params: { postedPhoneNumber: phoneNumber },
         });
-
+  
         if (response.status === 200) {
           const transformedProperties = response.data.soldOutRequestsData.map((property) => ({
             ...property,
@@ -62,18 +95,26 @@ const App = () => {
               (user) => user && user !== "undefined"
             ),
           }));
-
-          setProperties(transformedProperties);
-          localStorage.setItem("soldOutProperties", JSON.stringify(transformedProperties));
+  
+          // 🔽 Sort properties from newest to oldest
+          const sortedProperties = transformedProperties.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+  
+          setProperties(sortedProperties);
+          localStorage.setItem("soldOutProperties", JSON.stringify(sortedProperties));
         }
       } catch (error) {
+        setMessage("Failed to fetch sold-out properties.");
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchSoldOutProperties();
   }, [phoneNumber]);
+  
+
 
   const handleRemoveProperty = async (ppcId, soldOutUser) => {
     // if (!window.confirm("Are you sure you want to remove this sold-out request?")) return;

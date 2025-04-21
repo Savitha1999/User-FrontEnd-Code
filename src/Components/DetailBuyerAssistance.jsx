@@ -375,36 +375,63 @@ const location = useLocation();
 
 
                         <div className="d-flex justify-content-between align-items-center ps-2 pe-2 mt-5 mb-5 col-12">
-  <button className="btn text-white px-3 py-1 mx-1" style={{ background: "#FF0000", width: "80px", fontSize: "13px" }}
+  <button className="btn text-white px-3 py-1 mx-1" style={{ background: "#FF0000",  fontSize: "13px" }}
         onClick={() => handleRemoveAssistance(requestData._id)}
+        onMouseOver={(e) => {
+          e.target.style.background = "#FF6700"; // Brighter neon on hover
+          e.target.style.fontWeight = 600; // Brighter neon on hover
+          e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+        }}
+        onMouseOut={(e) => {
+          e.target.style.background = "#FF4500"; // Original orange
+          e.target.style.fontWeight = 400; // Brighter neon on hover
+
+        }}
 >
     REMOVE
   </button>
 
-  <div className="d-flex flex-column align-items-center justify-content-center">
+  {/* <div className="d-flex flex-column align-items-center justify-content-center"> */}
   {matchedProperties.length > 0 ? (
     <button
       onClick={() =>
         handleViewMore(matchedProperties[0].phoneNumber, matchedProperties[0].ppcId)
       }
       className="btn text-white px-3 py-1 mx-1"
-      style={{ background: "#2F747F", width: "auto", fontSize: "13px" }}
+      style={{ background: "#2F747F",  fontSize: "13px" }}
+      
     >
       Match Prop
     </button>
   ) : null}
-</div>
+{/* </div> */}
 
 
   <button
   className="btn text-white px-3 py-1 mx-1"
-  style={{ background: "#0F9F2C", width: "80px", fontSize: "13px" }}
-  onClick={() => handleSendInterest(id)}
+  style={{ background: "#3660FF", fontSize: "13px" }}
+  onMouseOver={(e) => {
+    e.target.style.background = "#017a6e"; // Brighter neon on hover
+    e.target.style.fontWeight = 600; // Brighter neon on hover
+    e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
+
+  }}
+  onMouseOut={(e) => {
+    e.target.style.background = "#3660FF"; // Original orange
+    e.target.style.fontWeight = 400; // Brighter neon on hover
+
+  }}  onClick={() => handleSendInterest(id)}
 >
   Send Interest
 </button>
 
-  <button className="btn text-white px-3 py-1 mx-1" style={{ background: "#0F9F2C", width: "80px", fontSize: "13px" }}>
+  <button className="btn text-white px-3 py-1 mx-1" style={{ background: "#0F9F2C", fontSize: "13px" }}
+    onMouseOver={(e) => {
+      e.target.style.background = "#32cd32"; // Neon green on hover
+    }}
+    onMouseOut={(e) => {
+      e.target.style.background = "green"; // Original green
+    }}>
     PAY
   </button>
 </div>

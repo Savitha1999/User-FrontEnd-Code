@@ -138,10 +138,10 @@ justifyContent: "space-between",
 </div>
 </div>
 <div className="col-md-8 col-8 ps-2">
-<div className="d-flex justify-content-start"><p className="mb-1" style={{ color:'#5E5E5E' , fontWeight:500 }}>{property.propertyMode || 'N/A'}</p> 
+<div className="d-flex justify-content-start"><p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500 , fontSize:"13px"}}>{property.propertyMode || 'N/A'}</p> 
 </div>
  <p className="fw-bold m-0" style={{ color:'#000000' }}>{property.propertyType || 'N/A'}</p>
- <p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500}}>{property.city || 'N/A'} , {property.city || 'N/A'}</p>
+ <p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500 , fontSize:"13px"}}>{property.city || 'N/A'} , {property.city || 'N/A'}</p>
  <div className="card-body ps-2 m-0 pt-0 pe-2 pb-0 d-flex flex-column justify-content-center">
    <div className="row">
      <div className="col-6 d-flex align-items-center mt-1 mb-1">

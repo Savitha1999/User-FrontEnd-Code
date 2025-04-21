@@ -10,6 +10,8 @@ import myImage from '../../Assets/Rectangle 766.png'; // Correct path
 import myImage1 from '../../Assets/Rectangle 145.png'; 
 import {FaCamera, FaEye , FaRulerCombined, FaBed, FaUserAlt, FaCalendarAlt, FaRupeeSign } from 'react-icons/fa';
 import { MdCall } from 'react-icons/md';
+
+
 const PropertyCard = ({ property , onRemove , onUndo }) => {
 
   const [message, setMessage] = useState({ text: "", type: "" });
@@ -17,12 +19,18 @@ const PropertyCard = ({ property , onRemove , onUndo }) => {
 
   const navigate = useNavigate();
  
-   const handleCardClick = () => {
-     if (property?.ppcId) {
-       navigate(`/detail/${property.ppcId}`);
-     }
-   };
+  //  const handleCardClick = () => {
+  //    if (property?.ppcId) {
+  //      navigate(`/detail/${property.ppcId}`);
+  //    }
+  //  };
 
+  const handleCardClick = () => {
+    if (confirmAction) return; // Don't navigate if confirmation is active
+    if (property?.ppcId) {
+      navigate(`/detail/${property.ppcId}`);
+  }
+ };
      
   
   const [imageCounts, setImageCounts] = useState({}); // Store image count for each property
@@ -38,6 +46,7 @@ const PropertyCard = ({ property , onRemove , onUndo }) => {
       return 0;
     }
   };
+
   useEffect(() => {
     const fetchImageCountForProperty = async () => {
       if (property?.ppcId) {
@@ -161,7 +170,10 @@ const PropertyCard = ({ property , onRemove , onUndo }) => {
           onMouseOut={(e) => {
             e.target.style.background = "#FF4F00"; // Original orange
           }}
-          onClick={() => handleClick('remove')}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevents card click
+            handleClick('remove');
+          }}
         >
           REMOVE
         </p>
@@ -181,10 +193,12 @@ const PropertyCard = ({ property , onRemove , onUndo }) => {
             e.target.style.background = "#32cd32"; // Neon green on hover
           }}
           onMouseOut={(e) => {
-            e.target.style.background = "#39ff14"; // Original green
+            e.target.style.background = "green"; // Original green
           }}
-          onClick={() => handleClick('undo')}
-        >
+          onClick={(e) => {
+            e.stopPropagation(); // Prevents card click
+            handleClick('undo');
+          }}        >
           UNDO
         </p>
       )}
@@ -201,7 +215,8 @@ const PropertyCard = ({ property , onRemove , onUndo }) => {
             left: "50%",
             transform: "translate(-50%, -50%)",
             zIndex: 1000,
-            width: "250px",
+            width: "400px",
+            height:"100px",
             textAlign: "center"
           }}
         >
@@ -234,8 +249,8 @@ const PropertyCard = ({ property , onRemove , onUndo }) => {
         </div>
       )}
       </div>
-      <p className="fw-bold m-0" style={{ color: '#000000' }}>{property.propertyType || 'N/A'}</p>
-      <p className='m-0' style={{ color: '#5E5E5E' }}>{property.city || 'N/A'}</p>
+      <p className="fw-bold m-0" style={{ color: '#000000', fontSize:"15px" }}>{property.propertyType || 'N/A'}</p>
+      <p className='m-0' style={{ color: '#5E5E5E' , fontSize:"13px"}}>{property.city || 'N/A'}</p>
       <div className="card-body ps-2 m-0 pt-0 pe-2 d-flex flex-column justify-content-center">
       <div className="row">
                        <div className="col-6 d-flex align-items-center  p-1">
@@ -247,7 +262,7 @@ const PropertyCard = ({ property , onRemove , onUndo }) => {
                        <div className="col-6 d-flex align-items-center  p-1">
           <FaBed className="me-2" color="#2F747F" />
           <span style={{ fontSize: '13px', color: '#5E5E5E' }}>
-            {property.bedrooms || 'N/A'}BHK
+            {property.bedrooms || 'N/A'} BHK
           </span>
         </div>
                        <div className="col-6 d-flex align-items-center  p-1">
@@ -343,19 +358,44 @@ const App = () => {
   });
   const [properties, setProperties] = useState([]);
 
-  // Fetch properties data from backend API
-  useEffect(() => {
-    const fetchProperties = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/photo-requests/owner/${phoneNumber}`);
-        setProperties(response.data);  // Assuming the data is in the response body
-      } catch (error) {
-        setMessage("Error fetching properties.");
-      }
-    };
+  // // Fetch properties data from backend API
+  // useEffect(() => {
+  //   const fetchProperties = async () => {
+  //     try {
+  //       const response = await axios.get(`${process.env.REACT_APP_API_URL}/photo-requests/owner/${phoneNumber}`);
+  //       setProperties(response.data);  // Assuming the data is in the response body
+  //     } catch (error) {
+  //       setMessage("Error fetching properties.");
+  //     }
+  //   };
 
-    fetchProperties();
-  }, []);
+  //   fetchProperties();
+  // }, []);
+
+
+
+useEffect(() => {
+  const fetchProperties = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/photo-requests/owner/${phoneNumber}`);
+      
+      if (response.status === 200) {
+        // Assuming `response.data` contains the properties with a `createdAt` field
+        const sortedProperties = response.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        setProperties(sortedProperties);  // Set sorted properties
+      } else {
+        setMessage("No properties found.");
+      }
+    } catch (error) {
+      setMessage("Error fetching properties.");
+    }
+  };
+
+  fetchProperties();
+}, [phoneNumber]); // Trigger effect when `phoneNumber` changes
 
 
 

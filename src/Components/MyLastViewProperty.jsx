@@ -146,6 +146,10 @@ const LastViewedProperty = () => {
     if (phoneNumber) fetchLastViewed();
   }, [phoneNumber]);
 
+
+
+  
+
   const handlePageNavigation = () => navigate("/mobileviews");
 
   const allViews = properties.filter(prop => !removedPpcIds.includes(prop.ppcId));
@@ -253,46 +257,13 @@ const LastViewedProperty = () => {
           <FaCamera className="me-1"/> {imageCounts[property.ppcId] || 0}
           </span>
           <span className="d-flex justify-content-center align-items-center" style={{ color:'#fff', background:`url(${myImage1}) no-repeat center center`, backgroundSize:"cover" ,fontSize:'12px', width:'50px' }}>
-          <FaEye className="me-1" />{property.views}
+          <FaEye className="me-1" />{property.views || 0}
           </span>
           </div>
           </div>
           </div>
                  </div>
-                 {/* <div className="col-md-8 col-8" style={{paddingLeft:"10px", background:"#F5F5F5"}}>
-                      <h6 className="mb-1 text-truncate">{property.propertyType || "Property"}</h6>
-                      <p className="m-0">Area: {property.totalArea} {property.areaUnit}</p>
-                      <p className="m-0">₹ {property.price?.toLocaleString()}</p>
-                      <p className="m-0">City: {property.city}, {property.state}</p>
-                      <p className="m-0">ppcId: {property.ppcId}</p>
-                      <p className="m-0 text-muted" style={{ fontSize: "12px" }}>Viewed: {new Date(property.viewedAt).toLocaleString()}</p>
-
-                      <div className="d-flex justify-content-end">
-                        {activeTab === "all" ? (
-                          <button
-                          className="btn btn-sm btn-danger"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemove(property);
-                          }}
-                        >
-                          Remove
-                        </button>
-                        
-                        ) : (
-                          <button
-                          className="btn btn-sm btn-success"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleUndo(property);
-                          }}
-                        >
-                          Undo
-                        </button>
-                        
-                       )}
-                      </div>
-                    </div> */}
+              
                      <div className="col-md-8 col-8" style={{paddingLeft:"10px", background:"#F5F5F5"}}>
                                       <div className="d-flex justify-content-between"><p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500}}>{property.propertyMode || 'N/A'}</p>
 {activeTab === "all" ? (
@@ -325,7 +296,7 @@ const LastViewedProperty = () => {
                                              <FaRulerCombined className="me-2" color="#2F747F" /> <span style={{ fontSize:'13px', color:'#5E5E5E' }}>{property.totalArea || 'N/A'} {property.areaUnit || 'N/A'}  </span>
                                            </div>
                                            <div className="col-6 d-flex align-items-center p-1">
-                                             <FaBed className="me-2" color="#2F747F"/> <span style={{ fontSize:'13px', color:'#5E5E5E' }}>{property.bedrooms || 'N/A'}BHK</span>
+                                             <FaBed className="me-2" color="#2F747F"/> <span style={{ fontSize:'13px', color:'#5E5E5E' }}>{property.bedrooms || 'N/A'} BHK</span>
                                            </div>
                                            <div className="col-6 d-flex align-items-center  p-1">
                                              <FaUserAlt className="me-2" color="#2F747F"/> <span style={{ fontSize:'13px', color:'#5E5E5E' }}>{property.postedBy || 'N/A'}</span>

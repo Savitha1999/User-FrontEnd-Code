@@ -65,6 +65,39 @@ const MatchedBuyer = () => {
 
 
 
+  // useEffect(() => {
+  //   const fetchBuyerRequests = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const response = await axios.get(
+  //         `${process.env.REACT_APP_API_URL}/fetch-matched-buyers-for-owner`,
+  //         { params: { phoneNumber } }
+  //       );
+  
+  //       const fetchedData = response.data.matchedBuyerRequests;
+  //       setBuyerRequests(fetchedData.filter((req) => !req.isDeleted));
+  //       setRemovedBuyerRequests(fetchedData.filter((req) => req.isDeleted));
+  
+  //       // Sync with Local Storage
+  //       localStorage.setItem("buyerRequests", JSON.stringify(fetchedData.filter((req) => !req.isDeleted)));
+  //       localStorage.setItem("removedBuyerRequests", JSON.stringify(fetchedData.filter((req) => req.isDeleted)));
+  
+  //       setError("");
+  //     } catch (err) {
+  //       setError(err.response?.data?.message || "Error fetching data");
+  //       setBuyerRequests([]);
+  //       setRemovedBuyerRequests([]);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  
+  //   if (phoneNumber) {
+  //     fetchBuyerRequests();
+  //   }
+  // }, [phoneNumber]);
+  
+
   useEffect(() => {
     const fetchBuyerRequests = async () => {
       try {
@@ -74,13 +107,20 @@ const MatchedBuyer = () => {
           { params: { phoneNumber } }
         );
   
-        const fetchedData = response.data.matchedBuyerRequests;
-        setBuyerRequests(fetchedData.filter((req) => !req.isDeleted));
-        setRemovedBuyerRequests(fetchedData.filter((req) => req.isDeleted));
+        let fetchedData = response.data.matchedBuyerRequests;
+  
+        // 🔁 Sort by createdAt (New → Old)
+        fetchedData = fetchedData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  
+        const activeRequests = fetchedData.filter((req) => !req.isDeleted);
+        const removedRequests = fetchedData.filter((req) => req.isDeleted);
+  
+        setBuyerRequests(activeRequests);
+        setRemovedBuyerRequests(removedRequests);
   
         // Sync with Local Storage
-        localStorage.setItem("buyerRequests", JSON.stringify(fetchedData.filter((req) => !req.isDeleted)));
-        localStorage.setItem("removedBuyerRequests", JSON.stringify(fetchedData.filter((req) => req.isDeleted)));
+        localStorage.setItem("buyerRequests", JSON.stringify(activeRequests));
+        localStorage.setItem("removedBuyerRequests", JSON.stringify(removedRequests));
   
         setError("");
       } catch (err) {
@@ -97,6 +137,7 @@ const MatchedBuyer = () => {
     }
   }, [phoneNumber]);
   
+
 
   // ✅ Handle Delete Request (Soft Delete)
   const handleDelete = async (id) => {

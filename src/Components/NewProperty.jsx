@@ -142,31 +142,31 @@ const NewProperty = () => {
                     <div className="row">
                       <div className="col-md-6 col-6">
                         <p className="m-0">
-                          <FaRulerCombined className="icon" />{" "}
+                          <FaRulerCombined className="icon" color="#63CCE4"/>{" "}
                           {property.totalArea ? `${property.totalArea}${property.areaUnit}` : "N/A"}
                         </p>
                       </div>
-                      <div className="col-md-6 col-6">
+                      <div className="col-md-6 col-6" style={{color:"grey"}}>
                         <p className="m-0">
-                          <FaBed className="icon ms-3" /> {property.bedrooms || "N/A"} Bhk
+                          <FaBed className="icon ms-3" color="#63CCE4" /> {property.bedrooms || "N/A"} Bhk
                         </p>
                       </div>
                     </div>
                     <div className="row">
-                      <div className="col-md-6 col-6">
+                      <div className="col-md-6 col-6" style={{color:"grey"}}>
                         <p className="m-0">
-                          <FaUserAlt className="icon" /> {property.ownership || "N/A"}
+                          <FaUserAlt className="icon" color="#63CCE4"/> {property.ownership || "N/A"}
                         </p>
                       </div>
-                      <div className="col-md-6 col-6">
+                      <div className="col-md-6 col-6" style={{color:"grey"}}>
                         <p className="m-0">
-                          <FaCalendarAlt className="icon ms-3" /> {property.bestTimeToCall || "N/A"}
+                          <FaCalendarAlt className="icon ms-3" color="#63CCE4"/> {property.bestTimeToCall || "N/A"}
                         </p>
                       </div>
                     </div>
                   </div>
                   <button
-                    className="btn mt-auto"
+                    className="btn mt-2"
                     style={{
                       width: "100%",
                       background: "#2294B1",
