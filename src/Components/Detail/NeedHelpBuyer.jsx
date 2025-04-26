@@ -199,7 +199,7 @@ const navigate = useNavigate();
       }}
     >
       <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
-    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>NeedHelp Buyer</h3> </div>
+    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>NEEDHELP OWNER</h3> </div>
 
 <div className="row g-2 w-100">
 
@@ -253,8 +253,17 @@ const navigate = useNavigate();
    
 
 {loading ? (
-  <p>Loading...</p>
-) : activeTab === "all" ? (
+      <div className="text-center my-4 "
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+
+      }}>
+        <span className="spinner-border text-primary" role="status" />
+        <p className="mt-2">Loading properties...</p>
+      </div>) : activeTab === "all" ? (
   helpRequests.length > 0 ? (
     helpRequests.map(property => (
       <div key={property.ppcId} className="property-card">
@@ -264,6 +273,8 @@ const navigate = useNavigate();
               <div
                 key={index}
                 className="card p-2 w-100 w-md-50 w-lg-33"
+                onClick={() => navigate(`/detail/${property.ppcId}`)}
+
                 style={{
                   border: "1px solid #ddd",
                   borderRadius: "10px",
@@ -357,7 +368,9 @@ const navigate = useNavigate();
                   {!showFullNumber[index] ? (
                     <button
                       className="w-100 m-0 p-1"
-                      onClick={() => setShowFullNumber(prev => ({ ...prev, [index]: true }))}
+                      onClick={(e) => 
+                        {e.stopPropagation();
+                        setShowFullNumber(prev => ({ ...prev, [index]: true }))}}
                       style={{
                         background: "#2F747F",
                         color: "white",
@@ -380,8 +393,8 @@ const navigate = useNavigate();
 <button
   className="btn text-white px-3 py-1 flex-grow-1 mx-1"
   style={{ background: "#2F747F", fontSize: "13px" }}
-  onClick={async () => {
-    await handleContactCall(property.ppcId, user);
+  onClick={async (e) => {
+    e.stopPropagation();handleContactCall(property.ppcId, user);
     window.location.href = `tel:${user}`;
   }}
 >
@@ -401,7 +414,8 @@ const navigate = useNavigate();
                           e.target.style.fontWeight = 400; // Brighter neon on hover
                 
                         }}
-                        onClick={() => handleRemoveHelpRequest(property.ppcId, user)}
+                        onClick={(e) =>{e.stopPropagation();
+                           handleRemoveHelpRequest(property.ppcId, user)}}
                       >
                         Remove
                       </button>
@@ -495,7 +509,8 @@ const navigate = useNavigate();
                           </div>
               {!showFullNumber && (
           <button className='w-100 m-0 p-1'
-            onClick={() => setShowFullNumber(true)}
+            onClick={(e) =>{e.stopPropagation();
+               setShowFullNumber(true)}}
             style={{
               background: "#2F747F", 
               color: "white", 
@@ -534,7 +549,8 @@ const navigate = useNavigate();
                       e.target.style.fontWeight = 400; // Brighter neon on hover
             
                     }}
-                    onClick={() => handleUndoHelpRequest(property.ppcId, property.requesterPhoneNumber)}> Undo</button>
+                    onClick={(e) =>{e.stopPropagation();
+                     handleUndoHelpRequest(property.ppcId, property.requesterPhoneNumber)}}> Undo</button>
 
             </div>
             : ''}

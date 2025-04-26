@@ -19,7 +19,7 @@ import { FaArrowLeft } from "react-icons/fa";
 
 const PropertyCard = ({ property, onRemove, onUndo }) => {
   const [showFullNumber, setShowFullNumber] = useState(false);
-
+  const navigate = useNavigate();
   const [message, setMessage] = useState({ text: "", type: "" });
 
 
@@ -65,6 +65,8 @@ const handleContactLog = async () => {
     <>
       <div
         className="card p-2 w-100 w-md-50 w-lg-33"
+        onClick={() => navigate(`/detail/${property.ppcId}`)}
+
         style={{
           border: "1px solid #ddd",
           borderRadius: "10px",
@@ -153,7 +155,7 @@ const handleContactLog = async () => {
           {!showFullNumber && (
             <button
               className='w-100 m-0 p-1'
-              onClick={() => setShowFullNumber(true)}
+              onClick={(e) =>{e.stopPropagation(); setShowFullNumber(true)}}
               style={{
                 background: "#2F747F",
                 color: "white",
@@ -190,7 +192,9 @@ const handleContactLog = async () => {
 <button
   className="btn text-white px-3 py-1 flex-grow-1 mx-1"
   style={{ background: "#2F747F", width: "80px", fontSize: "13px" }}
-  onClick={async () => {
+  onClick={async (e) => {
+    e.preventDefault();
+    e.stopPropagation(); 
     try {
       // Make API call to save contact
       await axios.post(`${process.env.REACT_APP_API_URL}/contact`, {
@@ -234,7 +238,7 @@ const handleContactLog = async () => {
                     e.target.style.fontWeight = 400; // Brighter neon on hover
           
                   }}
-                  onClick={() => onRemove(property.ppcId, property.viewerPhoneNumber, property.uniqueId)}
+                  onClick={(e) =>{e.stopPropagation(); onRemove(property.ppcId, property.viewerPhoneNumber, property.uniqueId)}}
                 >
                   Remove
                 </button>
@@ -253,7 +257,7 @@ const handleContactLog = async () => {
                     e.target.style.fontWeight = 400; // Brighter neon on hover
           
                   }}
-                  onClick={() => onUndo(property.ppcId, property.viewerPhoneNumber, property.uniqueId)}
+                  onClick={(e) =>{e.stopPropagation(); onUndo(property.ppcId, property.viewerPhoneNumber, property.uniqueId)}}
                 >
                   Undo
                 </button>
@@ -507,7 +511,7 @@ const handleUndoRemove = async (ppcId, phoneNumber, uniqueId) => {
       }}
     >
       <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
-    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>VIEWED BUYER </h3> </div>
+    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>VIEWED OWNER </h3> </div>
         {/* Filter Buttons */}
         <div className="row g-2 w-100">
           <div className="col-6 p-0">
@@ -561,8 +565,17 @@ const handleUndoRemove = async (ppcId, phoneNumber, uniqueId) => {
 <div className="col-12">
   <div className="w-100 d-flex align-items-center justify-content-center" style={{ maxWidth: '500px' }}>
     {loading ? (
-      <p>Loading properties...</p>
-    ) : activeKey === "All" ? (
+      <div className="text-center my-4 "
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+
+      }}>
+        <span className="spinner-border text-primary" role="status" />
+        <p className="mt-2">Loading properties...</p>
+      </div>    ) : activeKey === "All" ? (
       <PropertyList 
         key="activeProperties" 
         properties={activeProperties} 

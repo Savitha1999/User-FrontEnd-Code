@@ -227,8 +227,17 @@ const LastViewedProperty = () => {
         {/* Properties */}
         <div className="col-12 mb-1 p-1">
           {loading ? (
-            <p>Loading...</p>
-          ) : (
+      <div className="text-center my-4 "
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+
+      }}>
+        <span className="spinner-border text-primary" role="status" />
+        <p className="mt-2">Loading properties...</p>
+      </div>          ) : (
             <>
               {activeTab === "all" && allViews.length === 0 && <p>No viewed properties found.</p>}
               {activeTab === "removed" && removedViews.length === 0 && <p>No removed properties found.</p>}
@@ -461,27 +470,7 @@ const LastViewedProperty = () => {
   </div>
 )}
 
-        {/* {modal.show && (
-          <div className="modal d-block" tabIndex="-1">
-            <div className="modal-dialog">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">{modal.type === "remove" ? "Confirm Removal" : "Undo Removal"}</h5>
-                  <button type="button" className="btn-close" onClick={() => setModal({ show: false, type: "", property: null })}></button>
-                </div>
-                <div className="modal-body">
-                  <p>Are you sure you want to {modal.type === "remove" ? "remove" : "undo"} this property?</p>
-                </div>
-                <div className="modal-footer">
-                  <button type="button" className="btn btn-secondary" onClick={() => setModal({ show: false, type: "", property: null })}>Cancel</button>
-                  <button type="button" className="btn btn-primary" onClick={modal.type === "remove" ? handleRemoveConfirm : handleUndoConfirm}>
-                    {modal.type === "remove" ? "Remove" : "Undo"}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )} */}
+      
 
       </div>
     </div>

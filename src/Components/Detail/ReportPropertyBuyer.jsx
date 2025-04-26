@@ -218,8 +218,17 @@ const navigate = useNavigate();
     </div>
 
       {loading ? (
-        <p>Loading...</p>
-      ) : activeTab === "all" ? (
+      <div className="text-center my-4 "
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+
+      }}>
+        <span className="spinner-border text-primary" role="status" />
+        <p className="mt-2">Loading properties...</p>
+      </div>      ) : activeTab === "all" ? (
         properties.length > 0 ? (
           properties.map((property) => (
             <div key={property.ppcId} className="property-card">
@@ -324,7 +333,7 @@ const navigate = useNavigate();
           {!showFullNumber && (
             <button
               className="w-100 m-0 p-1"
-              onClick={() => setShowFullNumber(true)}
+              onClick={(e) =>{e.stopPropagation(); setShowFullNumber(true)}}
               style={{
                 background: "#2F747F",
                 color: "white",
@@ -351,7 +360,9 @@ const navigate = useNavigate();
 <button
   className="btn text-white px-3 py-1 flex-grow-1 mx-1"
   style={{ background: "#2F747F", width: "80px", fontSize: "13px" }}
-  onClick={async () => {
+  onClick={async (e) => {
+    e.preventDefault();
+    e.stopPropagation(); 
     try {
       // Make API call before dialing
       await axios.post(`${process.env.REACT_APP_API_URL}/contact`, {
@@ -382,7 +393,7 @@ const navigate = useNavigate();
                   e.target.style.fontWeight = 400; // Brighter neon on hover
         
                 }}
-                onClick={() => handleRemoveReport(property.ppcId, user)}
+                onClick={(e) =>{e.stopPropagation(); handleRemoveReport(property.ppcId, user)}}
               >
                 Remove
               </button>
@@ -477,7 +488,7 @@ const navigate = useNavigate();
                           </div>
               {!showFullNumber && (
           <button className='w-100 m-0 p-1'
-            onClick={() => setShowFullNumber(true)}
+            onClick={(e) =>{e.stopPropagation(); setShowFullNumber(true)}}
             style={{
               background: "#2F747F", 
               color: "white", 
@@ -516,7 +527,8 @@ const navigate = useNavigate();
                       e.target.style.fontWeight = 400; // Brighter neon on hover
             
                     }}
-                    onClick={() => handleUndoRemove(property.ppcId, property.reportUser)}> Undo</button>
+                    onClick={(e) =>{e.stopPropagation();
+                     handleUndoRemove(property.ppcId, property.reportUser)}}> Undo</button>
 
             </div>
             : ''}

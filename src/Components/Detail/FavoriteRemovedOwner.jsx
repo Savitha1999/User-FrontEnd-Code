@@ -324,7 +324,7 @@ const App = () => {
         style={{ maxWidth: '500px', margin: 'auto', width: '100%' , background:"#F7F7F7", fontFamily: 'Inter, sans-serif'}}>
         <div className="d-flex align-items-center justify-content-start w-100" style={{background:"#EFEFEF" }}>
           <button className="pe-5" onClick={handlePageNavigation}><FaArrowLeft color="#30747F"/> 
-        </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>FAVORIT OWNER</h3> </div>
+        </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>FAVORIT BUYER</h3> </div>
         
         {/* Buttons for filtering */}
         <div className="row g-2 w-100">
@@ -354,8 +354,17 @@ const App = () => {
 <div className="w-100 d-flex align-items-center justify-content-center" style={{ maxWidth: '500px' }}>
 
             {loading ? (
-              <p>Loading properties...</p>
-            ) : activeKey === "All" ? (
+      <div className="text-center my-4 "
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+
+      }}>
+        <span className="spinner-border text-primary" role="status" />
+        <p className="mt-2">Loading properties...</p>
+      </div>            ) : activeKey === "All" ? (
               <PropertyList
                 properties={activeProperties}
                 onRemove={(property) => setModal({ show: true, type: "remove", property })}

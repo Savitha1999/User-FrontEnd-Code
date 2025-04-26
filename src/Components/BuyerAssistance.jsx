@@ -256,7 +256,7 @@ const navigate = useNavigate();
     <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', width: '100%', border: '1px solid #2F747F', background: "#fff" }}>
       <FaRupeeSign className="input-icon" style={{ color: '#2F747F', marginLeft: "10px", marginRight: '10px' }} />
       <input
-        type="text"
+        type="number"
         name="minPrice"
         value={formData.minPrice}
         onChange={handleInputChange}
@@ -271,7 +271,7 @@ const navigate = useNavigate();
     <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', border: '1px solid #2F747F', background: "#fff" }}>
       <FaRupeeSign className="input-icon" style={{ color: '#2F747F', marginLeft: "10px" }} />
       <input
-        type="text"
+        type="number"
         name="maxPrice"
         value={formData.maxPrice}
         onChange={handleInputChange}

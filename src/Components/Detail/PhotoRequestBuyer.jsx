@@ -2,6 +2,25 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -35,6 +54,7 @@ const App = () => {
    const [popupAction, setPopupAction] = useState(null);
    const [popupMessage, setPopupMessage] = useState("");
    const navigate = useNavigate();
+
 
    const confirmAction = (message, action) => {
      setPopupMessage(message);
@@ -245,7 +265,7 @@ useEffect(() => {
       }}
     >
       <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
-    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>PHOTO REQUEST BUYER </h3> </div>
+    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>PHOTO REQUEST OWNER </h3> </div>
         <div className="row g-2 w-100">
           <div className="col-6 p-0">
             <button className="w-100" style={{ backgroundColor: '#30747F', color: 'white' }} onClick={() => setActiveKey("All")}>
@@ -295,8 +315,17 @@ useEffect(() => {
 <div className="col-12">
   <div className="w-100 d-flex align-items-center justify-content-center" style={{ maxWidth: '500px' }}>
     {loading ? (
-      <p>Loading properties...</p>
-    ) : activeKey === "All" ? (
+      <div className="text-center my-4 "
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+
+      }}>
+        <span className="spinner-border text-primary" role="status" />
+        <p className="mt-2">Loading properties...</p>
+      </div>    ) : activeKey === "All" ? (
       <PropertyList
         properties={activeProperties}  // ✅ Show only required statuses
         onRemove={handleRemoveProperty}
@@ -350,7 +379,7 @@ const PropertyCard = ({ property, onRemove, onUndo, setProperties }) => {
   const [showFullNumber, setShowFullNumber] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
 
- 
+ const navigate = useNavigate();
   const handleUploadPhoto = async (ppcId, requesterPhoneNumber, file) => {
     try {
       const formData = new FormData();
@@ -431,6 +460,7 @@ const PropertyCard = ({ property, onRemove, onUndo, setProperties }) => {
 <div
       key={property.ppcId}
       className="card p-2 w-100 w-md-50 w-lg-33"
+      onClick={() => navigate(`/detail/${property.ppcId}`)}
       style={{
         border: "1px solid #ddd",
         borderRadius: "10px",
@@ -467,13 +497,7 @@ const PropertyCard = ({ property, onRemove, onUndo, setProperties }) => {
 
       <div className="p-1">
 
-        {/* <div className="mb-0">
-          <p className="mb-0">
-            <FaCalendarAlt size={16} className="me-2" color="#30747F" />
-            {property.totalArea || "N/A"}
-          </p>
-        </div> */}
-
+    
         <div className="d-flex align-items-center mb-2">
 
           <div               onClick={() => handleAcceptPhotoRequest(property.ppcId, property.requesterPhoneNumber)}
@@ -502,14 +526,7 @@ const PropertyCard = ({ property, onRemove, onUndo, setProperties }) => {
               <h6 className="m-0 text-muted" style={{ fontSize: "11px" }}>
                  Buyer Phone
               </h6>
-              {/* <span className="card-text" style={{  fontWeight:"500"}}>
-              <a href={`tel:${property.requesterPhoneNumber}`} style={{ textDecoration: "none", color: "#1D1D1D" }}>
-    {showFullNumber
-      ? property.requesterPhoneNumber
-      : property.requesterPhoneNumber?.slice(0, 5) + "*****"}
-  </a>
-              </span> */}
-
+        
 <span className="card-text" style={{ fontWeight: "500" }}>
   <a
     href={`tel:${property.requesterPhoneNumber}`}
@@ -545,7 +562,8 @@ const PropertyCard = ({ property, onRemove, onUndo, setProperties }) => {
         </div>
         {!showFullNumber && (
     <button className='w-100 m-0 p-1'
-      onClick={() => setShowFullNumber(true)}
+    onClick={(e) => {
+      e.stopPropagation(); setShowFullNumber(true)}}
       style={{
         background: "#2F747F", 
         color: "white", 
@@ -570,19 +588,12 @@ const PropertyCard = ({ property, onRemove, onUndo, setProperties }) => {
               Reject
             </button>
           )}
-     {/* <button
-              className="btn text-white px-3 py-1 flex-grow-1 mx-1"
-              style={{ background:  "#2F747F", width: "80px", fontSize: "13px" }}
-              onClick={() => (window.location.href = `tel:${ property.requesterPhoneNumber}`)}
-
-           >
-              Call
-            </button>    */}
-
 <button
   className="btn text-white px-3 py-1 flex-grow-1 mx-1"
   style={{ background: "#2F747F", width: "80px", fontSize: "13px" }}
-  onClick={async () => {
+  onClick={async (e) => {
+    e.preventDefault();
+    e.stopPropagation(); // add this
     try {
       await axios.post(`${process.env.REACT_APP_API_URL}/contact`, {
         ppcId: property.ppcId,

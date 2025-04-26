@@ -210,7 +210,7 @@ const navigate = useNavigate();
       }}
     >
       <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
-    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>SOLD OUT BUYER  </h3> </div>
+    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>SOLD OUT OWNER  </h3> </div>
 <div className="row g-2 w-100">
 
 <div className="col-6 p-0">
@@ -261,8 +261,17 @@ const navigate = useNavigate();
     
 
 {loading ? (
-  <p>Loading...</p>
-) : activeTab === "all" ? (
+      <div className="text-center my-4 "
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+
+      }}>
+        <span className="spinner-border text-primary" role="status" />
+        <p className="mt-2">Loading properties...</p>
+      </div>) : activeTab === "all" ? (
   properties.length > 0 ? (
     properties.map((property) => (
       <div key={property.ppcId} className="property-card">
@@ -273,6 +282,7 @@ const navigate = useNavigate();
               <div
                 key={index}
                 className="card p-2 w-100  w-md-50 w-lg-33"
+                onClick={() => navigate(`/detail/${property.ppcId}`)}
                 style={{
                   border: "1px solid #ddd",
                   borderRadius: "10px",
@@ -422,7 +432,7 @@ const navigate = useNavigate();
                   {!showFullNumber && (
                     <button
                       className="w-100 m-0 p-1"
-                      onClick={() => setShowFullNumber(true)}
+                      onClick={(e) =>{e.stopPropagation(); setShowFullNumber(true)}}
                       style={{
                         background: "#2F747F",
                         color: "white",
@@ -456,7 +466,9 @@ const navigate = useNavigate();
     width: "80px",
     fontSize: "13px",
   }}
-  onClick={async () => {
+  onClick={async (e) => {
+    e.preventDefault();
+    e.stopPropagation(); 
     try {
       // Make API call before dialing
       await axios.post(`${process.env.REACT_APP_API_URL}/contact`, {
@@ -491,7 +503,7 @@ const navigate = useNavigate();
                           e.target.style.fontWeight = 400; // Brighter neon on hover
                 
                         }}
-                        onClick={() => handleRemoveProperty(property.ppcId, user)}
+                        onClick={(e) =>{e.stopPropagation(); handleRemoveProperty(property.ppcId, user)}}
                       >
                         Remove
                       </button>
@@ -585,7 +597,7 @@ const navigate = useNavigate();
                           </div>
               {!showFullNumber && (
           <button className='w-100 m-0 p-1'
-            onClick={() => setShowFullNumber(true)}
+            onClick={(e) =>{e.stopPropagation(); setShowFullNumber(true)}}
             style={{
               background: "#2F747F", 
               color: "white", 
@@ -603,7 +615,7 @@ const navigate = useNavigate();
           
                   <button className="btn text-white px-3 py-1 flex-grow-1 mx-1"
                     style={{ background:  "green", width: "80px", fontSize: "13px" }}
-                    onClick={() => handleUndoRemove(property.ppcId, property.soldOutUser)}
+                    onClick={(e) =>{e.stopPropagation(); handleUndoRemove(property.ppcId, property.soldOutUser)}}
                     onMouseOver={(e) => {
                       e.target.style.background = "#32cd32"; // Brighter neon on hover
                       e.target.style.fontWeight = 600; // Brighter neon on hover

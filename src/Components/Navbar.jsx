@@ -45,10 +45,10 @@ const SidebarApp = () => {
 
   const { phoneNumber: statePhoneNumber, countryCode: stateCountryCode } = location.state || {};
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
-  const storedCountryCode = localStorage.getItem('countryCode');
+  // const storedCountryCode = localStorage.getItem('countryCode');
 
   const phoneNumber = statePhoneNumber || storedPhoneNumber;
-  const countryCode = stateCountryCode || storedCountryCode;
+  // const countryCode = stateCountryCode || storedCountryCode;
 
   const fullPhoneNumber = `${phoneNumber}`;
 
@@ -250,11 +250,11 @@ const SidebarApp = () => {
       <li className="nav-item">
         <a
           className="nav-link"
-          style={getLinkStyle('more')}
-          onMouseEnter={() => handleMouseEnter('more')}
+          style={getLinkStyle('tabs')}
+          onMouseEnter={() => handleMouseEnter('tabs')}
           onMouseLeave={handleMouseLeave}
-          href="/more"
-          onClick={() => handleLinkClick("/more")}
+          href="/tabs"
+          onClick={() => handleLinkClick("/tabs")}
         >
           <FaCogs className="me-2" style={{ color: '#30747F' }} /> More
         </a>
@@ -332,23 +332,28 @@ const SidebarApp = () => {
           onMouseEnter={() => handleMouseEnter('more-app')}
           onMouseLeave={handleMouseLeave}
           href="https://play.google.com/store/apps/dev?id=5743868169001839900&hl=en"
-          onClick={() => handleLinkClick("https://play.google.com/store/apps/dev?id=5743868169001839900&hl=en")}
+            target="_blank"
+  rel="noopener noreferrer"
+          // onClick={() => handleLinkClick("https://play.google.com/store/apps/dev?id=5743868169001839900&hl=en")}
         >
           <RiApps2AiFill className="me-2" style={{ color: '#30747F' }} /> More App
         </a>
       </li>
 
       <li className="nav-item">
-        <a
-          className="nav-link"
-          style={getLinkStyle('share-app')}
-          onMouseEnter={() => handleMouseEnter('share-app')}
-          onMouseLeave={handleMouseLeave}
-          href="https://play.google.com/store/apps/dev?id=5743868169001839900&hl=en"
-          onClick={() => handleLinkClick("https://play.google.com/store/apps/dev?id=5743868169001839900&hl=en")}
-        >
-          <FaShare className="me-2" style={{ color: '#30747F' }} /> Share App
-        </a>
+      <a
+  className="nav-link"
+  style={getLinkStyle('share-app')}
+  onMouseEnter={() => handleMouseEnter('share-app')}
+  onMouseLeave={handleMouseLeave}
+  href="https://play.google.com/store/apps/dev?id=5743868169001839900&hl=en"
+  target="_blank"
+  rel="noopener noreferrer"
+  // onClick={() => handleLinkClick("https://play.google.com/store/apps/dev?id=5743868169001839900&hl=en")}
+>
+  <FaShare className="me-2" style={{ color: '#30747F' }} /> Share App
+</a>
+
       </li>
 
       <li className="nav-item">
@@ -358,7 +363,9 @@ const SidebarApp = () => {
           onMouseEnter={() => handleMouseEnter('rate-app')}
           onMouseLeave={handleMouseLeave}
           href="https://play.google.com/store/apps/details?id=com.deepseek.chat&hl=en#review"
-          onClick={() => handleLinkClick("https://play.google.com/store/apps/details?id=com.deepseek.chat&hl=en#review")}
+          target="_blank"
+  rel="noopener noreferrer"
+          // onClick={() => handleLinkClick("https://play.google.com/store/apps/details?id=com.deepseek.chat&hl=en#review")}
         >
           <FaStar className="me-2" style={{ color: '#30747F' }} /> Rate App
         </a>

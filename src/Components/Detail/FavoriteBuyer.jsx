@@ -31,6 +31,8 @@ const [showPopup, setShowPopup] = useState(false);
 
 
   const handleFavoriteCall = async (ppcId, favoriteUser) => {
+    // confirmAction("Do you want to call this user?", async () => {
+
     try {
       await axios.post(`${process.env.REACT_APP_API_URL}/contact`,{
         ppcId,
@@ -40,8 +42,9 @@ const [showPopup, setShowPopup] = useState(false);
     } catch (error) {
       setMessage({ text: "Failed to log favorite contact.", type: "error" });
     }
-  };
-  
+  //   setShowPopup(false);
+  // });
+};  
 
   const confirmAction = (message, action) => {
     setPopupMessage(message);
@@ -197,7 +200,7 @@ const [showPopup, setShowPopup] = useState(false);
       }}
     >
       <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
-    </button> <h3 className="m-0 ms-3" style={{fontSize:"15px"}}>FAVORITE BUYER </h3> </div>
+  </button> <h3 className="m-0 ms-3" style={{fontSize:"15px"}}>FAVORITE OWNER </h3> </div>
      {/* Tabs */}
      <div className="row g-2 w-100">
      <div className="col-6 p-0">
@@ -243,21 +246,28 @@ const [showPopup, setShowPopup] = useState(false);
     </div>
     
       {loading ? (
-        <p>Loading...</p>
-      ) : activeTab === "all" ? (
+      <div className="text-center my-4 "
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+
+      }}>
+        <span className="spinner-border text-primary" role="status" />
+        <p className="mt-2">Loading properties...</p>
+      </div>      ) : activeTab === "all" ? (
         favorites.length > 0 ? (
           favorites.map((property) => (
             <div key={property.ppcId} className="property-card">
               <div className="buyers-list">
                 {property.favoritedUsersPhoneNumbers.length > 0 ? (
                   property.favoritedUsersPhoneNumbers.map((user, index) => (
-                    // <div key={index} className="buyer-card">
-                    //   📞 {user}
-                    //   <button onClick={() => handleRemoveFavorite(property.ppcId, user)}>❌ Remove</button>
-                    // </div>
+                  
                     <div
                     key={index}
                     className="card p-2 w-100 w-md-50 w-lg-33"
+                    onClick={() => navigate(`/detail/${property.ppcId}`)}
                     style={{
                       border: "1px solid #ddd",
                       borderRadius: "10px",
@@ -339,7 +349,8 @@ const [showPopup, setShowPopup] = useState(false);
                                   </div>
                       {!showFullNumber && (
                   <button className='w-100 m-0 p-1'
-                  onClick={() => setShowFullNumber(true)}
+                  onClick={(e) =>{ e.stopPropagation();
+                    setShowFullNumber(true)}}
                   style={{
                       background: "#2F747F", 
                       color: "white", 
@@ -364,8 +375,8 @@ const [showPopup, setShowPopup] = useState(false);
                           <button
   className="btn text-white px-3 py-1 flex-grow-1 mx-1"
   style={{ background: "#2F747F", width: "80px", fontSize: "13px" }}
-  onClick={async () => {
-    await handleFavoriteCall( user);
+  onClick={async (e) => {
+    e.stopPropagation(); handleFavoriteCall(property.ppcId, user);
     window.location.href = `tel:${user}`;
   }}
 >
@@ -384,7 +395,9 @@ const [showPopup, setShowPopup] = useState(false);
                               e.target.style.fontWeight = 400; // Brighter neon on hover
                     
                             }}
-                            onClick={() => handleRemoveFavorite(property.ppcId, user)}> Remove</button>
+                            onClick={(e) =>
+                            {  e.stopPropagation();
+                               handleRemoveFavorite(property.ppcId, user)}}> Remove</button>
                     </div>
                     : ''}
                    
@@ -509,7 +522,9 @@ const [showPopup, setShowPopup] = useState(false);
           
                   <button className="btn text-white px-3 py-1 flex-grow-1 mx-1"
                     style={{ background:  "#2F747F", width: "80px", fontSize: "13px" }}
-                   onClick={() => handleUndoRemove(property.ppcId, property.favoriteUser)}
+                   onClick={(e) => 
+                   { e.stopPropagation();
+                    handleUndoRemove(property.ppcId, property.favoriteUser)}}
                    onMouseOver={(e) => {
                     e.target.style.background = "#32cd32"; // Brighter neon on hover
                     e.target.style.fontWeight = 600; // Brighter neon on hover

@@ -41,25 +41,25 @@ function HomeProperty({ handleAddProperty }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { phoneNumber: statePhoneNumber, countryCode: stateCountryCode } = location.state || {};
+  const { phoneNumber: statePhoneNumber } = location.state || {};
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
-  const storedCountryCode = localStorage.getItem('countryCode');
+  // const storedCountryCode = localStorage.getItem('countryCode');
 
   const phoneNumber = statePhoneNumber || storedPhoneNumber;
-  const countryCode = stateCountryCode || storedCountryCode;
+  // const countryCode = stateCountryCode || storedCountryCode;
 
     const [message, setMessage] = useState("");
   
 
   React.useEffect(() => {
-    if (phoneNumber && countryCode) {
+    if (phoneNumber ) {
       // Save phoneNumber and countryCode to localStorage
       localStorage.setItem('phoneNumber', phoneNumber);
-      localStorage.setItem('countryCode', countryCode);
+      // localStorage.setItem('countryCode', countryCode);
     } else {
       setMessage('Missing required information to add property.');
     }
-  }, [phoneNumber, countryCode]);
+  }, [phoneNumber]);
 
   return (
     <Box p={2}>
@@ -86,12 +86,12 @@ function Property({handlefetchProperty}) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { phoneNumber: statePhoneNumber, countryCode: stateCountryCode } = location.state || {};
+  const { phoneNumber: statePhoneNumber } = location.state || {};
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
-  const storedCountryCode = localStorage.getItem('countryCode');
+  // const storedCountryCode = localStorage.getItem('countryCode');
 
   const phoneNumber = statePhoneNumber || storedPhoneNumber;
-  const countryCode = stateCountryCode || storedCountryCode;
+  // const countryCode = stateCountryCode || storedCountryCode;
   const [message, setMessage] = useState("");
 
 
@@ -99,11 +99,10 @@ function Property({handlefetchProperty}) {
     if (phoneNumber && countryCode) {
       // Save phoneNumber and countryCode to localStorage
       localStorage.setItem('phoneNumber', phoneNumber);
-      localStorage.setItem('countryCode', countryCode);
     } else {
       setMessage('Missing required information to add property.');
     }
-  }, [phoneNumber, countryCode]);
+  }, [phoneNumber]);
 
   return (
     <Box p={2}>
@@ -140,22 +139,22 @@ export default function FixedBottomNavigation() {
   const [message, setMessage] = useState("");
 
   // Extract phoneNumber and countryCode from location.state or localStorage
-  const { phoneNumber: statePhoneNumber, countryCode: stateCountryCode } = location.state || {};
+  const { phoneNumber: statePhoneNumber } = location.state || {};
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
-  const storedCountryCode = localStorage.getItem('countryCode');
+  // const storedCountryCode = localStorage.getItem('countryCode');
 
   const phoneNumber = statePhoneNumber || storedPhoneNumber;
-  const countryCode = stateCountryCode || storedCountryCode;
+  // const countryCode = stateCountryCode || storedCountryCode;
 
   const handleAddProperty = async () => {
-    if (!phoneNumber || !countryCode) {
+    if (!phoneNumber ) {
       setMessage('Missing phone number or country code.');
       return;
     }
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/store-id`, {
-        phoneNumber: `${countryCode}${phoneNumber}`,
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/store-data`, {
+        phoneNumber: `${phoneNumber}`,
       });
 
       if (response.status === 201) {
@@ -163,7 +162,7 @@ export default function FixedBottomNavigation() {
         
         setTimeout(() => {
           navigate('/add-form', {
-            state: { ppcId: response.data.ppcId, phoneNumber: `${countryCode}${phoneNumber}` },
+            state: { ppcId: response.data.ppcId, phoneNumber: `${phoneNumber}` },
           });
         }, 100);
       }
@@ -178,7 +177,7 @@ export default function FixedBottomNavigation() {
   };
 
   const handlefetchProperty = async () => {
-    if (!phoneNumber || !countryCode) {
+    if (!phoneNumber) {
       toast.error('Missing phone number or country code.');
       return;
     }
@@ -186,14 +185,14 @@ export default function FixedBottomNavigation() {
     try {
       // Fetch user data from the API using phone number
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/fetch-datas`, {
-        params: { phoneNumber: `${countryCode}${phoneNumber}` }
+        params: { phoneNumber: `${phoneNumber}` }
       });
   
       if (response.status === 200) {
         // Assuming the response contains users data, navigate to MyProperty page
         setTimeout(() => {
           navigate('/my', {
-            state: { phoneNumber: `${countryCode}${phoneNumber}`, users: response.data.users },
+            state: { phoneNumber: `${phoneNumber}`, users: response.data.users },
           });
         }, 100);
       }
@@ -209,14 +208,14 @@ export default function FixedBottomNavigation() {
   
 
   React.useEffect(() => {
-    if (phoneNumber && countryCode) {
+    if (phoneNumber) {
       // Save phoneNumber and countryCode to localStorage
       localStorage.setItem('phoneNumber', phoneNumber);
-      localStorage.setItem('countryCode', countryCode);
+      // localStorage.setItem('countryCode', countryCode);
     } else {
       toast.error('Missing required information to add property.');
     }
-  }, [phoneNumber, countryCode]);
+  }, [phoneNumber]);
 
   const renderContent = () => {
     switch (value) {

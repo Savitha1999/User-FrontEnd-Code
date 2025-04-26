@@ -1,29 +1,4 @@
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -60,6 +35,36 @@ const Notification = () => {
   const [modalShow, setModalShow] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [message, setMessage] = useState({ text: "", type: "" });
+
+
+  
+  // Fetch notifications by userPhoneNumber
+  const fetchNotifications = async (phoneNumber) => {
+    if (!phoneNumber) {
+      setError("No phone number found.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/notifications/${phoneNumber}`);
+      setNotifications(response.data.notifications);
+    } catch (err) {
+      setError("Error fetching notifications. Please try again.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch notifications on mount if phone number is available
+  useEffect(() => {
+    if (userPhoneNumber) {
+      fetchNotifications(userPhoneNumber);
+    }
+  }, [userPhoneNumber]);
 
 
   
@@ -162,33 +167,14 @@ useEffect(() => {
   }, [userPhoneNumber, showUnreadOnly]);
 
 
-  
-  // const handleSingleNotificationClick = async (notificationId, ppcId) => {
-  //   try {
-  //     await axios.put(
-  //       `${process.env.REACT_APP_API_URL}/mark-single-notification-read/${notificationId}`
-  //     );
-
-  //     saveReadNotificationToStorage(notificationId);
-
-  //     setNotifications((prevNotifications) =>
-  //       prevNotifications.map((n) =>
-  //         n._id === notificationId ? { ...n, isRead: true } : n
-  //       )
-  //     );
-
-  //     if (ppcId?.startsWith("PLAN-")) {
-  //       navigate('/my-plan', { state: { ppcId } });
-  //     } else {
-  //       navigate(`/details/${ppcId}`);
-  //     }
-  //   } catch (error) {
-  //     setMessage({ text: "Failed to open notification", type: "error" });
-  //   }
-  // };
 
   const handleSingleNotificationClick = async (notificationId, ppcId, message) => {
     try {
+      if (!userPhoneNumber) {
+        setMessage({ text: "User phone number is missing", type: "error" });
+        return;
+      }
+  
       await axios.put(
         `${process.env.REACT_APP_API_URL}/mark-single-notification-read/${notificationId}`
       );
@@ -201,42 +187,25 @@ useEffect(() => {
         )
       );
   
+      const lowerMessage = message?.toLowerCase() || "";
   
-      if (message?.toLowerCase().includes("buyer") && message.toLowerCase().includes("assistance")) {
+      if (lowerMessage.includes("matches your property")) {
+        navigate(`/matched-buyer/${userPhoneNumber}`);
+      } else if (lowerMessage.includes("buyer") && lowerMessage.includes("assistance")) {
         navigate("/buyer-list");
-      
-      } else if (ppcId?.startsWith("PLAN-")) {
+      } else if (ppcId?.startsWith("plan-")) {
         navigate("/my-plan", { state: { ppcId } });
-      } else {
+      } else if (ppcId) {
         navigate(`/details/${ppcId}`);
       }
+  
     } catch (error) {
+      console.error("Error opening notification:", error);
       setMessage({ text: "Failed to open notification", type: "error" });
     }
   };
   
 
-  // const handleDeleteNotification = (notificationId) => {
-  //   setPendingDeleteId(notificationId);
-  //   setModalShow(true);
-  // };
-
-  // const confirmDelete = async () => {
-  //   try {
-  //     await axios.delete(
-  //       `${process.env.REACT_APP_API_URL}/delete-notification/${pendingDeleteId}`
-  //     );
-  //     setNotifications((prev) =>
-  //       prev.filter((n) => n._id !== pendingDeleteId)
-  //     );
-  //     setMessage({ text: "Notification deleted successfully", type: "success" });
-  //   } catch (error) {
-  //     setMessage({ text: "Failed to delete notification", type: "error" });
-  //   } finally {
-  //     setModalShow(false);
-  //     setPendingDeleteId(null);
-  //   }
-  // };
 
   const handleDeleteNotification = (createdAt) => {
     setPendingDeleteId(createdAt); // now storing timestamp
@@ -305,37 +274,55 @@ const cancelDelete = () => {
            }}
          >
            <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
-         </button>
+       </button>
         <h3 className="m-0 ms-3" style={{ fontSize: "20px" }}>
           Notifications
         </h3>
       </div>
       <div className="row g-2 w-100">
-      <div className="d-flex justify-content-between mb-3 pt-1">
+
+<div className="d-flex mb-3 pt-1" style={{ gap: "0", width: "100%" }}>
   <button
     style={{
       backgroundColor: !showUnreadOnly ? '#F9FAFC' : 'transparent',
       color: 'black',
       border: !showUnreadOnly ? 'none' : '1px solid #ccc',
       boxShadow: !showUnreadOnly ? '0 2px 4px rgba(0,0,0,0.2)' : 'none',
+      flex: 1
     }}
-    className="btn w-50 me-2"
+    className="btn"
     onClick={() => setShowUnreadOnly(false)}
   >
     Show All Notifications
   </button>
+
   <button
     style={{
       backgroundColor: showUnreadOnly ? '#F9FAFC' : 'transparent',
       color: 'black',
       border: showUnreadOnly ? 'none' : '1px solid #ccc',
       boxShadow: showUnreadOnly ? '0 2px 4px rgba(0,0,0,0.2)' : 'none',
+      flex: 1
     }}
-    className="btn w-50"
+    className="btn"
     onClick={() => setShowUnreadOnly(true)}
   >
     Show Unread Only
   </button>
+
+  <button
+  className="btn"
+  style={{
+    backgroundColor: showUnreadOnly ? '#F9FAFC' : 'transparent',
+    color: 'black',
+    border: showUnreadOnly ? 'none' : '1px solid #ccc',
+    boxShadow: showUnreadOnly ? '0 2px 4px rgba(0,0,0,0.2)' : 'none',
+    flex: 1
+  }}  onClick={() => fetchNotifications(userPhoneNumber)} // Trigger fetch
+>
+  Admin
+</button>
+
 </div>
 
 
@@ -386,7 +373,6 @@ const cancelDelete = () => {
 <div
   key={notification._id}
   className="mb-3"
-  // onClick={() => handleSingleNotificationClick(notification._id)}
   onClick={() => handleSingleNotificationClick(notification._id, notification.ppcId,notification.message)}
 
   style={{
@@ -437,7 +423,6 @@ const cancelDelete = () => {
       <button
         onClick={(e) => {
           e.stopPropagation();
-          // handleDeleteNotification(notification._id);
           handleDeleteNotification(notification.createdAt);
 
         }}

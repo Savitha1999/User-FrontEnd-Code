@@ -16,6 +16,13 @@ const PropertyCard = ({ property , onRemove , onUndo }) => {
 
   const [message, setMessage] = useState({ text: "", type: "" });
 
+ // Auto-clear message after 3 seconds
+  useEffect(() => {
+    if (message.text) {
+      const timer = setTimeout(() => setMessage({ text: "", type: "" }), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
 
   const navigate = useNavigate();
  
@@ -28,7 +35,9 @@ const PropertyCard = ({ property , onRemove , onUndo }) => {
   const handleCardClick = () => {
     if (confirmAction) return; // Don't navigate if confirmation is active
     if (property?.ppcId) {
-      navigate(`/detail/${property.ppcId}`);
+      // navigate(`/detail/${property.ppcId}`);
+      navigate(`/detail/${property.ppcId}`, { state: { photoURL: property.photoURL } });
+
   }
  };
      
@@ -102,6 +111,8 @@ const PropertyCard = ({ property , onRemove , onUndo }) => {
     setConfirmAction(null);
   };
   return (
+    <div>
+      {message}
     <div className="row g-0 rounded-4 mb-2" style={{ border: '1px solid #ddd', overflow: "hidden", background: "#EFEFEF" }}
     onClick={handleCardClick}
 >
@@ -113,11 +124,35 @@ const PropertyCard = ({ property , onRemove , onUndo }) => {
 
 <div style={{ position: "relative", width: "100%", height:'160px'}}>
             <img
-                                        src={property.photos?.length ? `http://localhost:5006/${property.photos[0]}` : pic}
+                                        // src={property.photos?.length ? `http://localhost:5006/${property.photos[0]}` : pic}
+                                        src={property.photoURL ? property.photoURL : pic} // ✅ Use `photoURL`
+                                    
                                         alt="Property"
                                         className="img-fluid"
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                       />
+{/* 
+<img
+                                        src={property.photoURL?.replace ? `http://localhost:5006/${property.photoURL}` : pic}
+                                        alt="Property"
+                                        className="img-fluid"
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover',  backgroundSize: "cover",
+                                          backgroundPosition: "center",
+                                          backgroundRepeat: "no-repeat", }}
+                                   /> */}
+
+{/* <img
+  src={property.photoURL ? property.photoURL : pic}
+  alt="Property"
+  className="img-fluid"
+  onError={(e) => (e.target.src = pic)}
+  style={{
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  }}
+/> */}
+
           
           <div >
           <div className="d-flex justify-content-between w-100" style={{ position: "absolute",
@@ -138,19 +173,7 @@ const PropertyCard = ({ property , onRemove , onUndo }) => {
         <p className="m-0" style={{ color: '#5E5E5E', fontWeight: 'normal' }}>
           {property.propertyMode || 'N/A'}
         </p>
-        {/* {onRemove ? (
-          <p className="mb-0 ps-3 pe-3 text-center pt-1" 
-             style={{ background: "#FF0000", color: "white", cursor: "pointer", borderRadius: '0px 0px 0px 15px', fontSize: "12px" }}
-             onClick={() => onRemove(property.ppcId)}>
-            REMOVE
-          </p>
-        ) : (
-          <p className="mb-0 ps-3 pe-3 text-center pt-1" 
-             style={{ background: "#2F747F", color: "white", cursor: "pointer", borderRadius: '0px 0px 0px 15px', fontSize: "12px" }}
-             onClick={() => onUndo(property.ppcId)}>
-            UNDO
-          </p>
-        )} */}
+    
 
 {onRemove ? (
         <p
@@ -315,6 +338,8 @@ const PropertyCard = ({ property , onRemove , onUndo }) => {
     </div>
 <div className='text-center' style={{border:"2px solid #2F747F", borderRadius:"0px 0px 15px 15px",  overflow: "hidden", fontSize:"14px", color:"grey"}}>{property.status || 'N/A'} : <span>  {property.createdAt ? new Date(property.createdAt).toLocaleDateString('en-IN') : 'N/A'} </span></div>
   </div>
+  </div>
+
   
   );
 };
@@ -501,7 +526,7 @@ useEffect(() => {
       }}
     >
       <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
-    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>PHOTO REQUEST OWNER </h3> </div>
+    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>PHOTO REQUEST BUYER </h3> </div>
 
 
             <Nav variant="tabs" className="mb-3" style={{ width: '100%' }}>

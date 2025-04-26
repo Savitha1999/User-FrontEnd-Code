@@ -146,27 +146,44 @@ useEffect(() => {
 
 
 
-const handleContact = (ppcId, userPhone) => {
-  confirmAction("Do you want to call this user?", async () => {
+// const handleContact = (ppcId, userPhone) => {
+  
+//   confirmAction("Do you want to call this user?", async () => {
+//     try {
+//       await axios.post(`${process.env.REACT_APP_API_URL}/contact`, {
+//         ppcId,
+//         phoneNumber: userPhone,
+//       });
+
+//       if (response.data.success) {
+//         setMessage({ text: "Contact saved successfully", type: "success" });
+//         window.location.href = `tel:${userPhone}`;
+//       } else {
+//         setMessage({ text: "Contact failed", type: "error" });
+//       }
+//     } catch (error) {
+//       console.error("Contact API error:", error);
+//       setMessage({ text: "An error occurred", type: "error" });
+//     }
+//     setShowPopup(false);
+//   });
+// };
+
+  const handleContact = async (ppcId, userPhone) => {
+    // confirmAction("Do you want to call this user?", async () => {
+
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/contact`, {
+      await axios.post(`${process.env.REACT_APP_API_URL}/contact`,{
         ppcId,
         phoneNumber: userPhone,
       });
-
-      if (response.data.success) {
-        setMessage({ text: "Contact saved successfully", type: "success" });
-        window.location.href = `tel:${userPhone}`;
-      } else {
-        setMessage({ text: "Contact failed", type: "error" });
-      }
+      setMessage({ text: "Favorite contact logged.", type: "success" });
     } catch (error) {
-      console.error("Contact API error:", error);
-      setMessage({ text: "An error occurred", type: "error" });
+      setMessage({ text: "Failed to log favorite contact.", type: "error" });
     }
-    setShowPopup(false);
-  });
-};
+  //   setShowPopup(false);
+  // });
+};  
 
 
 
@@ -198,7 +215,7 @@ const handleContact = (ppcId, userPhone) => {
       }}
     >
       <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
-    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>CONTACT BUYER </h3> </div>
+    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>CONTACT OWNER </h3> </div>
       <div className="col-6 p-0">
 
         <button style={{ backgroundColor: '#30747F', color: 'white' , width:"100%" }} onClick={() => setActiveTab("all")} className={activeTab === "all" ? "active" : ""}>
@@ -246,8 +263,17 @@ const handleContact = (ppcId, userPhone) => {
 
 
   {loading ? (
-  <p>Loading...</p>
-) : activeTab === "all" ? (
+      <div className="text-center my-4 "
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+
+      }}>
+        <span className="spinner-border text-primary" role="status" />
+        <p className="mt-2">Loading properties...</p>
+      </div>) : activeTab === "all" ? (
   properties.some(property => 
     Array.isArray(property.contactRequestersPhoneNumbers) && property.contactRequestersPhoneNumbers.length > 0
   ) ? (
@@ -260,6 +286,7 @@ const handleContact = (ppcId, userPhone) => {
             <div
               key={index}
               className="card p-2 w-100 w-md-50 w-lg-33"
+              onClick={() => navigate(`/detail/${property.ppcId}`)}
               style={{
                 border: "1px solid #ddd",
                 borderRadius: "10px",
@@ -295,12 +322,7 @@ const handleContact = (ppcId, userPhone) => {
                       <MdCall color="#30747F" style={{ fontSize: "20px", marginRight: "8px" }} />
                       <div>
                         <h6 className="m-0 text-muted" style={{ fontSize: "11px" }}>Buyer Phone</h6>
-                        {/* <span className="card-text" style={{ fontWeight:"500"}}>
-                          <a href={`tel:${user}`} style={{ textDecoration: "none", color: "#1D1D1D" }}>
-                            {showFullNumber[index] ? user : user?.slice(0, 5) + "*****"}
-                          </a>
-                        </span> */}
-
+                 
 <span
   style={{ textDecoration: "none", color: "#1D1D1D", cursor: "pointer" }}
   onClick={async () => {
@@ -328,25 +350,23 @@ const handleContact = (ppcId, userPhone) => {
                 </div>
                 {!showFullNumber[index] && (
                   <button className='w-100 m-0 p-1'
-                    onClick={() => setShowFullNumber(prev => ({ ...prev, [index]: true }))}
+                    onClick={(e) => 
+                     { e.stopPropagation();setShowFullNumber(prev => 
+                        ({ ...prev, [index]: true }))}}
                     style={{ background: "#2F747F", color: "white", border: "none", cursor: "pointer", borderRadius: "5px" }}>
                     View
                   </button>
                 )}
                 {showFullNumber[index] && (
                   <div className="d-flex justify-content-between align-items-center ps-2 pe-2 mt-1">
-                    {/* <button className="btn text-white px-3 py-1 flex-grow-1 mx-1"
-                      style={{ background:  "#2F747F", width: "80px", fontSize: "13px" }}
-                      onClick={() => window.location.href = `tel:${user}`}
-                    >
-                      Call
-                    </button>    */}
+                    
 
 <button
   className="btn text-white px-3 py-1 flex-grow-1 mx-1"
   style={{ background: "#2F747F", width: "80px", fontSize: "13px" }}
-  onClick={async () => {
-    await handleContact(property.ppcId, user);
+  onClick={async (e) => {
+    e.stopPropagation();
+     handleContact(property.ppcId, user);
     window.location.href = `tel:${user}`;
   }}
 >
@@ -365,7 +385,8 @@ const handleContact = (ppcId, userPhone) => {
                         e.target.style.fontWeight = 400; // Brighter neon on hover
               
                       }}
-                      onClick={() => handleRemoveContact(property.ppcId, user)}>
+                      onClick={(e) =>{ e.stopPropagation();
+                      handleRemoveContact(property.ppcId, user)}}>
                       Remove
                     </button>
                   </div>
@@ -448,7 +469,8 @@ const handleContact = (ppcId, userPhone) => {
           {!showFullNumber && (
             <button
               className='w-100 m-0 p-1'
-              onClick={() => setShowFullNumber(true)}
+              onClick={(e) => {e.stopPropagation();
+                 setShowFullNumber(true)}}
               style={{
                 background: "#2F747F", 
                 color: "white", 
@@ -463,7 +485,8 @@ const handleContact = (ppcId, userPhone) => {
               <button
                 className="btn text-white px-3 py-1 flex-grow-1 mx-1"
                 style={{ background: "#2F747F", width: "80px", fontSize: "13px" }}
-                onClick={() => (window.location.href = `tel:${property.contactUser}`)}
+                onClick={(e) =>  {   e.stopPropagation();
+                  (window.location.href = `tel:${property.contactUser}`)}}
               >Call</button>
               <button
                 className="btn text-white px-3 py-1 flex-grow-1 mx-1"
@@ -478,7 +501,10 @@ const handleContact = (ppcId, userPhone) => {
                   e.target.style.fontWeight = 400; // Brighter neon on hover
         
                 }}
-                onClick={() => handleUndoRemove(property.ppcId, property.contactUser)}
+                onClick={(e) =>
+                  
+                  {e.stopPropagation();
+                   handleUndoRemove(property.ppcId, property.contactUser)}}
                 
               >Undo</button>
             </div>

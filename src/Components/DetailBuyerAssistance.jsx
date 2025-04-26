@@ -375,21 +375,7 @@ const location = useLocation();
 
 
                         <div className="d-flex justify-content-between align-items-center ps-2 pe-2 mt-5 mb-5 col-12">
-  <button className="btn text-white px-3 py-1 mx-1" style={{ background: "#FF0000",  fontSize: "13px" }}
-        onClick={() => handleRemoveAssistance(requestData._id)}
-        onMouseOver={(e) => {
-          e.target.style.background = "#FF6700"; // Brighter neon on hover
-          e.target.style.fontWeight = 600; // Brighter neon on hover
-          e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
-        }}
-        onMouseOut={(e) => {
-          e.target.style.background = "#FF4500"; // Original orange
-          e.target.style.fontWeight = 400; // Brighter neon on hover
-
-        }}
->
-    REMOVE
-  </button>
+ 
 
   {/* <div className="d-flex flex-column align-items-center justify-content-center"> */}
   {matchedProperties.length > 0 ? (

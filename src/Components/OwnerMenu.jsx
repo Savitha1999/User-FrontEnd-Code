@@ -76,6 +76,25 @@ const [notificationUserCount, setNotificationUserCount] = useState(0);
   const [buyerAssistanceInterestCount, setBuyerAssistanceInterestCount] = useState(0);
   const [viewCountLast10Days, setViewCountLast10Days] = useState(0);
 
+  const [buyerCount, setBuyerCount] = useState(0);
+
+  
+ 
+  useEffect(() => {
+    const fetchBuyerAssistance = async () => {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/get-buyerAssistance/${phoneNumber}`);
+        if (res.data?.data) {
+          setBuyerCount(res.data.data.length); // Count of requests
+        }
+      } catch (err) {
+        console.error("Error fetching buyer assistance data", err);
+      }
+    };
+
+    fetchBuyerAssistance();
+  }, [phoneNumber]);
+
 
   useEffect(() => {
     const fetchViewCountLast10Days = async () => {
@@ -590,30 +609,35 @@ fetchContactBuyerCount();
 
     
 
-    const handleAddProperty = async () => {
-        if (!phoneNumber) {
-            console.error("Missing phone number");
-            return;
-        }
+    // const handleAddProperty = async () => {
+    //     if (!phoneNumber) {
+    //         console.error("Missing phone number");
+    //         return;
+    //     }
     
-        try {
-            const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}/store-id`,
-                { phoneNumber }
-            );
+    //     try {
+    //         const response = await axios.post(
+    //             `${process.env.REACT_APP_API_URL}/store-data`,
+    //             { phoneNumber }
+    //         );
     
-            if (response.status === 201) {
-                const ppcId = response.data.ppcId;
+    //         if (response.status === 201) {
+    //             const ppcId = response.data.ppcId;
     
-                // Corrected navigation
-                // navigate(`/add-property`, { state: { ppcId, phoneNumber } });
-                navigate(`/add-property/${phoneNumber}?ppcId=${ppcId}`);
+    //             // Corrected navigation
+    //             // navigate(`/add-property`, { state: { ppcId, phoneNumber } });
+    //             navigate(`/add-property/${phoneNumber}/${ppcId}`);
 
-            }
-        } catch (error) {
-            console.error("Error adding property:", error);
-        }
+    //         }
+    //     } catch (error) {
+    //         console.error("Error adding property:", error);
+    //     }
+    // };
+
+    const handleAddProperty = () => {
+        navigate(`/add-property/${phoneNumber}`);
     };
+    
     
 
     return (
@@ -845,8 +869,17 @@ fetchContactBuyerCount();
 
                         <MenuLink 
                         to={`/buyer-assistance/${phoneNumber}`}
-    label="Buyer Assistance " 
+    label=" Add Buyer Assistance " 
 />
+
+
+<MenuLink 
+                        to={`/buyer-assis-buyer`}
+    label="Buyer Assistance"
+    count={buyerCount}   
+
+/>
+
                         <MenuLink 
     to={`/interest-owner/${phoneNumber}`} 
     label=" My Send Interest  "  

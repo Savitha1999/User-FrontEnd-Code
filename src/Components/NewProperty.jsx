@@ -131,20 +131,26 @@ const NewProperty = () => {
                   {/* Display default placeholders when data is missing */}
                   <p className="card-title m-0">{property.propertyMode || "N/A"}</p>
                   <p className="card-text text-muted m-0">
-                    <MdLocationOn color="#2F747F" /> {property.city || "N/A"}
-                  </p>
-                  <p className="card-text">
-                    <span style={{color:"#06AAD4"}}>
-                      <FaRupeeSign color="#06AAD4" /> {property.price || "0"}
-                    </span>
+                    <MdLocationOn color="#2F747F" />
+                    {property.city
+  ? property.city.charAt(0).toUpperCase() + property.city.slice(1)
+  : 'N/A'} , {property.district
+  ? property.district.charAt(0).toUpperCase() + property.district.slice(1)
+  : 'N/A'}                  </p>
+                        <p className="card-text mb-1">
+                        <span style={{color:"#06AAD4"}}>
+                      <FaRupeeSign color="#06AAD4" /> 
+                      {property.price ? property.price.toLocaleString('en-IN') : 'N/A'}
+                      </span>
                   </p>
                   <div className="container p-0">
                     <div className="row">
                       <div className="col-md-6 col-6">
                         <p className="m-0">
                           <FaRulerCombined className="icon" color="#63CCE4"/>{" "}
-                          {property.totalArea ? `${property.totalArea}${property.areaUnit}` : "N/A"}
-                        </p>
+                          {property.totalArea || 'N/A'} {property.areaUnit
+  ? property.areaUnit.charAt(0).toUpperCase() + property.areaUnit.slice(1)
+  : 'N/A'}                                                </p>
                       </div>
                       <div className="col-md-6 col-6" style={{color:"grey"}}>
                         <p className="m-0">
@@ -160,8 +166,12 @@ const NewProperty = () => {
                       </div>
                       <div className="col-md-6 col-6" style={{color:"grey"}}>
                         <p className="m-0">
-                          <FaCalendarAlt className="icon ms-3" color="#63CCE4"/> {property.bestTimeToCall || "N/A"}
-                        </p>
+                          <FaCalendarAlt className="icon ms-3" color="#63CCE4"/> 
+                          {property.createdAt ? new Date(property.createdAt).toLocaleDateString('en-IN', {
+                                                     year: 'numeric',
+                                                     month: 'short',
+                                                     day: 'numeric'
+                                                   }) : 'N/A'}                            </p>
                       </div>
                     </div>
                   </div>

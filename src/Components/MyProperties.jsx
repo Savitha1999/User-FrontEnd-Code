@@ -20,12 +20,13 @@ import calendar from '../Assets/Calender-01.png'
 
 const MyProperties = () => {
   const location = useLocation();
-  const { phoneNumber: statePhoneNumber, countryCode: stateCountryCode } = location.state || {};
+  const { phoneNumber: statePhoneNumber } = location.state || {};
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
-  const storedCountryCode = localStorage.getItem('countryCode');
+  // const storedCountryCode = localStorage.getItem('countryCode');
 
   const phoneNumber = statePhoneNumber || storedPhoneNumber;
-  const countryCode = stateCountryCode || storedCountryCode;
+  // const countryCode = stateCountryCode || storedCountryCode;
+  const [loading, setLoading] = useState(true);
 
   const [activeKey, setActiveKey] = useState("property");
   const [propertyUsers, setPropertyUsers] = useState([]);
@@ -116,6 +117,8 @@ const MyProperties = () => {
       }
     } catch (error) {
      
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -131,6 +134,8 @@ const MyProperties = () => {
       }
     } catch (error) {
       // setMessage("Error fetching property data.");
+    } finally {
+      setLoading(false);
     }
   };
   
@@ -193,7 +198,7 @@ const MyProperties = () => {
     }
   
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/store-id`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/store-data`, {
         phoneNumber: `${phoneNumber}`,
       });
   
@@ -258,11 +263,11 @@ const MyProperties = () => {
        {editData ? (
         <EditForm  ppcId={editData.ppcId} phoneNumber={editData.phoneNumber}  onClose={handleCloseEditForm} />
       ) : showAddForm ? (
-<AddProps ppcId={ppcId} phoneNumber={`${countryCode}${phoneNumber}`} onClose={handleCloseAddForm} />
+<AddProps ppcId={ppcId} phoneNumber={`${phoneNumber}`} onClose={handleCloseAddForm} />
       ) : (
-        <Tab.Container activeKey={activeKey} onSelect={(key) => setActiveKey(key)}>
+        <Tab.Container  activeKey={activeKey} onSelect={(key) => setActiveKey(key)}>
             <Col lg={12} className="d-flex flex-column align-items-center">
-            <Nav variant="tabs" className="mb-3 d-flex flex-nowrap">
+            <Nav variant="tabs" className="mb-2 mt-2 d-flex flex-nowrap">
   <Nav.Item>
     <Nav.Link className="nav-link" eventKey="property">Property</Nav.Link>
   </Nav.Item>
@@ -290,7 +295,19 @@ const MyProperties = () => {
               <Tab.Content className="pt-3">
                 <Tab.Pane eventKey="property">
                   
-                  {propertyUsers.length > 0 ? (
+                {loading ? (
+  <div className="text-center my-4"
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      zIndex: 1000
+    }}>
+    <span className="spinner-border text-primary" role="status" />
+    <p className="mt-2">Loading properties...</p>
+  </div>
+) : propertyUsers.length > 0 ? (
                     propertyUsers.map((user) => (
 
 
@@ -342,8 +359,8 @@ style={{
 </p>
            <p className="m-0" style={{ color:'#5E5E5E' , fontWeight:500}}>{user.city
   ? user.city.charAt(0).toUpperCase() + user.city.slice(1)
-  : 'N/A'} , {user.district
-  ? user.district.charAt(0).toUpperCase() + user.district.slice(1)
+  : 'N/A'} , {user.area
+  ? user.area.charAt(0).toUpperCase() + user.area.slice(1)
   : 'N/A'}</p>
            <div className="card-body ps-2 m-0 pt-0 pe-2 pb-0 d-flex flex-column justify-content-center" >
              <div className="row">
@@ -467,7 +484,19 @@ style={{
             
 
 <Tab.Pane eventKey="removed">
-                {removedUsers.length > 0 ? (
+{loading ? (
+  <div className="text-center my-4"
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      zIndex: 1000
+    }}>
+    <span className="spinner-border text-primary" role="status" />
+    <p className="mt-2">Loading properties...</p>
+  </div>
+) : removedUsers.length > 0 ? (
                   removedUsers.map((user) => (
 
 <div 

@@ -88,6 +88,16 @@ Terms & Conditions    </Link>
       Shipping & Delivery
     </Link>
   </li>
+  <li>
+    <Link
+      to="/refund-policy"
+      style={{ ...linkStyle, ...hoverEffectStyle(7) }}
+      onMouseEnter={() => handleMouseEnter(7)}
+      onMouseLeave={handleMouseLeave}
+    >
+      Refund Policy
+    </Link>
+  </li>
 </ul>
 
           </Col>
@@ -125,7 +135,7 @@ Price Plan    </Link>
               </li>
               <li>
               <Link
-                to={'/contactus'}
+                to={'/contact-web'}
                 style={{ ...linkStyle, ...hoverEffectStyle(3) }}
                 onMouseEnter={() => handleMouseEnter(3)}
                 onMouseLeave={handleMouseLeave}

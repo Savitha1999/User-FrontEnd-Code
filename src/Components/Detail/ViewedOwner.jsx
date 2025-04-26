@@ -1224,8 +1224,17 @@ const App = () => {
           <div className="w-100 d-flex align-items-center justify-content-center" style={{ maxWidth: '500px' }}>
 
             {loading ? (
-              <p>Loading properties...</p>
-            ) : activeKey === "All" ? (
+      <div className="text-center my-4 "
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+
+      }}>
+        <span className="spinner-border text-primary" role="status" />
+        <p className="mt-2">Loading properties...</p>
+      </div>            ) : activeKey === "All" ? (
               <PropertyList
                 properties={activeProperties}
                 onRemoveClick={(property) => setModal({ show: true, type: "remove", property })}

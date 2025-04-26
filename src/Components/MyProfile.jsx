@@ -31,10 +31,10 @@ const MyProfile = () => {
         handleLogout();
         setSuccessMessage("Logged out successfully!");
         break;
-      case "permanentLogout":
-        handlePermanentLogout();
-        setSuccessMessage("Permanently logged out!");
-        break;
+      // case "permanentLogout":
+      //   handlePermanentLogout();
+      //   setSuccessMessage("Permanently logged out!");
+      //   break;
       default:
         break;
     }
@@ -132,24 +132,24 @@ useEffect(() => {
   // };
 
   
-  const handlePermanentLogout = async () => {
-    const confirm = window.confirm("Are you sure you want to permanently logout?");
-    if (!confirm) return;
+  // const handlePermanentLogout = async () => {
+  //   const confirm = window.confirm("Are you sure you want to permanently logout?");
+  //   if (!confirm) return;
   
-    try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/user/permanent-logout`, {
-        phone: profile.mobile
-      });
+  //   try {
+  //     const response = await axios.post(`${process.env.REACT_APP_API_URL}/user/permanent-logout`, {
+  //       phone: profile.mobile
+  //     });
   
-      alert(response.data.message || "User permanently logged out.");
-      setProfile({ name: "", email: "", mobile: phoneNumber, address: "" });
-      setIsEditing(false);
-      setIsLoggedIn(false);
-      navigate("/"); // Redirect to home/login
-    } catch (error) {
-      alert("Error logging out permanently.");
-    }
-  };
+  //     alert(response.data.message || "User permanently logged out.");
+  //     setProfile({ name: "", email: "", mobile: phoneNumber, address: "" });
+  //     setIsEditing(false);
+  //     setIsLoggedIn(false);
+  //     navigate("/"); // Redirect to home/login
+  //   } catch (error) {
+  //     alert("Error logging out permanently.");
+  //   }
+  // };
   
   
 
@@ -444,14 +444,14 @@ useEffect(() => {
             LOGOUT
           </button>
 
-          <button
+          {/* <button
             type="button"
             className="btn w-100 mb-2"
             style={{ background: "red", color: "#fff", border: "none", fontSize: "14px" }}
             onClick={() => openModal("permanentLogout")}
           >
             PERMANENT LOGOUT
-          </button>
+          </button> */}
         </>
       )}
 
@@ -469,8 +469,8 @@ useEffect(() => {
                   {actionType === "update" && "Are you sure you want to update the profile?"}
                   {actionType === "create" && "Do you want to create the profile?"}
                   {actionType === "logout" && "Are you sure you want to logout?"}
-                  {actionType === "permanentLogout" &&
-                    "This will permanently logout your account. Continue?"}
+                  {/* {actionType === "permanentLogout" &&
+                    "This will permanently logout your account. Continue?"} */}
                 </p>
               </div>
               <div className="modal-footer">

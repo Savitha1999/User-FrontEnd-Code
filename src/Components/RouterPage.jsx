@@ -121,6 +121,10 @@ import HightoLow from './HightoLow';
 import PhotosWith from './PhotosWith';
 import NotViewProperty from './NotViewProperty';
 import MoreSidebar from './MoreSidebar';
+import BuyerAssisBuyer from './Detail/BuyerAssisBuyer';
+import TabsPage from './TabsPage';
+import EditProperty from './EditProperty';
+import DetailBuyerAssis from './DetailBuyerAssis';
 
 
 
@@ -206,6 +210,11 @@ export default function RouterPage() {
         <Route path='/sort/low-to-high' element={< LowtoHigh/>} />
         <Route path='/sort/high-to-low' element={< HightoLow/>} />
         <Route path='/sort/with-image' element={< PhotosWith/>} />
+                <Route path='/sort/with-image' element={< PhotosWith/>} />
+
+
+                <Route path='/edit-prop' element={< EditProperty/>} />
+
 
         <Route path='/more' element={< MoreSidebar/>} />
         <Route path='/details/:ppcId' element={< DetailProperty/>} />
@@ -228,10 +237,14 @@ export default function RouterPage() {
         <Route path='/terms-conditions-web' element={<TermsAndConditionWeb />} />
 
         <Route path='/leads' element={<LeadsDownload />} />
+        <Route path='/detail-buyer-assis/:id' element={<DetailBuyerAssis />} />
+
         <Route path='/confirm-model' element={<ConfirmationModal />} />
         <Route path='/Frequently-Asked-Questions' element={<FAQ />} />
         <Route path='/privacy-web' element={<PrivacyPolicyWeb />} />
         <Route path='/add-property/:phoneNumber' element={<AddProperty />} />
+        <Route path='/buyer-assis-buyer' element={<BuyerAssisBuyer />} />
+        <Route path="/tabs" element={<TabsPage phone={phoneNumber}/>} />
 
 
         <Route path='/interest-owner/:phoneNumber' element={isAuthenticated ? <InterestOwner phone={phoneNumber} /> : <App to="/" />} />

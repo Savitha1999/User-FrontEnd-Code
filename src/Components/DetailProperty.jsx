@@ -137,6 +137,8 @@ const Details = () => {
       console.error("Report submission error:", error);
       setMessage("An error occurred while submitting the report.");
     }
+    setPopup(false);
+
   };
   
   const handleHelpSubmit = async ({ reason, comment }) => {
@@ -175,6 +177,8 @@ const Details = () => {
       console.error("Help submission error:", error);
       setMessage("An error occurred while submitting help request.");
     }
+    setPopup(false);
+
   };
   
 

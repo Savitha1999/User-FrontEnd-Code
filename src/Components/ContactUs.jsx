@@ -121,24 +121,7 @@ const handleSubmit = async (e) => {
         <div className="col-12 text-center">
      
           <button type="submit" className="btn" style={{ background: '#E74C3C', color: "#fff" }}>Submit</button>
-          <button type="button" className="btn ms-3 btn-success" style={{background:"#1F2937", border:"none"}}
-     onClick={refreshCaptcha}>
-      Refresh
-    </button>
-        </div>
-
-        <div className="mb-3 text-center"> 
-  <label className="fw-bold">
-    Please Enter <span className="text-primary">Correct Captcha:</span>
-  </label>
-
-  <div className="border p-3 shadow-sm d-flex flex-column align-items-center">
-    <div className="p-2 mb-2 text-center fw-bold" 
-         style={{ backgroundColor: "#6600CC", fontSize: "20px", color: "#26A1E2", width: "150px" }}>
-      {captcha}
-    </div>
-    <input type="text" className="form-control w-50" />
-  </div>
+        
   </div>
 
 

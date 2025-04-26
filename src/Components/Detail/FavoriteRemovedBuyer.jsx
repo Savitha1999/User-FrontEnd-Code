@@ -143,8 +143,17 @@ const FavoriteRemovedBuyer = () => {
       {message.text && <div className={`message ${message.type}`}>{message.text}</div>}
       
       {loading ? (
-        <p>Loading...</p>
-      ) : removedFavorites.length > 0 ? (
+      <div className="text-center my-4 "
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+
+      }}>
+        <span className="spinner-border text-primary" role="status" />
+        <p className="mt-2">Loading properties...</p>
+      </div>      ) : removedFavorites.length > 0 ? (
         removedFavorites.map((property) => (
           <div key={property.ppcId} className="property-card">
             <div className="buyers-list">

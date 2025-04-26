@@ -9,7 +9,7 @@ import "swiper/css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BiBed, BiBath, BiCar, BiMap, BiCalendar, BiUser, BiCube } from "react-icons/bi";
 import { AiOutlineEye, AiOutlineColumnWidth, AiOutlineColumnHeight } from "react-icons/ai";
-import { MdOutlineCurrencyRupee, MdElevator, MdOutlineChair, MdCall } from "react-icons/md";
+import { MdOutlineCurrencyRupee, MdElevator, MdOutlineChair, MdCall, MdOutlineNavigateNext } from "react-icons/md";
 import { TbArrowLeftRight } from "react-icons/tb";
 import { BsGraphUp, BsBank, BsFilterCircle } from "react-icons/bs";
 import "swiper/css/navigation";
@@ -29,7 +29,7 @@ import { MdApproval, MdTimer, MdHomeWork, MdHouseSiding, MdOutlineKitchen, MdEma
 import {  BsBarChart } from "react-icons/bs";
 import { BiRuler, BiBuilding, BiStreetView } from "react-icons/bi";
 import { GiStairs, GiForkKnifeSpoon, GiWindow } from "react-icons/gi";
-import { TiContacts } from "react-icons/ti";
+import { TiContacts, TiHome } from "react-icons/ti";
 import contact from '../Assets/contact.png';
 // import { ToWords } from 'to-words';
 
@@ -49,6 +49,8 @@ import {
 import { Modal, Button, Form } from "react-bootstrap";
 import { FiAlertCircle } from "react-icons/fi";
 import ConfirmationModal from "./ConfirmationModal";
+import { IoChevronBackSharp } from "react-icons/io5";
+import { GrFormNext, GrNext } from "react-icons/gr";
 
 const Details = () => {
   const [popupType, setPopupType] = useState(""); // "report" or "help"
@@ -137,6 +139,7 @@ const Details = () => {
       console.error("Report submission error:", error);
       setMessage("An error occurred while submitting the report.");
     }
+    setPopup(false);
   };
   
   const handleHelpSubmit = async ({ reason, comment }) => {
@@ -175,6 +178,8 @@ const Details = () => {
       console.error("Help submission error:", error);
       setMessage("An error occurred while submitting help request.");
     }
+    setPopup(false);
+
   };
   
 
@@ -443,7 +448,17 @@ const handleSubmit = async ({ price, phoneNumber, ppcId }) => {
 
     if (ppcId) fetchPropertyData();
   }, [ppcId]);
+  const handleIncreasePpcId = () => {
+    const nextPpcId = Number(ppcId) + 1;
+    navigate(`/detail/${nextPpcId}`); // navigate to new URL with increased ppcId
+    window.scrollTo(0, 0); // Scroll to top
+  };
 
+  
+  const handleGoBack = () => {
+    navigate(-1);
+    window.scrollTo(0, 0); // Scroll to top
+  };
   useEffect(() => {
     // Ensure propertyDetails is not null or undefined before accessing `video`
     if (propertyDetails?.video) {
@@ -1689,7 +1704,18 @@ return (
 />
     </div>
     </div>
-
+    <div className="d-flex align-items-center justify-content-around w-100 button-group">
+        <button onClick={handleGoBack} className="d-flex align-items-center justify-content-start ps-3"
+        style={{background:"#5AB89E" , color:"#fff" , }}
+        ><IoChevronBackSharp />
+ Back</button>
+        <button className="d-flex align-items-center justify-content-start ps-3" onClick={() => navigate('/mobileviews')}        style={{background:"#5AB89E" , color:"#fff" }}
+        ><TiHome />
+Home</button>
+        <button className="d-flex align-items-center justify-content-start ps-3" onClick={handleIncreasePpcId}         style={{background:"#5AB89E" , color:"#fff" ,}}
+        ><GrNext />
+ Next</button>
+      </div>
    <img src={promotion} alt="" className="p-4 m-0" />
     </div>
     </div>

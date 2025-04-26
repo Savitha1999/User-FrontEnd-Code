@@ -290,8 +290,17 @@ const navigate = useNavigate();
       </Modal>
     </div>
       {loading ? (
-        <p>Loading...</p>
-      ) : activeTab === "all" ? (
+      <div className="text-center my-4 "
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+
+      }}>
+        <span className="spinner-border text-primary" role="status" />
+        <p className="mt-2">Loading properties...</p>
+      </div>      ) : activeTab === "all" ? (
         // Show all properties with interested users
         properties.length > 0 ? (
           properties.map((property , index) => (
@@ -372,7 +381,8 @@ const navigate = useNavigate();
                           </div>
               {!showFullNumber && (
           <button className='w-100 m-0 p-1'
-          onClick={() => setShowFullNumber(true)}
+          onClick={(e) =>{e.stopPropagation(); 
+            setShowFullNumber(true)}}
           style={{
               background: "#2F747F", 
               color: "white", 
@@ -387,24 +397,15 @@ const navigate = useNavigate();
         )}
           {showFullNumber
             ?  <div className="d-flex justify-content-between align-items-center ps-2 pe-2 mt-1">
-<div className="d-flex justify-content-between mt-2">
                       <button
-                        className="btn btn-sm text-white"
-                        style={{ background: "#2F747F", width: "48%" }}
-                        onClick={() => handleContact(property.ppcId, user)}
+  className="btn text-white px-3 py-1 flex-grow-1 mx-1"
+  style={{ background: "#2F747F", 
+    width: "80px", fontSize: "13px" }}
+                        onClick={(e) =>    { e.stopPropagation();
+                          handleContact(property.ppcId, user)}}
                       >
                         Call
                       </button>
-                      </div>
-
-
-{/* 
-                  <button className="btn text-white px-3 py-1 flex-grow-1 mx-1"
-                    style={{ background:  "#FF0000", width: "80px", fontSize: "13px" }}
-                    onClick={() => handleRemoveProperty(property.ppcId, user)}
-                    > Remove</button>
-            */}
-           
 <button
         className="btn text-white px-3 py-1 flex-grow-1 mx-1"
         style={{
@@ -415,7 +416,9 @@ const navigate = useNavigate();
         }}
         onMouseEnter={() => setHoverDelete(true)}
         onMouseLeave={() => setHoverDelete(false)}
-        onClick={() => handleRemoveProperty(property.ppcId, user)}
+        onClick={(e) =>
+      {    e.stopPropagation();
+           handleRemoveProperty(property.ppcId, user)}}
         >
         Remove
       </button>
@@ -512,7 +515,8 @@ const navigate = useNavigate();
                           </div>
               {!showFullNumber && (
           <button className='w-100 m-0 p-1'
-            onClick={() => setShowFullNumber(true)}
+            onClick={(e) =>{e.stopPropagation();
+               setShowFullNumber(true)}}
             style={{
               background: "#2F747F", 
               color: "white", 
@@ -531,17 +535,13 @@ const navigate = useNavigate();
                   <button
               className="btn text-white px-3 py-1 flex-grow-1 mx-1"
               style={{ background:  "#2F747F", width: "80px", fontSize: "13px" }}
-              onClick={() => (window.location.href = `tel:${ property.interestedUser}`)}
+              onClick={(e) =>    {e.stopPropagation();
+                (window.location.href = `tel:${ property.interestedUser}`)}}
 
            >
               Call
             </button>   
-                  {/* <button className="btn text-white px-3 py-1 flex-grow-1 mx-1"
-                    style={{ background:  "green", width: "80px", fontSize: "13px" }}
-                   onClick={() => handleUndoRemove(property.ppcId, property.interestedUser)}
-                   > Undo</button> */}
-
-
+       
 <button
       className="btn text-white px-3 py-1 flex-grow-1 mx-1"
       style={{
@@ -552,7 +552,9 @@ const navigate = useNavigate();
       }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      onClick={() => handleUndoRemove(property.ppcId, property.interestedUser)}
+      onClick={(e) => {
+        e.stopPropagation();
+        handleUndoRemove(property.ppcId, property.interestedUser)}}
       >
       Undo
     </button>

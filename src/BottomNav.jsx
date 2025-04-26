@@ -22,28 +22,28 @@ function BottomNav({ onChange }) {
   const [message,setMessage]= useState();
 
   // Extract phoneNumber and countryCode from location.state or localStorage
-  const { phoneNumber: statePhoneNumber, countryCode: stateCountryCode } = location.state || {};
+  const { phoneNumber: statePhoneNumber } = location.state || {};
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
-  const storedCountryCode = localStorage.getItem('countryCode');
+  // const storedCountryCode = localStorage.getItem('countryCode');
 
   const phoneNumber = statePhoneNumber || storedPhoneNumber;
-  const countryCode = stateCountryCode || storedCountryCode;
+  // const countryCode = stateCountryCode || storedCountryCode;
 
   const handleAddProperty = async () => {
-    if (!phoneNumber || !countryCode) {
+    if (!phoneNumber ) {
       setMessage('Missing phone number or country code.');
       return;
     }
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/store-id`, {
-        phoneNumber: `${countryCode}${phoneNumber}`,
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/store-data`, {
+        phoneNumber: `${phoneNumber}`,
       });
 
       if (response.status === 201) {
         setTimeout(() => {
           navigate('/add-form', {
-            state: { ppcId: response.data.ppcId, phoneNumber: `${countryCode}${phoneNumber}` },
+            state: { ppcId: response.data.ppcId, phoneNumber: `${phoneNumber}` },
           });
         }, 100);
       }

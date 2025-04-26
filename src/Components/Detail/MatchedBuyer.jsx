@@ -269,7 +269,7 @@ const MatchedBuyer = () => {
       }}
     >
       <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
-    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}> MATCHED BUYER</h3> </div>
+    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}> MATCHED OWNER</h3> </div>
       {/* Tabs */}
       <div className="row g-2 w-100 mb-4">
         <div className="col-6 p-0">
@@ -293,8 +293,17 @@ const MatchedBuyer = () => {
 
       {/* Content Display */}
       {loading ? (
-        <p className="text-gray-500">Loading...</p>
-       ) : error ? ( 
+      <div className="text-center my-4 "
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+
+      }}>
+        <span className="spinner-border text-primary" role="status" />
+        <p className="mt-2">Loading properties...</p>
+      </div>       ) : error ? ( 
        <p className="text-red-500">{error}</p> 
 
      ) :  
@@ -307,6 +316,8 @@ const MatchedBuyer = () => {
       
             key={request._id}
         className="card w-100"
+        onClick={() => navigate(`/detail-buyer-assistance/${request._id}`)}
+
         style={{
           maxWidth: "100%",
           border: "1px solid #ddd",
@@ -391,7 +402,9 @@ const MatchedBuyer = () => {
           </p>
         </div>
     <button className='w-100 m-0 p-1'
-      onClick={() => setActiveIndex(activeIndex === index ? null : index)}
+      onClick={(e) =>{
+        e.stopPropagation();
+         setActiveIndex(activeIndex === index ? null : index)}}
 
       style={{
         background: "#2F747F", 
@@ -421,7 +434,8 @@ const MatchedBuyer = () => {
                   e.target.style.fontWeight = 400; // Brighter neon on hover
         
                 }}
-                             onClick={() => handleDelete(request._id)}
+               onClick={(e) =>{ e.stopPropagation();
+                handleDelete(request._id)}}
                 >
                   Remove
                 </button>
@@ -429,7 +443,8 @@ const MatchedBuyer = () => {
                 <button
                 className="btn text-white px-3 py-1 flex-grow-1 mx-1"
                 style={{ background: "green", color: "white", cursor: "pointer" ,  fontSize: "13px"}}
-                              onClick={() => handleUndoDelete(request._id)}
+                              onClick={(e) =>{e.stopPropagation();
+                                 handleUndoDelete(request._id)}}
                               onMouseOver={(e) => {
                                 e.target.style.background = "#32cd32"; // Brighter neon on hover
                                 e.target.style.fontWeight = 600; // Brighter neon on hover
@@ -448,7 +463,9 @@ const MatchedBuyer = () => {
             <button
   className="btn text-white px-3 py-1 flex-grow-1 mx-1"
   style={{ background: "#2F747F", width: "80px", fontSize: "13px" }}
-  onClick={() => handleSendInterest(request._id)}
+  onClick={(e) =>{
+    e.stopPropagation();
+     handleSendInterest(request._id)}}
   onMouseOver={(e) => {
     e.target.style.background = "#029bb3"; // Brighter neon on hover
     e.target.style.fontWeight = 600; // Brighter neon on hover
@@ -477,7 +494,8 @@ const MatchedBuyer = () => {
     e.target.style.fontWeight = 400; // Brighter neon on hover
 
   }}
-  onClick={() => handleRemoveInterest(request._id)}
+  onClick={(e) =>
+    {e.stopPropagation(); handleRemoveInterest(request._id)}}
 >
   Remove Interest
 </button>

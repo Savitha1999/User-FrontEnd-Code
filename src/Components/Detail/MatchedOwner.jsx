@@ -461,7 +461,7 @@ useEffect(() => {
       }}
     >
       <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
-    </button>          <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>MATCHED PROPERTIES</h3> 
+    </button>          <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>MATCHED PROPERTIES BUYER</h3> 
         </div>
         
         {/* Buttons for filtering */}
@@ -505,8 +505,17 @@ useEffect(() => {
 <div className="w-100 d-flex align-items-center justify-content-center" style={{ maxWidth: '500px' }}>
 
             {loading ? (
-              <p>Loading properties...</p>
-            ) : activeKey === "All" ? (
+      <div className="text-center my-4 "
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+
+      }}>
+        <span className="spinner-border text-primary" role="status" />
+        <p className="mt-2">Loading properties...</p>
+      </div>            ) : activeKey === "All" ? (
               <PropertyList
                 properties={activeProperties}
                 onRemove={(property) => setModal({ show: true, type: "remove", property })}

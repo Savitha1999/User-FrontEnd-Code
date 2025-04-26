@@ -196,12 +196,12 @@ const Property = () => {
   // const [loading, setLoading] = useState(false);
 
   // Extract phoneNumber and countryCode from location.state or localStorage
-  const { phoneNumber: statePhoneNumber, countryCode: stateCountryCode } = location.state || {};
+  const { phoneNumber: statePhoneNumber } = location.state || {};
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
   const storedCountryCode = localStorage.getItem('countryCode');
 
   const phoneNumber = statePhoneNumber || storedPhoneNumber;
-  const countryCode = stateCountryCode || storedCountryCode;
+  // const countryCode = stateCountryCode || storedCountryCode;
 
   const [message, setMessage] = useState("");
 
@@ -213,8 +213,8 @@ const Property = () => {
     }
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/store-id`, {
-        phoneNumber: `${countryCode}${phoneNumber}`,
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/store-data`, {
+        phoneNumber: `${phoneNumber}`,
       });
 
       if (response.status === 201) {
@@ -223,7 +223,7 @@ const Property = () => {
         // Navigate to AddPropertyForm page with PPC-ID and phone number
         setTimeout(() => {
           navigate('/add-form', {
-            state: { ppcId: response.data.ppcId, phoneNumber: `${countryCode}${phoneNumber}` },
+            state: { ppcId: response.data.ppcId, phoneNumber: `${phoneNumber}` },
           });
         }, 1000);
       }
@@ -237,14 +237,14 @@ const Property = () => {
   };
 
   useEffect(() => {
-    if (phoneNumber && countryCode) {
+    if (phoneNumber) {
       // Save phoneNumber and countryCode to localStorage
       localStorage.setItem('phoneNumber', phoneNumber);
-      localStorage.setItem('countryCode', countryCode);
+      // localStorage.setItem('countryCode', countryCode);
     } else {
       setMessage('Missing required information to add property.');
     }
-  }, [phoneNumber, countryCode]);
+  }, [phoneNumber]);
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>

@@ -354,7 +354,7 @@ const handleRejectOffer = async (ppcId, buyerPhoneNumber) => {
       }}
     >
       <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
-    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>OFFER BUYER </h3> </div>
+    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>OFFER OWNER </h3> </div>
         <div className="row g-2 w-100">
           <div className="col-6 p-0">
             <button className="w-100" style={{ backgroundColor: '#30747F', color: 'white' }} onClick={() => setActiveKey("All")}>
@@ -404,8 +404,17 @@ const handleRejectOffer = async (ppcId, buyerPhoneNumber) => {
           <div className="col-12">
             <div className="w-100 d-flex align-items-center justify-content-center" style={{ maxWidth: '500px' }}>
               {loading ? (
-                <p>Loading properties...</p>
-              ) : activeKey === "All" ? (
+      <div className="text-center my-4 "
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+
+      }}>
+        <span className="spinner-border text-primary" role="status" />
+        <p className="mt-2">Loading properties...</p>
+      </div>              ) : activeKey === "All" ? (
                 <PropertyList properties={activeProperties} onRemove={handleRemoveProperty}  onAccept={handleAcceptOffer} 
                    onReject={handleRejectOffer}  />
               ) : (
@@ -445,7 +454,7 @@ const PropertyCard = ({ property, onRemove, onUndo, onAccept, onReject }) => {
     const [showFullNumber, setShowFullNumber] = useState(false);
 
       const [message, setMessage] = useState({ text: "", type: "" });
-    
+      const navigate = useNavigate();
 
     // 1. Create a handler function to log contact and initiate call
 const handleContactBuyer = async (buyerPhoneNumber, ppcId) => {
@@ -454,7 +463,8 @@ const handleContactBuyer = async (buyerPhoneNumber, ppcId) => {
     await axios.post(`${process.env.REACT_APP_API_URL}/contact`, {
       ppcId: ppcId,
       phoneNumber: buyerPhoneNumber,
-    });
+    });  
+    
     setMessage({ text: "Contact logged successfully", type: "success" });
 
     // Open dialer
@@ -470,6 +480,8 @@ const handleContactBuyer = async (buyerPhoneNumber, ppcId) => {
 <div
 // key={index}
 className="card p-2 w-100 w-md-50 w-lg-33"
+onClick={() => navigate(`/detail/${property.ppcId}`)}
+
 style={{
   border: "1px solid #ddd",
   borderRadius: "10px",
@@ -580,7 +592,8 @@ style={{
               </div>
   {!showFullNumber && (
 <button className='w-100 m-0 p-1'
-onClick={() => setShowFullNumber(true)}
+onClick={(e) => {e.stopPropagation();
+  setShowFullNumber(true)}}
 style={{
   background: "#2F747F", 
   color: "white", 
@@ -618,7 +631,8 @@ View
 <button
   className="btn text-white px-3 py-1 flex-grow-1 mx-1"
   style={{ background: "#2F747F", width: "80px", fontSize: "13px" }}
-  onClick={() => handleContactBuyer(property.buyerPhoneNumber, property.ppcId)}
+  onClick={(e) =>{    e.stopPropagation();
+    handleContactBuyer(property.buyerPhoneNumber, property.ppcId)}}
   onMouseOver={(e) => {
     e.target.style.background = "#029bb3"; // Brighter neon on hover
     e.target.style.fontWeight = 600; // Brighter neon on hover
@@ -628,7 +642,6 @@ View
   onMouseOut={(e) => {
     e.target.style.background = "#2F747F"; // Original orange
     e.target.style.fontWeight = 400; // Brighter neon on hover
-
   }}
 >
   Call
@@ -639,7 +652,8 @@ View
      
            {onRemove && (
             <button className="btn text-white px-3 py-1 flex-grow-1 mx-1" style={{ background:  "#FF0000", width: "80px", fontSize: "13px" }}
-            onClick={() => onRemove(property.ppcId, property.buyerPhoneNumber)}
+            onClick={(e) => {e.stopPropagation();
+              onRemove(property.ppcId, property.buyerPhoneNumber)}}
             onMouseOver={(e) => {
               e.target.style.background = "#FF6700"; // Brighter neon on hover
               e.target.style.fontWeight = 600; // Brighter neon on hover
@@ -653,7 +667,7 @@ View
           )}
           {onUndo && (
             <button cclassName="btn text-white px-3 py-1 flex-grow-1 mx-1" style={{ background:  "green", width: "80px", fontSize: "13px" }}
-             onClick={() => onUndo(property.ppcId, property.buyerPhoneNumber)}
+             onClick={(e) =>{e.stopPropagation(); onUndo(property.ppcId, property.buyerPhoneNumber)}}
              onMouseOver={(e) => {
               e.target.style.background = "#32cd32"; // Brighter neon on hover
               e.target.style.fontWeight = 600; // Brighter neon on hover

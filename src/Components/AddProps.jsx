@@ -5,14 +5,13 @@
 
 
 
-
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Button } from "react-bootstrap";
 import {  useLocation, useNavigate } from "react-router-dom";
-import { RiLayoutLine } from 'react-icons/ri';
+import { RiCloseCircleFill, RiLayoutLine } from 'react-icons/ri';
 import { TbArrowLeftRight } from 'react-icons/tb';
-import {FaBuilding, FaMoneyBillWave,  FaBath, FaChartArea, FaPhone ,FaEdit,FaRoad,FaDoorClosed,FaMapPin, FaHome, FaUserAlt, FaEnvelope,  FaRupeeSign , FaFileVideo , FaToilet,FaCar,FaBed,  FaCity , FaTimes} from 'react-icons/fa';
+import {FaBuilding, FaMoneyBillWave,  FaBath, FaChartArea, FaPhone ,FaEdit,FaRoad,FaDoorClosed,FaMapPin, FaHome, FaUserAlt, FaEnvelope,  FaRupeeSign , FaFileVideo , FaToilet,FaCar,FaBed,  FaCity , FaTimes, FaArrowRight} from 'react-icons/fa';
 import {  FaRegAddressCard } from 'react-icons/fa6';
 import { MdLocationOn, MdOutlineMeetingRoom, MdOutlineOtherHouses, MdSchedule , MdStraighten , MdApproval, MdLocationCity , MdAddPhotoAlternate, MdKeyboardDoubleArrowDown} from "react-icons/md";
 import { BsBank, BsBuildingsFill, BsFillHouseCheckFill , BsTextareaT} from "react-icons/bs";
@@ -35,13 +34,42 @@ import { IoCloseCircle } from "react-icons/io5";
 import moment from "moment";
 import { format } from "date-fns";
 import { Spinner } from "react-bootstrap"; // Using Bootstrap for loading animation
+import { useSwipeable } from 'react-swipeable';
 
 
 function AddProps({ phoneNumber }) {
   const [isVisible, setIsVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]); // Store selected files
-
+    const [swiped, setSwiped] = useState(false);
+    const [showPopup, setShowPopup] = useState(false);
+    const [popupMessage, setPopupMessage] = useState("");
+    
+    // const handlers = useSwipeable({
+    //   onSwipedRight: () => {
+    //     setSwiped(true);
+    //     handleShowMore();  // 👈 Trigger it here
+    //   },
+    //   onSwipedLeft: () => {
+    //     setSwiped(false);  // Trigger left swipe to move back to the left
+    //   },     
+      
+    //    trackMouse: true,
+    //   delta: 40,
+    // });
+    const handlers = useSwipeable({
+      onSwipedRight: () => {
+        setSwiped(true);
+        handleShowMore();
+  
+        // Automatically reset after 2 seconds
+        setTimeout(() => {
+          setSwiped(false);
+        }, 2000);
+      },
+      trackMouse: true,
+      delta: 40,
+    });
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const previewRef = useRef(null);
@@ -79,6 +107,33 @@ function AddProps({ phoneNumber }) {
     
   
 
+  // useEffect(() => {
+  //   if (!phoneNumber) {
+  //     setMessage({ text: "Missing phone number.", type: "error" });
+  //     return;
+  //   }
+  
+  //   const handleAddProperty = async () => {
+  //     try {
+  //       const response = await axios.post(`${process.env.REACT_APP_API_URL}/store-data`, {
+  //         phoneNumber: phoneNumber,
+  //       });
+  
+  //       if (response.status === 201) {
+  //         setPpcId(response.data.ppcId); // Store the ppcId in state
+  //         setMessage({ text: `User added successfully! PPC-ID: ${response.data.ppcId}`, type: "success" });
+  //       }
+  //     } catch (error) {
+  //       console.error("API Error:", error);
+  //       setMessage({ text: error.response?.data?.message || "Error adding user.", type: "error" });
+  //     }
+  //   };
+  
+  //   handleAddProperty();
+  // }, [phoneNumber]); // Runs when phoneNumber changes
+  
+
+
   useEffect(() => {
     if (!phoneNumber) {
       setMessage({ text: "Missing phone number.", type: "error" });
@@ -87,23 +142,27 @@ function AddProps({ phoneNumber }) {
   
     const handleAddProperty = async () => {
       try {
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/store-id`, {
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}/store-data`, {
           phoneNumber: phoneNumber,
         });
   
-        if (response.status === 201) {
-          setPpcId(response.data.ppcId); // Store the ppcId in state
-          setMessage({ text: `User added successfully! PPC-ID: ${response.data.ppcId}`, type: "success" });
+        if (response.status === 200 || response.status === 201) {
+          setPpcId(response.data.ppcId); // Set PPC-ID whether it's reused or new
+          setMessage({ 
+            text: response.data.message + ` PPC-ID: ${response.data.ppcId}`, 
+            type: "success" 
+          });
         }
       } catch (error) {
-        console.error("API Error:", error);
-        setMessage({ text: error.response?.data?.message || "Error adding user.", type: "error" });
+        setMessage({ 
+          text: error.response?.data?.message || "Error adding user.", 
+          type: "error" 
+        });
       }
     };
   
     handleAddProperty();
-  }, [phoneNumber]); // Runs when phoneNumber changes
-  
+  }, [phoneNumber]);
   
 
     const handleCloseAddForm = () => {
@@ -200,25 +259,25 @@ const formattedCreatedAt = Date.now
   const handlePreview = () => {
     const requiredFields = Object.keys(formRefs);
   
-    const missingFields = requiredFields.filter(field => !formData[field]);
+    // const missingFields = requiredFields.filter(field => !formData[field]);
   
-    if (missingFields.length > 0) {
-      alert(`Please fill in the following fields before previewing: ${missingFields.join(", ")}`);
+    // if (missingFields.length > 0) {
+    //   alert(`Please fill in the following fields before previewing: ${missingFields.join(", ")}`);
   
-      // Focus and scroll to the first missing field
-      const firstMissingField = missingFields[0];
-      const fieldRef = formRefs[firstMissingField];
+    //   // Focus and scroll to the first missing field
+    //   const firstMissingField = missingFields[0];
+    //   const fieldRef = formRefs[firstMissingField];
   
-      if (fieldRef?.current) {
-        fieldRef.current.focus(); // Set focus first
+    //   if (fieldRef?.current) {
+    //     fieldRef.current.focus(); // Set focus first
         
-        setTimeout(() => {
-          fieldRef.current.scrollIntoView({ behavior: "smooth", block: "center" }); // Scroll smoothly
-        }, 100); // Delay slightly to ensure focus happens first
-      }
+    //     setTimeout(() => {
+    //       fieldRef.current.scrollIntoView({ behavior: "smooth", block: "center" }); // Scroll smoothly
+    //     }, 100); // Delay slightly to ensure focus happens first
+    //   }
   
-      return;
-    }
+    //   return;
+    // }
   
     setStep("preview");
     setIsPreviewOpen(true);
@@ -543,9 +602,74 @@ const formattedCreatedAt = Date.now
   //     return { ...prev, [name]: updatedValue };
   //   });
   // };
-  
+  const requiredFieldsByStep = {
+    1: ['propertyMode', 'propertyType' , 'price'],
+    2: ['totalArea', 'areaUnit'],
+    4: ['salesType', 'postedBy'],
+  };
+  const stepRefs = {
+    1: useRef(null),
+    2: useRef(null),
+    3: useRef(null),
+    4: useRef(null),
+    5: useRef(null),
+    6: useRef(null),
+  };
+  const scrollToStep = (step) => {
+    if (stepRefs[step] && stepRefs[step].current) {
+      stepRefs[step].current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start', // Adjust the scroll position if necessary
+      });
+    }
+  };
+
+  // Scroll the field content whenever currentStep changes
+  useEffect(() => {
+    scrollToStep(currentStep);
+  }, [currentStep]);
+
+  // Function to handle moving to the next step
+  const handleNextStep = () => {
+    if (currentStep < 6) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+  const scrollFieldContentUp = () => {
+    const fieldContent = document.querySelector(".fieldcontent");
+    if (fieldContent) {
+      fieldContent.scrollIntoView({
+        behavior: "smooth",
+        block: "start", // You can adjust "start", "center", or "end"
+      });
+    }
+  };
   const handleShowMore =async (e) => {
-    e.preventDefault();
+  
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }    const stepRequiredFields = requiredFieldsByStep[currentStep] || [];
+    const missingFields = stepRequiredFields.filter(field => !formData[field]);
+  
+    if (missingFields.length > 0) {
+      // alert(`Please fill in the following fields before previewing: ${missingFields.join(", ")}`);
+      setPopupMessage(`Please fill in the following fields before previewing: ${missingFields.join(", ")}`);
+      setShowPopup(true);
+    
+      const firstMissingField = missingFields[0];
+      const fieldRef = formRefs[firstMissingField];
+  
+      if (fieldRef?.current) {
+        fieldRef.current.focus();
+        setTimeout(() => {
+          fieldRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 100);
+      }
+  
+      return;
+
+    }
+    
 
 
     // Ensure `ppcId` is available
@@ -589,6 +713,7 @@ const formattedCreatedAt = Date.now
       // alert('Failed to update property details. Please try again.');
     }
     setCurrentStep(currentStep + 1);
+    scrollFieldContentUp();
   };
 
 
@@ -825,9 +950,13 @@ const fieldLabels = {
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              backgroundColor: '#fff',
+              // backgroundColor: '#fff',
+              backgroundColor: '#E9F7F2',
+
               width: '100%',
-              maxWidth: '400px',
+              // maxWidth: '400px',
+              maxWidth: '350px',
+
               padding: '10px',
               zIndex: 10,
               boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
@@ -863,7 +992,10 @@ const fieldLabels = {
                 style={{
                   width: '80%',
                   padding: '5px',
-                  marginBottom: '10px',
+                  // marginBottom: '10px',
+                  background:"#C0DFDA",
+                  border:"none",
+                  outline:"none"
                 }}
               />
               <button
@@ -898,7 +1030,9 @@ const fieldLabels = {
                   style={{
                     padding: '5px',
                     cursor: 'pointer',
-                    backgroundColor: '#f9f9f9',
+                    // backgroundColor: '#f9f9f9',
+                    color:"#26794A",
+
                     marginBottom: '5px',
                   }}
                 >
@@ -1125,8 +1259,8 @@ const handleEdit = () => {
         </div>
 
 {currentStep >= 1 && (
-                <div>
-                          <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>  Property OverView  </h4>             
+        <div className="fieldcontent" ref={stepRefs[1]}>
+  <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>  Property OverView  </h4>             
 
   {/* Property Mode */}
   <div className="form-group">
@@ -1306,7 +1440,7 @@ const handleEdit = () => {
 
 
 {currentStep >= 2 && (
-                <div>
+        <div className="fieldcontent" ref={stepRefs[2]}>
   {/* Negotiation */}
   <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}> Basic Property Info  </h4>             
 
@@ -1467,7 +1601,7 @@ const handleEdit = () => {
 
 
  {currentStep >= 3 && ( 
-                <div>
+        <div className="fieldcontent" ref={stepRefs[3]}>
   {/* Bedrooms */}
   <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>  Property details  </h4>             
 
@@ -1715,7 +1849,7 @@ const handleEdit = () => {
   
 
 {currentStep >= 4 && (
-                <div>
+        <div className="fieldcontent" ref={stepRefs[4]}>
 
 <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>  Other Details  </h4>             
 
@@ -2078,7 +2212,7 @@ const handleEdit = () => {
 
 
 {currentStep >= 5 && (
-<div>
+        <div className="fieldcontent" ref={stepRefs[5]}>
 <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>  Property Description   </h4>             
 
   {/* Description */}
@@ -2091,6 +2225,7 @@ const handleEdit = () => {
   <label>Description:</label>
   <textarea
     name="description"
+    value={formData.description}
     onChange={handleFieldChange}
     className="form-control"
     placeholder="Maximum 250 characters"
@@ -2399,7 +2534,7 @@ const handleEdit = () => {
 
   {/*   rentalPropertyAddress */}
   {currentStep >= 6 && (
-<div>
+        <div className="fieldcontent" ref={stepRefs[6]}>
 
 <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>  Property Address   </h4>             
 
@@ -2734,7 +2869,7 @@ const handleEdit = () => {
 
 
               {/* Show "Show More" button */}
-              <div className="text-center mt-4">
+              {/* <div className="text-center mt-4">
                 <div
                   style={{
                     display: 'inline-block',
@@ -2760,21 +2895,284 @@ const handleEdit = () => {
         @keyframes bounce {
           0% {
             transform: translateY(-5px);
-                        color: #ffffff; /* Initial color */
+                        color: #ffffff; 
 
           }
           // 50% {
-          //   transform: translateY(0px); /* Move up */
+          //   transform: translateY(0px); 
           // }
           100% {
-            transform: translateY(5px); /* Back to original position */
-                                  color: rgb(20, 195, 90); /* Initial color */
+            transform: translateY(5px); 
+                                  color: rgb(20, 195, 90); 
 }
         }
       `}</style>
                 </div>
-              </div>
+              </div> */}
+                 {/* <div style={{background:"#6CBAAF" , overflow:"hidden"
+                 , width:' 200px',
+                  height:' 60px',
+                  borderRadius: '60px',
+                 }}
+                 onClick={handleShowMore}>
+      <a href="#" className="saveNext">
+        Save Next
+        <span>
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </span>
+      </a>
 
+      <style jsx>{`
+        @keyframes moveButton {
+          0% {
+            padding-left: 40px;
+            padding-right: 0;
+          }
+          50% {
+            padding-left: 0;
+            padding-right: 40px;
+          }
+          100% {
+            padding-left: 40px;
+            padding-right: 0;
+          }
+        }
+
+        @keyframes moveSpan {
+          0% {
+            left: 5px;
+          }
+          50% {
+            left: calc(100% - 55px);
+          }
+          100% {
+            left: 5px;
+          }
+        }
+
+        @keyframes moveAfter {
+          0% {
+            transform: translateX(-200px) skewX(30deg);
+          }
+          50% {
+            transform: translateX(170px) skew(30deg);
+          }
+          100% {
+            transform: translateX(-200px) skewX(30deg);
+          }
+        }
+
+        .saveNext {
+          position: relative;
+          width: 200px;
+          height: 60px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 60px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          color: rgba(255, 255, 255, 0.5);
+          text-decoration: none;
+          letter-spacing: 2px;
+          border-top: 0.5px solid rgba(255, 255, 255, 0.35);
+          border-left: 0.5px solid rgba(255, 255, 255, 0.35);
+          padding-left: 40px;
+          animation: moveButton 2s infinite;
+        }
+
+        .saveNext span {
+          position: absolute;
+          left: 5px;
+          width: 50px;
+          height: 50px;
+          background: linear-gradient(0deg, #434365, #2ee0e4);
+          border-radius: 50%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          color:rgb(230, 230, 230);
+          font-size: 1.5em;
+          animation: moveSpan 2s infinite;
+        }
+
+        .saveNext:after {
+          content: "";
+          position: absolute;
+          width: 80px;
+          height: 100%;
+          z-index: 1;
+          background: rgba(255, 255, 255, 0.25);
+          transform: translateX(-200px) skewX(30deg);
+          animation: moveAfter 2s infinite;
+        }
+      `}</style>
+      </div> */}
+      <div>
+  <style>
+    {`
+      // @keyframes transformText {
+      //   0% {
+      //     transform: translateX(-200px) skewX(30deg);
+      //   }
+      //   50% {
+      //     transform: translateX(170px) skewX(30deg);
+      //   }
+      //   100% {
+      //     transform: translateX(-200px) skewX(30deg);
+      //   }
+      // }
+
+      @keyframes pulseIcon {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.15);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+    `}
+  </style>
+
+  <div
+    {...handlers}
+    style={{
+      width: '100%',
+      height: '50px',
+      borderRadius: '50px',
+      background: swiped
+        ? 'linear-gradient(to right, #1dd1a1, #10ac84)'
+        : '#fff',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: swiped ? 'flex-end' : 'flex-start',
+      padding: '5px',
+      cursor: 'pointer',
+      transition: 'all 0.4s ease-in-out',
+      boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+      position: 'relative',
+      overflow: 'hidden',
+
+    }}
+  >
+    <span
+      style={{
+        position: 'absolute',
+        left: swiped ? '10px' : '50%',
+        transform: swiped
+          ? 'translateX(-200px) skewX(30deg)'
+          : 'translateX(-50%)',
+        color: '#00b894',
+        fontWeight: 600,
+        fontSize: '16px',
+        pointerEvents: 'none',
+        transition: 'all 0.4s ease-in-out',
+        animation: swiped ? 'transformText 2s infinite' : 'none',
+        whiteSpace: 'nowrap',
+      }}
+    >
+     Swipe To Save & Continue
+    </span>
+
+    <div
+      className="d-flex align-items-center justify-content-center"
+      style={{
+        height: '40px',
+        width: '40px',
+        borderRadius: '50%',
+        backgroundColor: swiped ? '#fff' : '#1dd1a1',
+        transition: 'all 0.4s ease-in-out',
+        animation: swiped ? 'pulseIcon 1.5s infinite' : 'none',
+      }}
+    >
+      <FaArrowRight
+        style={{
+          color: swiped ? '#1dd1a1' : '#fff',
+          fontSize: '20px',
+          margin: 'auto',
+          transition: 'all 0.4s ease-in-out',
+          animation: 'moveLeftRight 1s infinite',
+
+        }}
+      />
+        <style jsx>{`
+    @keyframes moveLeftRight {
+      0% {
+        transform: translateX(0);
+        color: #ffffff;
+      }
+      50% {
+        transform: translateX(8px);
+        // color: rgb(20, 195, 90);
+      }
+      100% {
+        transform: translateX(0);
+        color: #ffffff;
+      }
+    }
+  `}</style>
+
+    </div>
+  </div>
+</div>
+
+  {/* <div
+      {...handlers}
+      style={{
+        width: '220px',
+        height: '50px',
+        borderRadius: '50px',
+        background: swiped
+          ? 'linear-gradient(to right, #1dd1a1, #10ac84)'
+          : '#fff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: swiped ? 'flex-end' : 'flex-start',
+        padding: '5px',
+        cursor: 'pointer',
+        transition: 'all 0.4s ease-in-out',
+        boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+        position: 'relative',
+      }}
+    >
+        <span
+          style={{
+            position: 'absolute',
+            // left: '50%',
+            left: swiped ? '10px' : '50%',  // Move text to the left when swiped right
+            // transform: 'translateX(-50%)',
+            transform: 'translateX(-200px) skewX(30deg)',
+
+            color: '#00b894',
+            fontWeight: 600,
+            fontSize: '16px',
+            pointerEvents: 'none',
+            transition: 'all 0.4s ease-in-out',  // Smooth transition for text movement
+          }}
+        >
+          Save & Continue
+        </span>
+      <div className="d-flex align-items-center justify-content-center"
+        style={{
+          height: '40px',
+          width: '40px',
+          borderRadius: '50%',
+          backgroundColor: swiped ? '#fff' : '#1dd1a1',
+          transition: 'all 0.4s ease-in-out',
+        }}
+      >
+             <FaArrowRight
+          style={{
+            color: swiped ? '#1dd1a1' : '#fff',
+            fontSize: '20px',
+            margin: 'auto',
+            transition: 'all 0.4s ease-in-out',
+          }}
+        />
+      </div>
+    </div> */}
               {/* Step 3: Submit all data */}
               {currentStep > 6 && (
                 <Button
@@ -2796,8 +3194,42 @@ const handleEdit = () => {
                   PreView
                 </Button>
            )} 
+{showPopup && (
+  <div className="modal show d-block" tabIndex="-1" role="dialog">
+    <div className="modal-dialog" role="document" >
+      <div className="modal-content" style={{background:"#fff"}}>
+        {/* <div className="modal-header">
+          <h5 className="modal-title">Missing Fields</h5>
+          <button type="button" className="close" onClick={() => setShowPopup(false)}>
+            <span>&times;</span>
+          </button>
+        </div> */}
+   <div className="modal-body d-flex align-items-center justify-content-between gap-3">
+  <p className="mb-0 flex-grow-1" style={{color:"grey", fontSize:"13px"}}>{popupMessage}</p>
+  <button
+    type="button"
+    // style={{ background: "#16398B" }}
+    className="btn border-0 p-2"
+    onClick={() => setShowPopup(false)}
+  >
+    {/* Close */}
+    <RiCloseCircleFill color='#16398B'size={25}/>
+
+  </button>
+</div>
+
+        {/* <div className="modal-footer">
+          <button type="button" style={{background:"#16398B"}} className="btn btn-secondary" onClick={() => setShowPopup(false)}>
+            Close
+          </button>
+        </div> */}
+      </div>
+    </div>
+  </div>
+)}
 
       </form>
+      
       ) :  (
 
 <div ref={previewRef} className="preview-section ">
@@ -2963,6 +3395,8 @@ return (
 
         }}
         onMouseOut={(e) => {
+          e.target.style.color = "#ffffff"; // Original orange
+
           e.target.style.background = "#2F747F"; // Original orange
           e.target.style.fontWeight = 400; // Brighter neon on hover
 
