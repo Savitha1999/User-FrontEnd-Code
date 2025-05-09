@@ -6,7 +6,7 @@
 import { useState, useEffect } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import myImage from '../Assets/Rectangle 146.png'; // Correct path
 import myImage1 from '../Assets/Rectangle 145.png'; // Correct path
@@ -22,13 +22,37 @@ import {
   FaCamera,
   FaEye
 } from "react-icons/fa";
+import NoData from "../Assets/OOOPS-No-Data-Found.png";
+
 const PyProperty = () => {
     const [imageCounts, setImageCounts] = useState({}); // Store image count for each property
   
   const [properties, setProperties] = useState([]);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
+  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+    const storedPhoneNumber = location.state?.phoneNumber || localStorage.getItem("phoneNumber") || "";
+  
+    const [phoneNumber, setPhoneNumber] = useState(storedPhoneNumber);
+  useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Py Property",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
   // // Fetch Puducherry properties
   // useEffect(() => {
   //   const fetchProperties = async () => {
@@ -58,6 +82,8 @@ const PyProperty = () => {
         setError("");
       } catch (error) {
         setError("Pondy properties Not Found");
+      }  finally {
+        setLoading(false); // Stop loading after fetch (success or error)
       }
     };
   
@@ -117,7 +143,20 @@ const PyProperty = () => {
       {error && <p style={{ color: "red" }}>{error}</p>}
    
       <div style={{ overflowY: 'auto', fontFamily:"Inter, sans-serif" }}>
-      {properties.map((property) => (
+      {loading ? (
+  <div className="text-center my-4"
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      zIndex: 1000
+    }}>
+    <span className="spinner-border text-primary" role="status" />
+    <p className="mt-2">Loading properties...</p>
+  </div>
+) : properties.length > 0 ? ( 
+  properties.map((property) => (
          
           <div 
           key={property._id}
@@ -236,7 +275,18 @@ justifyContent: "space-between",
 </div>
 
         </div>
-        ))}
+        )) ) : (
+          <div className="text-center my-4 "
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+        
+          }}>
+        <img src={NoData} alt="" width={100}/>      
+        <p>No properties found.</p>
+        </div>              )}
       </div>
       </div>
       </Col>

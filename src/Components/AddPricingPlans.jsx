@@ -7,6 +7,8 @@ import axios from 'axios';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Modal } from 'react-bootstrap';
 import hom from "../Assets/addcarimg.png"
+import SuccessIcon from '../Assets/Success.png';
+
 export default function AddPricingPlans() {
   const location = useLocation();
   const [hoverIndex, setHoverIndex] = useState(null);
@@ -31,7 +33,24 @@ export default function AddPricingPlans() {
   useEffect(() => {
     fetchActivePlans();
   }, []);
-
+  useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Add Pricing Plans",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
  
 
   const confirmPlanSelection = (card, index) => {
@@ -76,7 +95,7 @@ const fetchActivePlans = async () => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/select-plan`, planData);
       if (response.status === 200) {
-        setMessage({ text: 'Plan selected successfully!', type: 'success' });
+        setMessage({ text: 'Plan selected successfully!', type: 'success' ,  image: SuccessIcon   });
         setTimeout(() => navigate('/my-plan'), 5000);
       }
     } catch (error) {
@@ -117,12 +136,30 @@ const fetchActivePlans = async () => {
       <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
     </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>Upgrade Memership</h3> </div>
       <img src={hom} alt="" className='w-100 m-0 mt-2'/>
-       {message && (
+       {/* {message && (
         <p className='text-bold' style={{ color: message.type === 'success' ? 'green' : 'red', textAlign: 'center' }}>
           {message.text}
         </p>
-      )}
-      
+      )} */}
+{message && (
+  <div style={{ textAlign: 'center' }}>
+    {message.image && (
+      <img
+        src={message.image}
+        alt={message.type}
+        style={{ width: 40, height: 40, display: 'block', margin: '0 auto' }}
+      />
+    )}
+    <p
+      className='text-bold'
+      style={{ color: message.type === 'success' ? 'green' : 'red', marginTop: 10 }}
+    >
+      {message.text}
+    </p>
+  </div>
+)}
+
+
       <div className="text-center mb-3">
       <p style={{ color: "rgb(10, 10, 10)", fontSize: "16px", marginBottom: "10px" }} className="lead mb-1 pt-3">Start being a celebrity with our</p>
       <p style={{ color: "rgb(10, 10, 10)", fontSize: "16px", marginBottom: "10px" }} className="lead">premium subscription plans</p>

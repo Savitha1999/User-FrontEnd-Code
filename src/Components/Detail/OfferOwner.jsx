@@ -12,7 +12,7 @@ import myImage from '../../Assets/Rectangle 766.png'; // Correct path
 import myImage1 from '../../Assets/Rectangle 145.png'; // Correct path
 import pic from '../../Assets/Default image_PP-01.png'; // Correct path
 import { FaArrowLeft } from "react-icons/fa";
-
+import NoData from "../../Assets/OOOPS-No-Data-Found.png";
 
 const App = () => {
   const [offers, setOffers] = useState([]); // Active properties
@@ -28,6 +28,25 @@ const App = () => {
     message: "",
     onConfirm: () => {},
   });
+
+  useEffect(() => {
+      const recordDashboardView = async () => {
+        try {
+          await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+            phoneNumber: phoneNumber,
+            viewedFile: "Offer Owner",
+            viewTime: new Date().toISOString(),
+          });
+          console.log("Dashboard view recorded");
+        } catch (err) {
+          console.error("Failed to record dashboard view:", err);
+        }
+      };
+    
+      if (phoneNumber) {
+        recordDashboardView();
+      }
+    }, [phoneNumber]);
   useEffect(() => {
     if (message.text) {
       const timer = setTimeout(() => {
@@ -53,29 +72,6 @@ const App = () => {
   }, [offers, removedOffers]);
 
  
-  //  useEffect(() => {
-  //    const fetchOffers = async () => {
-  //      if (!phoneNumber) return;
-   
-  //      setLoading(true);
-  //      try {
-  //        const response = await axios.get(`${process.env.REACT_APP_API_URL}/offers/owner/${phoneNumber}`);
-  //        if (response.status === 200) {
-  //          setOffers(response.data.offers); // ✅ Use the single response
-  //        } else {
-  //          setMessage({ text: "No owners found for this offer user.", type: "danger" });
-  //        }
-  //      } catch (error) {
-  //        console.error("Error fetching offers:", error);
-  //      } finally {
-  //        setLoading(false);
-  //      }
-  //    };
-   
-  //    fetchOffers();
-  //  }, [phoneNumber]); // ✅ Correct dependency array
-   
- 
   useEffect(() => {
     const fetchOffers = async () => {
       if (!phoneNumber) return;
@@ -95,7 +91,7 @@ const App = () => {
         }
       } catch (error) {
         console.error("Error fetching offers:", error);
-        setMessage({ text: "Failed to fetch offers. Please try again later.", type: "error" });
+        setMessage({ text: "No Offer Properties Found", type: "error" });
       } finally {
         setLoading(false);
       }
@@ -363,8 +359,17 @@ const ConfirmationModal = ({ show, onClose, onConfirm, message }) => {
 };
 const PropertyList = ({ properties, onRemove, onUndo, onAccept, onReject }) => {
   return properties.length === 0 ? (
-    <p>No properties found.</p>
-  ) : (
+<div className="text-center my-4 "
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+
+    }}>
+<img src={NoData} alt="" />      
+<p>No properties found.</p>
+</div>  ) : (
     <div className="row mt-4 w-100">
       {properties.map((property) => (
         <div className="col-12 mb-1 p-0" key={property.ppcId}>
@@ -385,9 +390,19 @@ const PropertyList = ({ properties, onRemove, onUndo, onAccept, onReject }) => {
 const PropertyCard = ({ property, onRemove, onUndo, onAccept, onReject }) => {
   const [activeButton, setActiveButton] = useState(property.status || null);
  const navigate = useNavigate();
-  const [message, setMessage] = useState({ text: "", type: "" });
   const [modal, setModal] = useState({ show: false, type: "", property: null }); 
 
+   const [message, setMessage] = useState({ text: "", type: "" });
+  
+  
+    // Auto-clear message after 3 seconds
+    useEffect(() => {
+     if (message.text) {
+       const timer = setTimeout(() => setMessage({ text: "", type: "" }), 3000);
+       return () => clearTimeout(timer);
+     }
+   }, [message]);
+      
   
   const handleCardClick = () => {
 

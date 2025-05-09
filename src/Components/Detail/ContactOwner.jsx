@@ -456,7 +456,7 @@ import myImage from "../../Assets/Rectangle 146.png";
 import myImage1 from "../../Assets/Rectangle 145.png";
 import pic from "../../Assets/Default image_PP-01.png";
 import { FaArrowLeft } from "react-icons/fa";
-
+import NoData from "../../Assets/OOOPS-No-Data-Found.png";
 
 const ConfirmationModal = ({ show, onClose, onConfirm, message }) => {
   if (!show) return null;
@@ -549,6 +549,15 @@ const ConfirmationModal = ({ show, onClose, onConfirm, message }) => {
 const PropertyCard = ({ property, onRemove, onUndo }) => {
   const navigate = useNavigate();
   const [message, setMessage] = useState({ text: "", type: "" });
+
+
+  // Auto-clear message after 3 seconds
+  useEffect(() => {
+   if (message.text) {
+     const timer = setTimeout(() => setMessage({ text: "", type: "" }), 3000);
+     return () => clearTimeout(timer);
+   }
+ }, [message]);
 
   const handleCardClick = () => {
     if (property?.ppcId) {
@@ -809,7 +818,17 @@ const PropertyCard = ({ property, onRemove, onUndo }) => {
 
 const PropertyList = ({ properties, onRemove, onUndo }) => {
   if (properties.length === 0) {
-    return <p>No properties found.</p>;
+    return <div className="text-center my-4 "
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+
+    }}>
+<img src={NoData} alt=""width={100} />      
+<p>No properties found.</p>
+</div>
   }
 
   return (
@@ -842,7 +861,24 @@ const App = () => {
       return () => clearTimeout(timer);
     }
   }, [message]);
-
+useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Contact owner",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
   // // Fetch properties
   // const fetchInterestedProperties = useCallback(async () => {
   //   if (!phoneNumber) return;

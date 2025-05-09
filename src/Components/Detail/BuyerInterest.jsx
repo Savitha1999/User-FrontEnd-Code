@@ -8,7 +8,7 @@ import profil from '../../Assets/xd_profile.png'
 import {  FaCalendarAlt } from "react-icons/fa";
 import { Button, Modal } from "react-bootstrap";
 import { FaArrowLeft } from "react-icons/fa";
-
+import NoData from "../../Assets/OOOPS-No-Data-Found.png";
 
 const App = () => {
   const { phoneNumber } = useParams();
@@ -55,6 +55,25 @@ const App = () => {
     fetchInterestBuyersCount();
   }, [phoneNumber]);
 
+
+  useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Owner Interest",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
 
 
   
@@ -436,8 +455,18 @@ const navigate = useNavigate();
             </div>
           ))
         ) : (
-          <p>No properties found.</p>
-        )
+<div className="text-center my-4 "
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+
+    }}>
+<img src={NoData} alt="" width={100}/>      
+<p>No properties found.</p>
+</div>       
+ )
       ) : (
         // Show removed properties with Undo button
         removedProperties.length > 0 ? (

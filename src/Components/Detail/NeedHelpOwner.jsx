@@ -92,8 +92,17 @@ const ConfirmationModal = ({ show, onClose, onConfirm, message }) => {
 
 
 const PropertyCard = ({ property, onRemove, onUndo }) => {
-  const [message, setMessage] = useState({ text: "", type: "" });
+ const [message, setMessage] = useState({ text: "", type: "" });
 
+
+  // Auto-clear message after 3 seconds
+  useEffect(() => {
+   if (message.text) {
+     const timer = setTimeout(() => setMessage({ text: "", type: "" }), 3000);
+     return () => clearTimeout(timer);
+   }
+ }, [message]);
+    
 
      const navigate = useNavigate();
     
@@ -321,7 +330,6 @@ const PropertyList = ({ properties, onRemove, onUndo }) => {
 };
 
 
-
 const App = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -329,6 +337,32 @@ const App = () => {
   const { phoneNumber } = useParams(); // Getting phoneNumber from URL params
   const [message, setMessage] = useState({ text: "", type: "" });
   const [modal, setModal] = useState({ show: false, type: "", property: null });
+
+
+  
+
+
+  useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Buyer ShortList",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
+
+
+
 
 
   // Auto-clear message after 3 seconds
@@ -340,34 +374,6 @@ const App = () => {
       return () => clearTimeout(timer);
     }
   }, [message]);
-
-  // // Fetch interested properties
-  // const fetchInterestedProperties = useCallback(async () => {
-  //   if (!phoneNumber) {
-  //     return;
-  //   }
-    
-  //   try {
-  //     setLoading(true);
-  //     const apiUrl = `${process.env.REACT_APP_API_URL}/get-help-as-owner`;
-
-  //     const { data } = await axios.get(apiUrl, { params: { phoneNumber } });
-
-
-  //     setProperties(data.helpRequestsData);
-  //     localStorage.setItem("helpProperties", JSON.stringify(data.helpRequestsData));
-  //   } catch (error) {
-  //     setMessage({ text: "Failed to fetch properties.", type: "error" });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }, [phoneNumber]);
-
-  // // 🔥 Ensure API is called when component loads
-  // useEffect(() => {
-  //   fetchInterestedProperties();
-  // }, [fetchInterestedProperties]);
-
 
   // Fetch interested properties
 const fetchInterestedProperties = useCallback(async () => {

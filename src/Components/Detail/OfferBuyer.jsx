@@ -12,7 +12,7 @@ import profil from '../../Assets/xd_profile.png'
 import { Button, Modal } from "react-bootstrap";
 import { FaArrowLeft } from "react-icons/fa";
 import Swal from "sweetalert2"; // Import SweetAlert2 for better popup messages
-
+import NoData from "../../Assets/OOOPS-No-Data-Found.png";
 
 const App = () => {
   const [offers, setOffers] = useState([]); // Active properties
@@ -32,6 +32,32 @@ const App = () => {
     setPopupAction(() => action);
     setShowPopup(true);
   };
+
+  
+  
+    useEffect(() => {
+      const recordDashboardView = async () => {
+        try {
+          await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+            phoneNumber: phoneNumber,
+            viewedFile: "Owner Offer",
+            viewTime: new Date().toISOString(),
+          });
+          console.log("Dashboard view recorded");
+        } catch (err) {
+          console.error("Failed to record dashboard view:", err);
+        }
+      };
+    
+      if (phoneNumber) {
+        recordDashboardView();
+      }
+    }, [phoneNumber]);
+  
+  
+  
+  
+  
 
   useEffect(() => {
     if (message.text) {
@@ -57,33 +83,7 @@ const App = () => {
     localStorage.setItem("removedOffers", JSON.stringify(removedOffers));
   }, [offers, removedOffers]);
 
-  // // Fetch offers based on phoneNumber
-  // useEffect(() => {
-  //   const fetchOffers = async () => {
-  //     if (!phoneNumber) return;
-
-  //     setLoading(true);
-  //     try {
-  //       const response = await axios.get(`${process.env.REACT_APP_API_URL}/offers/buyer/${phoneNumber}`);
-  //       if (response.status === 200) {
-  //         const fetchedOffers = response.data.offers || [];
-  //         setOffers(fetchedOffers);
-  //         const updatedOffers = await axios.get(`${process.env.REACT_APP_API_URL}/offers/buyer/${phoneNumber}`);
-  //         setOffers(updatedOffers.data.offers);
-  //       } else {
-  //         setMessage({ text: "No buyers found for this offer user.", type: "danger" });
-  //       }
-  //     } catch (error) {
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchOffers();
-  // }, [phoneNumber]);
-
-
-
+  
 
   // Fetch offers based on phoneNumber
 useEffect(() => {
@@ -430,8 +430,17 @@ const handleRejectOffer = async (ppcId, buyerPhoneNumber) => {
 
 const PropertyList = ({ properties, onRemove, onUndo, onAccept, onReject }) => {
   return properties.length === 0 ? (
-    <p>No properties found.</p>
-  ) : (
+<div className="text-center my-4 "
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+
+    }}>
+<img src={NoData} alt="" width={100}/>      
+<p>No properties found.</p>
+</div>  ) : (
     <div className="row mt-4 w-100">
       {properties.map((property, index) => (
         <div className="col-12 mb-1 p-0" key={property.ppcId}>

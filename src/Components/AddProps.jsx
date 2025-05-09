@@ -5,13 +5,14 @@
 
 
 
+
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { Button } from "react-bootstrap";
+import { Button, Col, Container, Row } from "react-bootstrap";
 import {  useLocation, useNavigate } from "react-router-dom";
 import { RiCloseCircleFill, RiLayoutLine } from 'react-icons/ri';
-import { TbArrowLeftRight } from 'react-icons/tb';
-import {FaBuilding, FaMoneyBillWave,  FaBath, FaChartArea, FaPhone ,FaEdit,FaRoad,FaDoorClosed,FaMapPin, FaHome, FaUserAlt, FaEnvelope,  FaRupeeSign , FaFileVideo , FaToilet,FaCar,FaBed,  FaCity , FaTimes, FaArrowRight} from 'react-icons/fa';
+import { TbArrowLeftRight, TbMapPinCode } from 'react-icons/tb';
+import {FaBuilding, FaMoneyBillWave,  FaBath, FaChartArea, FaPhone ,FaEdit,FaRoad,FaDoorClosed,FaMapPin, FaHome, FaUserAlt, FaEnvelope,  FaRupeeSign , FaFileVideo , FaToilet,FaCar,FaBed,  FaCity , FaTimes, FaArrowRight, FaStreetView} from 'react-icons/fa';
 import {  FaRegAddressCard } from 'react-icons/fa6';
 import { MdLocationOn, MdOutlineMeetingRoom, MdOutlineOtherHouses, MdSchedule , MdStraighten , MdApproval, MdLocationCity , MdAddPhotoAlternate, MdKeyboardDoubleArrowDown} from "react-icons/md";
 import { BsBank, BsBuildingsFill, BsFillHouseCheckFill , BsTextareaT} from "react-icons/bs";
@@ -35,6 +36,9 @@ import moment from "moment";
 import { format } from "date-fns";
 import { Spinner } from "react-bootstrap"; // Using Bootstrap for loading animation
 import { useSwipeable } from 'react-swipeable';
+import SuccessIcon from '../Assets/Success.png';
+import { toWords } from 'number-to-words';
+import { FcSearch } from "react-icons/fc";
 
 
 function AddProps({ phoneNumber }) {
@@ -45,18 +49,8 @@ function AddProps({ phoneNumber }) {
     const [showPopup, setShowPopup] = useState(false);
     const [popupMessage, setPopupMessage] = useState("");
     
-    // const handlers = useSwipeable({
-    //   onSwipedRight: () => {
-    //     setSwiped(true);
-    //     handleShowMore();  // 👈 Trigger it here
-    //   },
-    //   onSwipedLeft: () => {
-    //     setSwiped(false);  // Trigger left swipe to move back to the left
-    //   },     
-      
-    //    trackMouse: true,
-    //   delta: 40,
-    // });
+    const [step, setStep] = useState("form"); // "form" -> "preview" -> "submitted"
+
     const handlers = useSwipeable({
       onSwipedRight: () => {
         setSwiped(true);
@@ -92,7 +86,7 @@ function AddProps({ phoneNumber }) {
     const [currentStep, setCurrentStep] = useState(1);
     const [showPlans, setshowPlans] = useState(false);
 
-    const [message, setMessage] = useState({ text: "", type: "" });
+    const [message, setMessage] = useState({ text: "", type: "" , image: "" });
 
 
      // Auto-clear message after 3 seconds
@@ -106,33 +100,6 @@ function AddProps({ phoneNumber }) {
       }, [message]);
     
   
-
-  // useEffect(() => {
-  //   if (!phoneNumber) {
-  //     setMessage({ text: "Missing phone number.", type: "error" });
-  //     return;
-  //   }
-  
-  //   const handleAddProperty = async () => {
-  //     try {
-  //       const response = await axios.post(`${process.env.REACT_APP_API_URL}/store-data`, {
-  //         phoneNumber: phoneNumber,
-  //       });
-  
-  //       if (response.status === 201) {
-  //         setPpcId(response.data.ppcId); // Store the ppcId in state
-  //         setMessage({ text: `User added successfully! PPC-ID: ${response.data.ppcId}`, type: "success" });
-  //       }
-  //     } catch (error) {
-  //       console.error("API Error:", error);
-  //       setMessage({ text: error.response?.data?.message || "Error adding user.", type: "error" });
-  //     }
-  //   };
-  
-  //   handleAddProperty();
-  // }, [phoneNumber]); // Runs when phoneNumber changes
-  
-
 
   useEffect(() => {
     if (!phoneNumber) {
@@ -168,7 +135,12 @@ function AddProps({ phoneNumber }) {
     const handleCloseAddForm = () => {
       setshowPlans(false); // Close add property form
     };
-
+ const inputRef = useRef(null);
+  const latRef = useRef(null);
+  const lngRef = useRef(null);
+  const mapRef = useRef(null);
+  const mapInstance = useRef(null);
+  const markerRef = useRef(null);
   // const [ppcId, setPpcId] = useState(location.state?.ppcId || ""); 
   const [formData, setFormData] = useState({
     propertyMode: '',
@@ -216,13 +188,239 @@ function AddProps({ phoneNumber }) {
   alternatePhone: "",
   alternatePhoneCountryCode: "",
     bestTimeToCall: '',
+    pinCode:"",
   });
+ useEffect(() => {
+    if (step !== "form" || !window.google) return;
+  
+    const interval = setInterval(() => {
+      if (mapRef.current && inputRef.current) {
+        clearInterval(interval);
+  
+        // Optional: clear any existing map to avoid duplication
+        mapRef.current.innerHTML = "";
+  
+        const map = new window.google.maps.Map(mapRef.current, {
+          center: { lat: 20.5937, lng: 78.9629 },
+          zoom: 5,
+        });
+  
+        mapInstance.current = map;
+  
+        const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+          types: ['geocode'],
+        });
+  
+        autocomplete.bindTo('bounds', map);
+  
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (!place.geometry || !place.geometry.location) return;
+  
+          const lat = place.geometry.location.lat();
+          const lng = place.geometry.location.lng();
+  
+          updateMap(lat, lng);
+  
+          const getComponent = (type) => {
+            const comp = place.address_components?.find(c => c.types.includes(type));
+            return comp?.long_name || '';
+          };
+  
+          setFormData(prev => ({
+            ...prev,
+            rentalPropertyAddress: place.formatted_address || '',
+          
+            // Optional: Uncomment these if you still need coordinates
+            latitude: lat,
+            longitude: lng,
+          
+            pinCode: getComponent("postal_code"),
+          
+            // City is usually in 'locality', fallback to district-level if missing
+            city: getComponent("sublocality_level_1"),
+          
+            // Area is more granular, typically sublocality levels
+            area: getComponent("sublocality_level_2"),          
+            // Optional: Nagar name, generally from level 1
+            nagar: getComponent("sublocality"),
+          
+            // Street name or building/premise
+            streetName: getComponent("route") || getComponent("premise"),
+          
+            // District is administrative_area_level_2 in most cases
+            district: getComponent("administrative_area_level_2") || getComponent("locality"),
+          
+            state: getComponent("administrative_area_level_1"),
+            country: getComponent("country"),
+            doorNumber: getComponent("street_number"),
+          }));
+          
+        });
+      }
+    }, 100);
+  
+    return () => clearInterval(interval);
+  }, [step]); // 👈 critical: this makes map re-init on form re-entry
+  
+   // Initialize map only once
+  const updateMap = (lat, lng) => {
+    if (mapRef.current) {
+      const map = new window.google.maps.Map(mapRef.current, {
+        center: { lat, lng },
+        zoom: 12,
+      });
+      new window.google.maps.Marker({
+        position: { lat, lng },
+        map: map,
+      });
+    }
+  };
+
+  const handleLatLngSearch = (e) => {
+    e.preventDefault();
+
+    const lat = parseFloat(latRef.current.value);
+    const lng = parseFloat(lngRef.current.value);
+
+    if (!isNaN(lat) && !isNaN(lng)) {
+      updateMap(lat, lng);
+
+      const geocoder = new window.google.maps.Geocoder();
+      const latlng = { lat, lng };
+
+      geocoder.geocode({ location: latlng }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          const place = results[0];
+
+          const getComponent = (type) => {
+            const comp = place.address_components.find(c => c.types.includes(type));
+            return comp?.long_name || '';
+          };
+
+          // Update formData with address components, excluding latitude/longitude
+          setFormData(prev => ({
+            ...prev,
+            rentalPropertyAddress: place.formatted_address || '',
+            // latitude: lat,
+            // longitude: lng,
+            pinCode: getComponent("postal_code"),
+          
+            // City is usually in 'locality', fallback to district-level if missing
+            city: getComponent("sublocality_level_1"),
+          
+            // Area is more granular, typically sublocality levels
+            area: getComponent("sublocality_level_2"),          
+            // Optional: Nagar name, generally from level 1
+            nagar: getComponent("sublocality"),
+          
+            // Street name or building/premise
+            streetName: getComponent("route") || getComponent("premise"),
+          
+            // District is administrative_area_level_2 in most cases
+            district: getComponent("administrative_area_level_2") || getComponent("locality"),
+          
+            state: getComponent("administrative_area_level_1"),
+            country: getComponent("country"),
+            doorNumber: getComponent("street_number"),    }));
+        } else {
+          alert('Reverse geocoding failed: ' + status);
+        }
+      });
+    } else {
+      alert("Enter valid coordinates");
+    }
+  };
+  
+
+
+
+  useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Add Property",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
+
+
+
+  // // ✅ Load Google Maps Script only once
+  // useEffect(() => {
+  //   const loadScript = () => {
+  //     if (window.google) {
+  //       setMapLoaded(true);
+  //       return;
+  //     }
+
+  //     const script = document.createElement("script");
+  //     script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places`;
+  //     script.async = true;
+  //     script.onload = () => setMapLoaded(true);
+  //     document.body.appendChild(script);
+  //   };
+
+  //   loadScript();
+  // }, []);
+
+  // // ✅ Initialize map only after script and step are ready
+  // useEffect(() => {
+  //   if (!mapLoaded || currentStep < 6) return;
+
+  //   const map = new window.google.maps.Map(mapRef.current, {
+  //     center: { lat: 28.6139, lng: 77.209 }, // Default to Delhi
+  //     zoom: 13,
+  //   });
+
+  //   const input = document.getElementById("pac-input");
+  //   const autocomplete = new window.google.maps.places.Autocomplete(input);
+  //   autocomplete.bindTo("bounds", map);
+
+  //   const marker = new window.google.maps.Marker({ map });
+
+  //   autocomplete.addListener("place_changed", () => {
+  //     const place = autocomplete.getPlace();
+  //     if (!place.geometry || !place.geometry.location) return;
+
+  //     map.setCenter(place.geometry.location);
+  //     marker.setPosition(place.geometry.location);
+
+  //     // ✅ Extract address components
+  //     const addressComponents = place.address_components || [];
+  //     const getComponent = (type) =>
+  //       addressComponents.find((c) => c.types.includes(type))?.long_name || "";
+
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       pinCode: getComponent("postal_code"),
+  //       city: getComponent("locality") || getComponent("administrative_area_level_2"),
+  //       area: getComponent("sublocality") || getComponent("sublocality_level_1"),
+  //       streetName: getComponent("route") || getComponent("premise"),
+  //       district: getComponent("administrative_area_level_2"),
+  //       state: getComponent("administrative_area_level_1"),
+  //       country: getComponent("country"),
+  //     }));
+      
+      
+  //   });
+  // }, [mapLoaded, currentStep]);
+
 
   const [photos, setPhotos] = useState([]);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [video, setVideo] = useState(null);
   const [isPreview, setIsPreview] = useState(true);
-  const [step, setStep] = useState("form"); // "form" -> "preview" -> "submitted"
 
   const navigate = useNavigate();
 
@@ -259,25 +457,6 @@ const formattedCreatedAt = Date.now
   const handlePreview = () => {
     const requiredFields = Object.keys(formRefs);
   
-    // const missingFields = requiredFields.filter(field => !formData[field]);
-  
-    // if (missingFields.length > 0) {
-    //   alert(`Please fill in the following fields before previewing: ${missingFields.join(", ")}`);
-  
-    //   // Focus and scroll to the first missing field
-    //   const firstMissingField = missingFields[0];
-    //   const fieldRef = formRefs[firstMissingField];
-  
-    //   if (fieldRef?.current) {
-    //     fieldRef.current.focus(); // Set focus first
-        
-    //     setTimeout(() => {
-    //       fieldRef.current.scrollIntoView({ behavior: "smooth", block: "center" }); // Scroll smoothly
-    //     }, 100); // Delay slightly to ensure focus happens first
-    //   }
-  
-    //   return;
-    // }
   
     setStep("preview");
     setIsPreviewOpen(true);
@@ -341,16 +520,22 @@ const formattedCreatedAt = Date.now
     { icon: <BiBuilding />, label: "State", value: formData.state },
     { icon: <MdLocationCity />, label: "City", value: formData.city },
     { icon: <FaMapMarkerAlt />, label: "District", value:  formData.district},
+          { icon: <MdLocationOn />, label: "Area", value: formData.area },
+   
     { icon: <FaMapSigns />, label: "Nagar", value: formData.nagar },
+    { icon: <FaRoad />, label: "Street Name", value: formData.streetName },
+
     { icon: <FaDoorClosed />, label: "Door Number", value: formData.doorNumber },
+    { icon: <TbMapPinCode />, label: "pinCode", value: formData.pinCode },
 
     { heading: true, label: "Contact Info" }, // Heading 5
    
     { icon: <FaUserAlt />, label: "Owner Name", value: formData.ownerName },
+    { icon: <MdEmail />, label: "Email", value: formData.email },
+
     { icon: <MdPhone  />, label: "Phone Number", value: phoneNumber },
     { icon: <MdPhone  />, label: "alternate Phone", value: formData.alternatePhone },
 
-    { icon: <MdEmail />, label: "Email", value: formData.email },
     { icon: <MdOutlineAccessTime />, label: "Best Time To Call", value: formData.bestTimeToCall },
  
   ];
@@ -526,82 +711,20 @@ const formattedCreatedAt = Date.now
       return { ...prev, [name]: updatedValue };
     });
   };
-    const convertToIndianRupees = (num) => {
-    if (!num) return "";
-  
-    const units = [
-      "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
-      "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
-      "Seventeen", "Eighteen", "Nineteen",
-    ];
-    const tens = [
-      "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy",
-      "Eighty", "Ninety",
-    ];
+   const convertToIndianRupees = (num) => {
+      const number = parseInt(num, 10);
+      if (isNaN(number)) return "";
     
-    const scales = ["", "Thousand", "Lakh", "Crore"];
-    
-    let number = parseInt(num, 10);
-    let words = "";
-  
-    if (number === 0) return "Zero";
-  
-    // Handle Crores
-    if (number >= 10000000) {
-      words += convertToIndianRupees(Math.floor(number / 10000000)) + " Crore ";
-      number %= 10000000;
-    }
-    // Handle Lakhs
-    if (number >= 100000) {
-      words += convertToIndianRupees(Math.floor(number / 100000)) + " Lakh ";
-      number %= 100000;
-    }
-    // Handle Thousands
-    if (number >= 1000) {
-      words += convertToIndianRupees(Math.floor(number / 1000)) + " Thousand ";
-      number %= 1000;
-    }
-    // Handle Hundreds
-    if (number >= 100) {
-      words += units[Math.floor(number / 100)] + " Hundred ";
-      number %= 100;
-    }
-    // Handle last part (0-99)
-    if (number > 0) {
-      if (words !== "") words += "and ";
-      if (number < 20) {
-        words += units[number];
+      if (number >= 10000000) {
+        return (number / 10000000).toFixed(2).replace(/\.00$/, '') + " crores";
+      } else if (number >= 100000) {
+        return (number / 100000).toFixed(2).replace(/\.00$/, '') + " lakhs";
       } else {
-        words += tens[Math.floor(number / 10)];
-        if (number % 10 !== 0) words += " " + units[number % 10];
+        return toWords(number).replace(/\b\w/g, l => l.toUpperCase()) + " rupees";
       }
-    }
+    };
   
-    return words.trim();
-  };
-  
-  // Usage in onChange function
-  // const handleFieldChange = (e) => {
-  //   const { name, value } = e.target;
-  
-  //   setFormData((prev) => {
-  //     let updatedValue = value;
-  
-  //     // Capitalize first letter if field is "description"
-  //     if (name === "description" && value.length > 0) {
-  //       updatedValue = value.charAt(0).toUpperCase() + value.slice(1);
-  //     }
-  
-  //     // Convert "price" to Indian number words
-  //     if (name === "price" && value !== "" && !isNaN(value)) {
-  //       setPriceInWords(convertToIndianRupees(value));
-  //     } else if (name === "price" && value === "") {
-  //       setPriceInWords("");
-  //     }
-  
-  //     return { ...prev, [name]: updatedValue };
-  //   });
-  // };
+
   const requiredFieldsByStep = {
     1: ['propertyMode', 'propertyType' , 'price'],
     2: ['totalArea', 'areaUnit'],
@@ -616,25 +739,27 @@ const formattedCreatedAt = Date.now
     6: useRef(null),
   };
   const scrollToStep = (step) => {
-    if (stepRefs[step] && stepRefs[step].current) {
-      stepRefs[step].current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start', // Adjust the scroll position if necessary
+    const element = stepRefs[step]?.current;
+    const scrollContainer = document.querySelector(".flex-grow-1.mx-auto"); // Your scrollable parent
+  
+    if (element && scrollContainer) {
+      const offsetTop = element.offsetTop;
+      const offset = 144; // Matches your paddingTop
+  
+      scrollContainer.scrollTo({
+        top: offsetTop - offset,
+        behavior: "smooth",
       });
     }
   };
+  
+  
 
   // Scroll the field content whenever currentStep changes
   useEffect(() => {
     scrollToStep(currentStep);
   }, [currentStep]);
 
-  // Function to handle moving to the next step
-  const handleNextStep = () => {
-    if (currentStep < 6) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
   const scrollFieldContentUp = () => {
     const fieldContent = document.querySelector(".fieldcontent");
     if (fieldContent) {
@@ -718,65 +843,6 @@ const formattedCreatedAt = Date.now
 
 
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setStep("submitted"); // Show PricingPlans
-  
-  //     const finalFormData = {
-  //       ...formData,
-  //       ownerName: formData.ownerName.trim() === "" ? "Owner" : formData.ownerName,
-  //     };
-    
-    
-  //   // Ensure `ppcId` is available
-  //   if (!ppcId) {
-  //     setMessage({ text: "PPC-ID is required. Please refresh or try again.", type: "error" });
-  //     return;
-  //   }
-  
-  //   // Create FormData instance to send photos and video
-  //   const formDataToSend = new FormData();
-  
-  //   // Append PPC-ID first
-  //   formDataToSend.append("ppcId", ppcId);
-  
-  //   // Append form fields
-  //   Object.keys(formData).forEach((key) => {
-  //     formDataToSend.append(key, formData[key]);
-  //   });
-  
-  //   // Append photos
-  //   photos.forEach((photo) => {
-  //     formDataToSend.append("photos", photo);
-  //   });
-  
-  //   // Append video if available
-  //   if (video) {
-  //     formDataToSend.append("video", video);
-  //   }
-  
-  //   try {
-  //     const response = await axios.post(
-  //       `${process.env.REACT_APP_API_URL}/update-property`,
-  //       formDataToSend,
-  //       { headers: { "Content-Type": "multipart/form-data" } }
-  //     );
-  
-  //     setMessage({ text: "Property Added successfully!", type: "success" });
-  
-  //     setTimeout(() => {
-  //       setMessage({ text: "", type: "" }); // Clear message after 5 seconds
-  //     }, 5000);
-  
-  //   } catch (error) {
-  //     setMessage({ 
-  //       text: error.response?.data?.message || "Error saving property data.", 
-  //       type: "error" 
-  //     });
-  //   }
-  // };
-  
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStep("submitted");
@@ -814,7 +880,7 @@ const formattedCreatedAt = Date.now
         { headers: { "Content-Type": "multipart/form-data" } }
       );
   
-      setMessage({ text: "Property Added successfully!", type: "success" });
+      setMessage({ text: "Property Added successfully!", type: "success" ,  image: SuccessIcon });
   
       setTimeout(() => {
         setMessage({ text: "", type: "" });
@@ -1101,16 +1167,24 @@ const handleEdit = () => {
 
 
   return (
-    <div className="d-flex align-items-center justify-content-center w-100 mb-5">
+    <Container fluid className="p-0 my-3 d-flex align-items-center justify-content-center" 
+    style={{ width: "100%", overflowY: 'auto'
+      ,    overflowX: 'hidden',  // 🔥 prevents horizontal shaking
 
-    <div className="p-1"     style={{
-              width: '100%',
-              // overflowY:"auto",
+    }}
+    >
+          <Row className="g-3 w-100">
+          <Col lg={12} className="p-1 d-flex flex-column align-items-center">
+
+    {/* <div className="g-3 w-100 p-1" 
+        style={{
+              // width: '100%',
+              overflowY:"auto",
               fontFamily: "Inter, sans-serif",
               scrollbarWidth:"none"
-            }}>
+            }}> */}
 
-      {message.text && (
+      {/* {message.text && (
           <div style={{ 
             padding: "10px", 
             backgroundColor: message.type === "success" ? "lightgreen" : "lightcoral", 
@@ -1120,12 +1194,45 @@ const handleEdit = () => {
           }}>
             {message.text}
           </div>
-        )}
+        )} */}
+{message.text && (
+ <div
+ style={{
+   padding: "10px",
+   backgroundColor:
+     message.type === "success" ? "lightgreen" :
+     message.type === "error" ? "lightcoral" :
+     message.type === "warning" ? "khaki" :
+     message.type === "info" ? "lightblue" :
+     message.type === "update" ? "#d1ecf1" :
+     message.type === "deleted" ? "#f8d7da" :
+     "white",
+   color: "black",
+   margin: "10px 0",
+   borderRadius: "5px",
+   display: "flex",
+   flexDirection: "column",  // ⬅️ Stack vertically
+   alignItems: "center",      // ⬅️ Center horizontally
+   textAlign: "center",       // ⬅️ Center text
+   gap: "10px"
+ }}
+>
+ {message.image && (
+   <img
+     src={message.image}
+     alt="icon"
+     style={{ width: "40px", height: "40px", objectFit: "contain" }}
+   />
+ )}
+ <span>{message.text}</span>
+</div>
+
+)}
 
       {step === "submitted" ?  (
             <PricingPlans phoneNumber={phoneNumber} onClose={handleCloseAddForm}/>
     ) : step === "form" ?  (
-<form onSubmit={handleSubmit} className="w-100 p-2" style={{ fontFamily: "Inter, sans-serif"}}>
+<form onSubmit={handleSubmit} style={{ fontFamily: "Inter, sans-serif"}}>
 <h4 style={{ color: "rgb(10, 10, 10)", fontWeight: "bold", marginBottom: "10px" }}> Property Management</h4>             
 
         <p className="p-3" style={{ color: "white", backgroundColor: "rgb(47,116,127)" }}>PPC-ID: {ppcId}</p>
@@ -1259,7 +1366,9 @@ const handleEdit = () => {
         </div>
 
 {currentStep >= 1 && (
-        <div className="fieldcontent" ref={stepRefs[1]}>
+        <div 
+        // className="fieldcontent p-0" ref={stepRefs[1]}
+        >
   <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>  Property OverView  </h4>             
 
   {/* Property Mode */}
@@ -1440,7 +1549,7 @@ const handleEdit = () => {
 
 
 {currentStep >= 2 && (
-        <div className="fieldcontent" ref={stepRefs[2]}>
+        <div className="fieldcontent p-0" ref={stepRefs[2]}>
   {/* Negotiation */}
   <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}> Basic Property Info  </h4>             
 
@@ -1601,7 +1710,7 @@ const handleEdit = () => {
 
 
  {currentStep >= 3 && ( 
-        <div className="fieldcontent" ref={stepRefs[3]}>
+        <div className="fieldcontent p-0" ref={stepRefs[3]}>
   {/* Bedrooms */}
   <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>  Property details  </h4>             
 
@@ -1849,7 +1958,7 @@ const handleEdit = () => {
   
 
 {currentStep >= 4 && (
-        <div className="fieldcontent" ref={stepRefs[4]}>
+        <div className="fieldcontent p-0" ref={stepRefs[4]}>
 
 <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>  Other Details  </h4>             
 
@@ -2212,7 +2321,7 @@ const handleEdit = () => {
 
 
 {currentStep >= 5 && (
-        <div className="fieldcontent" ref={stepRefs[5]}>
+        <div className="fieldcontent p-0" ref={stepRefs[5]}>
 <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>  Property Description   </h4>             
 
   {/* Description */}
@@ -2534,11 +2643,57 @@ const handleEdit = () => {
 
   {/*   rentalPropertyAddress */}
   {currentStep >= 6 && (
-        <div className="fieldcontent" ref={stepRefs[6]}>
+        <div className="fieldcontent p-0" ref={stepRefs[6]}>
 
 <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>  Property Address   </h4>             
 
 
+<div className="form-group">
+{/* <label>Quick Address:</label> */}
+
+<div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', border: '1px solid #2F747F', background:"#fff"}}>
+    <FcSearch  className="input-icon" 
+    style={{color: '#2F747F', marginLeft:"10px"}} />
+    <input
+      ref={inputRef}
+
+      id="pac-input"
+      className="form-input m-0"
+      placeholder="Search location"
+      style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
+    />
+  </div>
+</div>
+<div
+  ref={mapRef}
+  id="map"
+  style={{ height: "200px", width: "100%" }}
+></div>
+<div className="mt-1 w-100 d-flex gap-2 mb-2">
+  <input
+    ref={latRef}
+    placeholder="Latitude"
+    className="form-control m-0"
+  />
+  <input 
+    ref={lngRef}
+    placeholder="Longitude"
+    className="form-control m-0"
+  />
+  <button 
+    onClick={handleLatLngSearch}
+    className="btn btn-primary m-0 border-0"
+    style={{ whiteSpace: 'nowrap', background:"#6CBAAF" ,  }}
+  >
+    Go
+  </button>
+</div>
+{/* <input value={formData.pinCode || ""} readOnly />
+<input value={formData.city || ""} readOnly />
+<input value={formData.area || ""} readOnly />
+<input value={formData.streetName || ""} readOnly />
+ */}
+<p className="mt-1" style={{color:"#0597FF" , fontSize:"13px"}}>IF YOU CAN'T FIND THE ADDRESS PLEASE ENTER MANUALLY</p>
   <div className="form-group">
 <label>Property Address:</label>
 
@@ -2548,7 +2703,7 @@ const handleEdit = () => {
     <input
       type="text"
       name="rentalPropertyAddress"
-      value={formData.rentalPropertyAddress}
+      value={`${formData.doorNumber || ""} ${formData.streetName || ""} ${formData.area || ""}  ${formData.city || ""}   ${formData.state || ""} ${formData.pinCode || ""}`}
       onChange={handleFieldChange}
       className="form-input m-0"
       placeholder="Property Address"
@@ -2556,7 +2711,6 @@ const handleEdit = () => {
     />
   </div>
 </div>
-
 
   {/* country */}
 
@@ -2612,7 +2766,54 @@ const handleEdit = () => {
 </div>
 
   {/* district */}
-  <div className="form-group">
+ <div className="form-group" >
+    <label style={{width:'100%'}}>
+    <label>District</label>
+
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <div style={{ flex: "1" }}>
+          <select
+            name="district"
+            value={formData.district || ""}
+            onChange={handleFieldChange}
+            className="form-control"
+            style={{ display: "none" }} // Hide the default <select> dropdown
+          >
+            <option value="">Select District</option>
+            {dataList.district?.map((option, index) => (
+              <option key={index} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+
+          <button
+            className="m-0"
+            type="button"
+            onClick={() => toggleDropdown("district")}
+            style={{
+              cursor: "pointer",
+              border: "1px solid #2F747F",
+              padding: "10px",
+              background: "#fff",
+              borderRadius: "5px",
+              width: "100%",
+              textAlign: "left",
+              color: "#2F747F",
+            }}
+          >
+            <span style={{ marginRight: "10px" }}>
+              {fieldIcons.district || <FaHome />}
+            </span>
+            {formData.district || "Select District"}
+          </button>
+
+          {renderDropdown("district")}
+        </div>
+      </div>
+    </label>
+  </div>
+  {/* <div className="form-group">
   <label>District:</label>
   <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
     <FaRegAddressCard className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
@@ -2626,7 +2827,7 @@ const handleEdit = () => {
       style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
     />
   </div>
-</div>
+</div> */}
   {/* area */}
   <div className="form-group">
   <label>Area:</label>
@@ -2692,7 +2893,21 @@ const handleEdit = () => {
     />
   </div>
 </div>
-
+<div className="form-group">
+  <label>pinCode:</label>
+  <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
+    <TbMapPinCode  className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
+    <input
+      type="text"
+      name="pinCode"
+      value={formData.pinCode}
+      onChange={handleFieldChange}
+      className="form-input m-0"
+      placeholder="pinCode"
+      style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
+    />
+  </div>
+</div>
 <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>  Owner Details   </h4>             
   {/* Owner Name */}
 
@@ -2868,145 +3083,8 @@ const handleEdit = () => {
 
 
 
-              {/* Show "Show More" button */}
-              {/* <div className="text-center mt-4">
-                <div
-                  style={{
-                    display: 'inline-block',
-                    backgroundColor: '#6CBAAF',
-                    padding: '5px',
-                    borderRadius: '50%',
-                    cursor: 'pointer',
-                  }}
-                  onClick={handleShowMore}
-                >
-                  <MdKeyboardDoubleArrowDown
-                    size={30}
-                    style={{
-                      // color: '#ffffff ',
-                      opacity: isVisible ? 1 : 0,
-                      animation: isVisible
-                        ? 'bounce 1s ease-in-out infinite' // Bounce animation
-                        : '', // No animation until visible
-                      transition: 'opacity 0.6s ease', // Fade-in effect
-                    }}
-                  />
-                    <style jsx>{`
-        @keyframes bounce {
-          0% {
-            transform: translateY(-5px);
-                        color: #ffffff; 
+      {currentStep <= 6 && (
 
-          }
-          // 50% {
-          //   transform: translateY(0px); 
-          // }
-          100% {
-            transform: translateY(5px); 
-                                  color: rgb(20, 195, 90); 
-}
-        }
-      `}</style>
-                </div>
-              </div> */}
-                 {/* <div style={{background:"#6CBAAF" , overflow:"hidden"
-                 , width:' 200px',
-                  height:' 60px',
-                  borderRadius: '60px',
-                 }}
-                 onClick={handleShowMore}>
-      <a href="#" className="saveNext">
-        Save Next
-        <span>
-          <ion-icon name="arrow-forward-outline"></ion-icon>
-        </span>
-      </a>
-
-      <style jsx>{`
-        @keyframes moveButton {
-          0% {
-            padding-left: 40px;
-            padding-right: 0;
-          }
-          50% {
-            padding-left: 0;
-            padding-right: 40px;
-          }
-          100% {
-            padding-left: 40px;
-            padding-right: 0;
-          }
-        }
-
-        @keyframes moveSpan {
-          0% {
-            left: 5px;
-          }
-          50% {
-            left: calc(100% - 55px);
-          }
-          100% {
-            left: 5px;
-          }
-        }
-
-        @keyframes moveAfter {
-          0% {
-            transform: translateX(-200px) skewX(30deg);
-          }
-          50% {
-            transform: translateX(170px) skew(30deg);
-          }
-          100% {
-            transform: translateX(-200px) skewX(30deg);
-          }
-        }
-
-        .saveNext {
-          position: relative;
-          width: 200px;
-          height: 60px;
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 60px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          color: rgba(255, 255, 255, 0.5);
-          text-decoration: none;
-          letter-spacing: 2px;
-          border-top: 0.5px solid rgba(255, 255, 255, 0.35);
-          border-left: 0.5px solid rgba(255, 255, 255, 0.35);
-          padding-left: 40px;
-          animation: moveButton 2s infinite;
-        }
-
-        .saveNext span {
-          position: absolute;
-          left: 5px;
-          width: 50px;
-          height: 50px;
-          background: linear-gradient(0deg, #434365, #2ee0e4);
-          border-radius: 50%;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          color:rgb(230, 230, 230);
-          font-size: 1.5em;
-          animation: moveSpan 2s infinite;
-        }
-
-        .saveNext:after {
-          content: "";
-          position: absolute;
-          width: 80px;
-          height: 100%;
-          z-index: 1;
-          background: rgba(255, 255, 255, 0.25);
-          transform: translateX(-200px) skewX(30deg);
-          animation: moveAfter 2s infinite;
-        }
-      `}</style>
-      </div> */}
       <div>
   <style>
     {`
@@ -3038,6 +3116,8 @@ const handleEdit = () => {
 
   <div
     {...handlers}
+    // {...(currentStep <= 6 ? handlers : {})}
+
     style={{
       width: '100%',
       height: '50px',
@@ -3117,6 +3197,7 @@ const handleEdit = () => {
     </div>
   </div>
 </div>
+)}
 
   {/* <div
       {...handlers}
@@ -3232,11 +3313,15 @@ const handleEdit = () => {
       
       ) :  (
 
-<div ref={previewRef} className="preview-section ">
-       
+<div ref={previewRef} className="preview-section w-100 ">
+<div className="mb-4">
+      
        <div className="preview-section row d-flex align-items-center justify-content-center">
        {photos.length > 0 || video ? (
-         <Swiper navigation modules={[Navigation]} className="swiper-container">
+         <Swiper navigation={{
+          prevEl: ".swiper-button-prev-custom",
+          nextEl: ".swiper-button-next-custom",
+        }}  modules={[Navigation]} className="swiper-container">
            {photos.map((photo, index) => (
              <SwiperSlide key={index}
              className="d-flex justify-content-center align-items-center"
@@ -3286,8 +3371,27 @@ const handleEdit = () => {
        ) : (
          <p>No media uploaded.</p>
        )}
+    <style>
+      {`
+        .swiper-button-next, .swiper-button-prev {
+          color: white !important;
+          font-size: 24px !important;
+        }
+          
+      `}
+    </style>
+    <div className="row d-flex align-items-center w-100">
+    <div className="d-flex col-12 justify-content-end">  
+      <button className="swiper-button-prev-custom m-1 w-30" style={{background:"#019988"}}>❮</button>
+      <button className="swiper-button-next-custom m-1 w-30"style={{background:"#019988"}}>❯</button>
+    </div>
+  </div>
+  </div>
+  </div>
 
-<div className="row">
+<div className="row w-100"
+ style={{paddingLeft:"10px", paddingRight:"10px"}}
+ >
 <p className="m-0" style={{
         color: "#4F4B7E",
         fontWeight: 'bold',
@@ -3306,70 +3410,76 @@ const handleEdit = () => {
  )}
 
 {propertyDetailsList.map((detail, index) => {
-// Check if it's a heading, which should always be full-width (col-12)
-if (detail.heading) {
+  // Check if it's a heading, which should always be full-width (col-12)
+  if (detail.heading) {
+    return (
+      <div key={index} className="col-12">
+        <h4
+          className="m-0 fw-bold"
+          style={{ color: "#000000", fontFamily: "Inter, sans-serif", fontSize: "16px" }}
+        >
+          {detail.label}
+        </h4>
+      </div>
+    );
+  }
+
+  const isDescription = detail.label === "Description";
+  const isEmail = detail.label === "Email";  // Check if the label is "Email"
+  const columnClass = isDescription || isEmail ? "col-12" : "col-6";  // Apply col-12 for both Description and Email
+
   return (
-    <div key={index} className="col-12">
-      <h4
-        className="m-0 fw-bold"
-        style={{ color: "#000000", fontFamily: "Inter, sans-serif", fontSize: "16px" }}
+    <div key={index} className={columnClass}>
+      <div
+        className="d-flex align-items-center border-0 rounded p-1 mb-1"
+        style={{
+          width: "100%",
+          height: isDescription ? "auto" : "55px",
+          wordBreak: "break-word",
+        }}
       >
-        {detail.label}
-      </h4>
+        <span className="me-3 fs-3" style={{ color: "#30747F" }}>
+          {detail.icon}
+        </span>
+        <div>
+          {!isDescription && !isEmail && (
+            <span className="mb-1" style={{ fontSize: "12px", color: "grey" }}>
+              {detail.label || "N/A"}
+            </span>
+          )}
+          <p
+            className="mb-0 p-0"
+            style={{
+              fontSize: "14px",
+              color: "grey",
+              fontWeight: "600",
+              padding: "10px",
+              borderRadius: "5px",
+              width: "100%",
+              wordBreak: "break-word",
+              overflowWrap: "break-word",
+              whiteSpace: "normal",
+            }}
+          >
+{detail.label === "Street Name" && typeof detail.value === "string" && detail.value.length > 8
+    ? `${detail.value.slice(0, 8)}...`
+    : detail.value || "N/A"} 
+             </p>
+        </div>
+      </div>
     </div>
   );
-}
-
-const isDescription = detail.label === "Description";
-
-// const isDescription = typeof detail.value === "string" && detail.value.trim() === formData.description.trim();
-// const columnClass = isDescription ? "col-12" : "col-6";
-const columnClass = isDescription ? "col-12" : "col-6";
-
-return (
-  <div key={index} className={columnClass}>
-    <div
-      className="d-flex align-items-center border-0 rounded p-1 mb-1"
-      style={{
-        // backgroundColor: "#F9F9F9", // Background for the item
-        width: "100%",
-        height: isDescription ? "auto" : "55px",
-        wordBreak: "break-word",
-        // height: detail.label === "Description" || detail.value === formData.description ? "auto" : "100px", // Full height for description
-      }}
-    >
-      <span className="me-3 fs-3" style={{ color: "#30747F" }}>
-        {detail.icon} 
-      </span>
-      <div>
-      {!isDescription && <span className="mb-1" style={{fontSize:"12px", color:"grey"}}>{detail.label || "N/A"}</span>}  {/* ✅ Hide label for description */}
-
-      {/* <h6 className="mb-1">{isDescription ? "Description" : detail.label || "N/A"}</h6> */}
-        <p
-          className="mb-0 p-0"
-          style={{
-            fontSize:"14px",
-            color:"grey",
-            fontWeight:"600",
-            padding: "10px",
-            borderRadius: "5px",
-            width: "100%", // Ensure the value takes full width
-          }}
-        >
-          {detail.value || "N/A"} 
-        </p>
-      </div>
-    </div>
-  </div>
-);
 })}
+
+
 </div>
 
-
-      </div>
+<div className="col-12"
+        style={{paddingLeft:"10px" }}
+>
       <button
         type="button"
-        style={{ background: "#2F747F", color: "#fff" }}
+        style={{ background: "#2F747F", color: "#fff" ,paddingLeft:"10px" }}
         onMouseOver={(e) => {
           e.target.style.background = "#029bb3"; // Brighter neon on hover
           e.target.style.fontWeight = 600; // Brighter neon on hover
@@ -3406,11 +3516,13 @@ return (
         Submit Property
       </button> 
       </div>
+      </div>
       )
     }
 
-    </div>
-    </div>
+    {/* </div> */}
+    </Col>
+    </Row></Container>
 
   );
 }

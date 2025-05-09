@@ -13,6 +13,7 @@ import myImage from '../Assets/Rectangle 146.png';
 import myImage1 from '../Assets/Rectangle 145.png';
 import pic from '../Assets/Default image_PP-01.png';
 import ConfirmationModal from './ConfirmationModal'; // Make sure this path is correct
+import NoData from "../Assets/OOOPS-No-Data-Found.png";
 
 
 
@@ -35,7 +36,24 @@ const MyCalledList = () => {
   const [onConfirmAction, setOnConfirmAction] = useState(() => () => {});
   const [message, setMessage] = useState(null);
 
-
+  useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "My Called List ",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
   useEffect(() => {
     if (phoneNumber) {
       fetchCalledUserProperties();
@@ -190,10 +208,40 @@ useEffect(() => {
 
 
         {/* Loader / Error / Empty */}
-        {loading && <p>Loading...</p>}
+        {loading &&   <div className="text-center my-4"
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      zIndex: 1000
+    }}>
+    <span className="spinner-border text-primary" role="status" />
+    <p className="mt-2">Loading properties...</p>
+  </div>}
         {error && <p className="text-danger">{error}</p>}
         {!loading && filteredCalls.length === 0 && (
-          <p>{activeTab === "all" ? "No properties found." : "No removed properties."}</p>
+          <p>{activeTab === "all" ?        <div className="text-center my-4 "
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+          
+            }}>
+          <img src={NoData} alt="" width={100}/>      
+          <p>No properties found</p>
+          </div>  :        <div className="text-center my-4 "
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+          
+            }}>
+          <img src={NoData} alt="" width={100}/>      
+          <p>No Removed Property Data Found.</p>
+          </div> }</p>
         )}
 
         {/* Property Cards */}

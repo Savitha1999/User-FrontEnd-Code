@@ -125,6 +125,8 @@ import BuyerAssisBuyer from './Detail/BuyerAssisBuyer';
 import TabsPage from './TabsPage';
 import EditProperty from './EditProperty';
 import DetailBuyerAssis from './DetailBuyerAssis';
+import ExpireProperty from './ExprieProperty';
+import Mapp from './Mapp';
 
 
 
@@ -211,6 +213,8 @@ export default function RouterPage() {
         <Route path='/sort/high-to-low' element={< HightoLow/>} />
         <Route path='/sort/with-image' element={< PhotosWith/>} />
                 <Route path='/sort/with-image' element={< PhotosWith/>} />
+                <Route path='/expire-property' element={< ExpireProperty/>} />
+                <Route path='/Mapp' element={< Mapp/>} />
 
 
                 <Route path='/edit-prop' element={< EditProperty/>} />
@@ -237,7 +241,7 @@ export default function RouterPage() {
         <Route path='/terms-conditions-web' element={<TermsAndConditionWeb />} />
 
         <Route path='/leads' element={<LeadsDownload />} />
-        <Route path='/detail-buyer-assis/:id' element={<DetailBuyerAssis />} />
+        <Route path='/detail-buyer-assis/:ba_id' element={<DetailBuyerAssis />} />
 
         <Route path='/confirm-model' element={<ConfirmationModal />} />
         <Route path='/Frequently-Asked-Questions' element={<FAQ />} />
@@ -283,8 +287,9 @@ export default function RouterPage() {
         <Route path='/photo-request-owner/:phoneNumber' element={isAuthenticated ? <PhotoRequestOwner phone={phoneNumber} /> : <App to="/" />} />
         <Route path='/photo-request-buyer/:phoneNumber' element={isAuthenticated ? <PhotoRequestBuyer phone={phoneNumber} /> : <App to="/" />} />
         <Route path='/shiping-delivery-app' element={isAuthenticated ? <ShippingAndDeliveryApp phone={phoneNumber} /> : <App to="/" />} />
-        <Route path='/detail-buyer-assistance/:id' element={isAuthenticated ? <DetailBuyerAssistance phone={phoneNumber} /> : <App to="/" />} />
+        {/* <Route path='/detail-buyer-assistance/:ba_Id' element={isAuthenticated ? <DetailBuyerAssistance phone={phoneNumber} /> : <App to="/" />} /> */}
         <Route path='/my-interest-send' element={isAuthenticated ? <MyInterestSend phone={phoneNumber} /> : <App to="/" />} />
+        <Route path="/detail-buyer-assistance/:ba_id" element={<DetailBuyerAssistance />} />
 
     </Routes>
     </BrowserRouter> 

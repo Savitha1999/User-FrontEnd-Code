@@ -48,7 +48,24 @@ const BuyerAssisBuyer = () => {
     setSelectedPpcId(ba_id);
     setShowPopup(true);
   };
-
+  useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Buyer Assis Buyer",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
   const handleSendInterest = async (id) => {
     try {
       const response = await fetch(
@@ -110,7 +127,7 @@ const BuyerAssisBuyer = () => {
     const fetchAllAssistanceData = async () => {
       try {
         const assistanceResponse = await axios.get(
-          `${process.env.REACT_APP_API_URL}/get-buyerAssistance/${phoneNumber}`
+          `${process.env.REACT_APP_API_URL}/get-user-buyerAssistance/${phoneNumber}`
         );
         const sortedAssistanceData = assistanceResponse.data.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
@@ -292,7 +309,7 @@ const BuyerAssisBuyer = () => {
                 </p>
               </div>
 
-              <div className="d-flex justify-content-between align-items-center mt-2">
+              {/* <div className="d-flex justify-content-between align-items-center mt-2">
                 <div className="d-flex align-items-center">
                   <MdOutlineCall color="#019988" style={{ fontSize: "12px", marginRight: "8px" }} />
                   <h6 className="m-0 text-muted" style={{ fontSize: "12px" }}>
@@ -302,7 +319,18 @@ const BuyerAssisBuyer = () => {
                       ? `Buyer Phone: ${card.phoneNumber.slice(0, -5)}*****`
                       : "Phone: N/A"}
                   </h6>
-                </div>
+                </div> */}
+
+<div className="d-flex justify-content-between align-items-center mt-2">
+  <div className="d-flex align-items-center">
+    <MdOutlineCall color="#019988" style={{ fontSize: "12px", marginRight: "8px" }} />
+    <h6 className="m-0 text-muted" style={{ fontSize: "12px" }}>
+      {card.phoneNumber
+        ? `Buyer Phone: ${card.phoneNumber.slice(0, -5)}*****`
+        : "Phone: N/A"}
+    </h6>
+  </div>
+
 
                 <div className="d-flex">
                 {/* <button
@@ -339,7 +367,7 @@ const BuyerAssisBuyer = () => {
                     e.target.style.fontWeight = 400; // Brighter neon on hover
                 
                   }} 
-                  onClick={() => navigate(`/detail-buyer-assis/${card._id}`)}
+                  onClick={() => navigate(`/detail-buyer-assis/${card.ba_id}`)}
                   >
                   View
                 </button>

@@ -11,6 +11,8 @@ import profil from '../../Assets/xd_profile.png'
 import {  FaCalendarAlt } from "react-icons/fa";
 import { Button, Modal } from "react-bootstrap";
 import { FaArrowLeft } from "react-icons/fa";
+import NoData from "../../Assets/OOOPS-No-Data-Found.png";
+
 
 const ReportProperty = () => {
   const { phoneNumber } = useParams();
@@ -23,7 +25,24 @@ const ReportProperty = () => {
  const [showPopup, setShowPopup] = useState(false);
   const [popupAction, setPopupAction] = useState(null);
   const [popupMessage, setPopupMessage] = useState("");
-
+useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Report Property Buyer",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
   const confirmAction = (message, action) => {
     setPopupMessage(message);
     setPopupAction(() => action);
@@ -45,19 +64,20 @@ const ReportProperty = () => {
     localStorage.setItem("removedReportProperties", JSON.stringify(removedProperties));
   }, [removedProperties]);
 
+
   useEffect(() => {
     if (!phoneNumber) {
       setLoading(false);
       return;
     }
-
+  
     const fetchReportedProperties = async () => {
       try {
         setLoading(true);
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-reportproperty-buyer`, {
           params: { postedPhoneNumber: phoneNumber },
         });
-
+  
         if (response.status === 200) {
           const transformedProperties = response.data.reportPropertyRequestsData.map((property) => ({
             ...property,
@@ -65,18 +85,27 @@ const ReportProperty = () => {
               (user) => user && user !== "undefined"
             ),
           }));
-
-          setProperties(transformedProperties);
-          localStorage.setItem("reportProperties", JSON.stringify(transformedProperties));
+  
+          // Sort the properties by createdAt (newest first)
+          const sortedProperties = transformedProperties.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+  
+          setProperties(sortedProperties);
+          localStorage.setItem("reportProperties", JSON.stringify(sortedProperties));
         }
       } catch (error) {
+        setMessage("Error fetching reported properties.");
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchReportedProperties();
-  }, [phoneNumber]);
+  }, [phoneNumber]); // Trigger effect when `phoneNumber` changes
+  
+
+
 
   const handleRemoveReport = async (ppcId, reportUser) => {
     // if (!window.confirm("Are you sure you want to remove this report request?")) return;
@@ -142,13 +171,15 @@ useEffect(() => {
 }, [message]);
 const navigate = useNavigate();
 
-
+const handlePageNavigation = () => {
+  navigate('/mobileviews'); // Redirect to the desired path
+};
   return (
     <div className="container d-flex align-items-center justify-content-center p-0">
     <div className="d-flex flex-column align-items-center justify-content-center m-0" style={{ maxWidth: '500px', margin: 'auto', width: '100%', background:"#F7F7F7" , fontFamily: 'Inter, sans-serif'}}>
     <div className="d-flex align-items-center justify-content-start w-100" style={{background:"#EFEFEF" }}>
     <button
-      onClick={() => navigate(-1)}
+      onClick={() => navigate('/mobileviews')}
       className="pe-5"
       style={{
         backgroundColor: '#f0f0f0',
@@ -169,7 +200,7 @@ const navigate = useNavigate();
       }}
     >
       <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
-    </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>REPORT PROPERTY BUYER </h3> </div>
+ </button> <h3 className="m-0 ms-3" style={{fontSize:"20px"}}>REPORT PROPERTY OWNER </h3> </div>
 <div className="row g-2 w-100">
 
 <div className="col-6 p-0">
@@ -190,45 +221,15 @@ const navigate = useNavigate();
       <Modal show={showPopup} onHide={() => setShowPopup(false)}>
         <Modal.Body>
           <p>{popupMessage}</p>
-          <Button style={{ background:  "#2F747F", width: "80px", fontSize: "13px", border:"none" }} onClick={popupAction}
-             onMouseOver={(e) => {
-              e.target.style.background = "#FF6700"; // Brighter neon on hover
-              e.target.style.fontWeight = 600; // Brighter neon on hover
-              e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
-            }}
-            onMouseOut={(e) => {
-              e.target.style.background = "#FF4500"; // Original orange
-              e.target.style.fontWeight = 400; // Brighter neon on hover
-    
-            }}>Yes</Button>
-          <Button className="ms-3" style={{ background:  "#FF0000", width: "80px", fontSize: "13px" , border:"none"}} onClick={() => setShowPopup(false)}
-              onMouseOver={(e) => {
-                e.target.style.background = "#029bb3"; // Brighter neon on hover
-                e.target.style.fontWeight = 600; // Brighter neon on hover
-                e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
-      
-              }}
-              onMouseOut={(e) => {
-                e.target.style.background = "#2F747F"; // Original orange
-                e.target.style.fontWeight = 400; // Brighter neon on hover
-      
-              }}>No</Button>
+          <Button style={{ background:  "#2F747F", width: "80px", fontSize: "13px", border:"none" }} onClick={popupAction}>Yes</Button>
+          <Button className="ms-3" style={{ background:  "#FF0000", width: "80px", fontSize: "13px" , border:"none"}} onClick={() => setShowPopup(false)}>No</Button>
         </Modal.Body>
       </Modal>
     </div>
 
       {loading ? (
-      <div className="text-center my-4 "
-      style={{
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-
-      }}>
-        <span className="spinner-border text-primary" role="status" />
-        <p className="mt-2">Loading properties...</p>
-      </div>      ) : activeTab === "all" ? (
+        <p>Loading...</p>
+      ) : activeTab === "all" ? (
         properties.length > 0 ? (
           properties.map((property) => (
             <div key={property.ppcId} className="property-card">
@@ -240,6 +241,7 @@ const navigate = useNavigate();
       <div
         key={index}
         className="card p-2 w-100 m-0 w-md-50 w-lg-33"
+        onClick={() => navigate(`/detail/${property.ppcId}`)}
         style={{
           border: "1px solid #ddd",
           borderRadius: "10px",
@@ -333,7 +335,7 @@ const navigate = useNavigate();
           {!showFullNumber && (
             <button
               className="w-100 m-0 p-1"
-              onClick={(e) =>{e.stopPropagation(); setShowFullNumber(true)}}
+              onClick={() => setShowFullNumber(true)}
               style={{
                 background: "#2F747F",
                 color: "white",
@@ -360,9 +362,7 @@ const navigate = useNavigate();
 <button
   className="btn text-white px-3 py-1 flex-grow-1 mx-1"
   style={{ background: "#2F747F", width: "80px", fontSize: "13px" }}
-  onClick={async (e) => {
-    e.preventDefault();
-    e.stopPropagation(); 
+  onClick={async () => {
     try {
       // Make API call before dialing
       await axios.post(`${process.env.REACT_APP_API_URL}/contact`, {
@@ -383,17 +383,7 @@ const navigate = useNavigate();
               <button
                 className="btn text-white px-3 py-1 flex-grow-1 mx-1"
                 style={{ background: "#FF0000", width: "80px", fontSize: "13px" }}
-                onMouseOver={(e) => {
-                  e.target.style.background = "#FF6700"; // Brighter neon on hover
-                  e.target.style.fontWeight = 600; // Brighter neon on hover
-                  e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.background = "#FF4500"; // Original orange
-                  e.target.style.fontWeight = 400; // Brighter neon on hover
-        
-                }}
-                onClick={(e) =>{e.stopPropagation(); handleRemoveReport(property.ppcId, user)}}
+                onClick={() => handleRemoveReport(property.ppcId, user)}
               >
                 Remove
               </button>
@@ -408,8 +398,26 @@ const navigate = useNavigate();
             </div>
           ))
         ) : (
-          <p>No properties found.</p>
-        )
+<div className="text-center my-4 "
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+
+    }}>
+<img src={NoData} alt="" width={100}/>      
+<div className="text-center my-4 "
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+
+    }}>
+<img src={NoData} alt=""width={100} />      
+<p>No properties found.</p>
+</div></div>        )
       ) : (
         removedProperties.length > 0 ? (
           removedProperties.map((property, index) => (
@@ -488,7 +496,7 @@ const navigate = useNavigate();
                           </div>
               {!showFullNumber && (
           <button className='w-100 m-0 p-1'
-            onClick={(e) =>{e.stopPropagation(); setShowFullNumber(true)}}
+            onClick={() => setShowFullNumber(true)}
             style={{
               background: "#2F747F", 
               color: "white", 
@@ -497,17 +505,6 @@ const navigate = useNavigate();
               marginLeft: "10px", 
               cursor: "pointer",
               borderRadius: "5px"
-            }}
-            onMouseOver={(e) => {
-              e.target.style.background = "#029bb3"; // Brighter neon on hover
-              e.target.style.fontWeight = 600; // Brighter neon on hover
-              e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
-    
-            }}
-            onMouseOut={(e) => {
-              e.target.style.background = "#2F747F"; // Original orange
-              e.target.style.fontWeight = 400; // Brighter neon on hover
-    
             }}>
             View
           </button>
@@ -517,18 +514,7 @@ const navigate = useNavigate();
          
                   <button className="btn text-white px-3 py-1 flex-grow-1 mx-1"
                     style={{ background:  "green", width: "80px", fontSize: "13px" }}
-                    onMouseOver={(e) => {
-                      e.target.style.background = "#32cd32"; // Brighter neon on hover
-                      e.target.style.fontWeight = 600; // Brighter neon on hover
-                      e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
-                    }}
-                    onMouseOut={(e) => {
-                      e.target.style.background = "#39ff14"; // Original orange
-                      e.target.style.fontWeight = 400; // Brighter neon on hover
-            
-                    }}
-                    onClick={(e) =>{e.stopPropagation();
-                     handleUndoRemove(property.ppcId, property.reportUser)}}> Undo</button>
+                    onClick={() => handleUndoRemove(property.ppcId, property.reportUser)}> Undo</button>
 
             </div>
             : ''}

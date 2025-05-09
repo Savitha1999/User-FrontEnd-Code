@@ -22,7 +22,24 @@ export default function AddPricingPlans() {
   const phoneNumber = location.state?.phoneNumber || localStorage.getItem("phoneNumber") || "";
 
 
-
+useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Pricing Plans",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
 // const handlePageNavigation = () => {
 //   navigate('/mobileviews'); // Redirect to the desired path
 // };

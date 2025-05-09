@@ -14,7 +14,7 @@ import profil from '../../Assets/xd_profile.png'
 import {  FaCalendarAlt } from "react-icons/fa";
 import { Button, Modal } from "react-bootstrap";
 import { FaArrowLeft } from "react-icons/fa";
-
+import NoData from "../../Assets/OOOPS-No-Data-Found.png";
 
 
 const PropertyCard = ({ property, onRemove, onUndo }) => {
@@ -23,18 +23,6 @@ const PropertyCard = ({ property, onRemove, onUndo }) => {
   const [message, setMessage] = useState({ text: "", type: "" });
 
 
-  // const handleContactLog = async () => {
-  //   try {
-  //     await axios.post(`${process.env.REACT_APP_API_URL}/contact`, {
-  //       ppcId: property.ppcId,
-  //       viewerPhoneNumber: property.viewerPhoneNumber,
-  //       uniqueId: property.uniqueId,
-  //     });
-  //     setMessage('Contact logged successfully');
-  //   } catch (error) {
-  //     setMessage('Error logging contact:', error);
-  //   }
-  // };
 
   
     // 1. Create a handler function to log contact and initiate call
@@ -274,8 +262,17 @@ const handleContactLog = async () => {
 
 const PropertyList = ({ properties, onRemove, onUndo }) => {
   return properties.length === 0 ? (
-    <p>No properties found.</p>
-  ) : (
+<div className="text-center my-4 "
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+
+    }}>
+<img src={NoData} alt="" width={100}/>      
+<p>No properties found.</p>
+</div>  ) : (
     <div className="row mt-4 w-100">
       {properties.map((property) => (
         <PropertyCard 
@@ -314,7 +311,24 @@ const App = () => {
       return () => clearTimeout(timer);
     }
   }, [message]);
-
+useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Viewed Buyer",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
 
   // Load properties from localStorage on mount
   useEffect(() => {
@@ -330,44 +344,6 @@ const App = () => {
       localStorage.setItem("viewedProperties", JSON.stringify(properties));
     }
   }, [properties]);
-
-
-// useEffect(() => {
-//   if (!phoneNumber) return;
-
-//   const fetchViewedProperties = async () => {
-//     setLoading(true);
-//     try {
-//       const response = await axios.get(`${process.env.REACT_APP_API_URL}/property-buyer-viewed`, { params: { phoneNumber } });
-//       const viewedUsers = response.data.viewedUsers || [];
-
-//       const apiProperties = viewedUsers.flatMap((user, index) =>
-//         user.viewedProperties.map((property, propIndex) => ({
-//           ...property,
-//           viewerPhoneNumber: user.viewerPhoneNumber,
-//           uniqueId: `${index}-${propIndex}`, // Unique identifier
-//           status: "active" // Default status from API
-//         }))
-//       );
-
-//       // Merge LocalStorage and API data
-//       const storedProperties = JSON.parse(localStorage.getItem("viewedProperties")) || [];
-//       const mergedProperties = apiProperties.map((apiProp) => {
-//         const storedProp = storedProperties.find((sp) => sp.uniqueId === apiProp.uniqueId);
-//         return storedProp || apiProp; // Use local data if available
-//       });
-
-//       setProperties(mergedProperties);
-//       localStorage.setItem("viewedProperties", JSON.stringify(mergedProperties));
-
-//     } catch (err) {
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   fetchViewedProperties();
-// }, [phoneNumber]);
 
 
 

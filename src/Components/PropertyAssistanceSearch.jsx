@@ -12,8 +12,11 @@ import {
 FaRulerCombined,
 FaUserAlt,
 FaPhoneAlt,
-FaArrowLeft} from "react-icons/fa";
+FaArrowLeft , FaTimes} from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
+import minprice from "../Assets/Price Mini-01.png";
+import maxprice from "../Assets/Price maxi-01.png";
+
 
 
 const PropertyAssistanceSearch = ({  existingData }) => {
@@ -57,6 +60,21 @@ const PropertyAssistanceSearch = ({  existingData }) => {
     alternatePhone:""
   });
   
+  const [paymentTypes, setPaymentTypes] = useState([]);
+
+
+  useEffect(() => {
+    fetchPaymentTypes();
+  }, []);
+  
+  const fetchPaymentTypes = async () => {
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/payment-all`);
+      setPaymentTypes(res.data); // Expected format: [{ paymentType: "Online" }, { paymentType: "Cash" }, ...]
+    } catch (error) {
+      console.error('Error fetching payment types:', error);
+    }
+  };
   const [dataList, setDataList] = useState({});
   const [dropdownState, setDropdownState] = useState({ activeDropdown: null, filterText: "" });
 
@@ -68,40 +86,24 @@ const handleSubmit = (e) => {
   e.preventDefault();
   setShowConfirmPopup(true); // just show the confirmation
 };
-
-// const handleConfirmSubmit = async () => {
-//   setShowConfirmPopup(false); // hide the confirm popup
-
-//   try {
-//     let response;
-
-//     if (formData._id) {
-//       response = await axios.put(
-//         `${process.env.REACT_APP_API_URL}/update-PropertyAssistanceSearch/${formData._id}`,
-//         formData
-//       );
-//       setMessage(" Buyer Assistance request updated successfully!");
-//     } else {
-//       response = await axios.post(`${process.env.REACT_APP_API_URL}/add-PropertyAssistanceSearch`, formData);
-//       setFormData(response.data.data);
-//       setMessage(" Buyer Assistance request added successfully!");
-//     }
-
-//     setShowPopup(true);
-//     setTimeout(() => {
-//       setShowPopup(false);
-//       setMessage("");
-//     }, 3000);
-//   } catch (error) {
-//     setMessage(" Please Fill The All Fields Datas");
-//     setShowPopup(true);
-//     setTimeout(() => {
-//       setShowPopup(false);
-//       setMessage("");
-//     }, 3000);
-//   }
-// };
-
+useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Property Assistance Search",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
 
 const handleConfirmSubmit = async () => {
   setShowConfirmPopup(false); // hide the confirm popup
@@ -314,33 +316,175 @@ const navigate = useNavigate();
   
 <div className="row mb-3 justify-content-around">
 <div className="col-5 p-0">
-    <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', width: '100%', border: '1px solid #2F747F', background: "#fff" }}>
-      <FaRupeeSign className="input-icon" style={{ color: '#2F747F', marginLeft: "10px", marginRight: '10px' }} />
-      <input
-        type="text"
-        name="minPrice"
-        value={formData.minPrice}
-        onChange={handleInputChange}
-        className="form-input m-0"
-        placeholder="Enter Min Price"
-        style={{ width: '100%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
-      />
+    <div className="input-group">
+      <button type="button" style={{border: "1px solid #2F747F" , fontSize:"14px"}} className="btn w-100 d-flex justify-content-between align-items-center m-0 text-muted" onClick={() => toggleDropdown("minPrice")}>
+        <img src={minprice} alt="" />  {formData.minPrice || "Select minPrice"} 
+        <FaChevronDown color="#2F747F"/>
+      </button>
     </div>
+
+    {dropdownState.activeDropdown === "minPrice" && (
+ <div
+ className="dropdown-popup"
+ style={{
+   position: 'fixed',
+   top: '50%',
+   left: '50%',
+   transform: 'translate(-50%, -50%)',
+   // backgroundColor: '#fff',
+   backgroundColor: '#E9F7F2',
+
+   width: '100%',
+   // maxWidth: '400px',
+   maxWidth: '350px',
+
+   padding: '10px',
+   zIndex: 10,
+   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+   borderRadius: '8px',
+   overflowY: 'auto',
+   maxHeight: '50vh',
+   animation: 'popupOpen 0.3s ease-in-out',
+ }}
+>   
+<div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+>    
+ <input 
+          type="text" 
+          className="form-control m-0 mt-2"
+          placeholder="Filter options..." 
+          value={dropdownState.filterText} 
+          onChange={(e) => setDropdownState((prevState) => ({ ...prevState, filterText: e.target.value }))} 
+          style={{
+            width: '80%',
+            padding: '5px',
+            // marginBottom: '10px',
+            background:"#C0DFDA",
+            border:"none",
+            outline:"none"
+}}
+        />
+         <button
+                        type="button"
+                        onClick={() => toggleDropdown()}
+                        style={{
+                          cursor: 'pointer',
+                          border: 'none',
+                          background: 'none',
+                        }}
+                      >
+                        <FaTimes size={18} color="red" />
+                      </button>
+                      </div>
+
+        <ul className="list-group mt-2 w-100">
+          {(dataList.minPrice || [])
+            .filter(option => option.toLowerCase().includes(dropdownState.filterText.toLowerCase()))
+            .map((option, index) => (
+              <li 
+                key={index} 
+                className="list-group-item list-group-item-action d-flex align-items-center" 
+                onClick={() => handleDropdownSelect("minPrice", option)}
+                style={{
+                  padding: '5px',
+                  cursor: 'pointer',
+                  // backgroundColor: '#f9f9f9',
+                  color:"#26794A",
+
+                  marginBottom: '5px',
+}}
+              >
+                 {option}
+              </li>
+          ))}
+        </ul>
+      </div>
+    )}
   </div>
 
   <div className="col-5 p-0">
-    <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', border: '1px solid #2F747F', background: "#fff" }}>
-      <FaRupeeSign className="input-icon" style={{ color: '#2F747F', marginLeft: "10px" }} />
-      <input
-        type="text"
-        name="maxPrice"
-        value={formData.maxPrice}
-        onChange={handleInputChange}
-        className="form-input m-0"
-        placeholder="Enter Max Price"
-        style={{  width: '100%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
-      />
+    <div className="input-group">
+      <button type="button" style={{border: "1px solid #2F747F" , fontSize:"14px"}}
+       className="btn w-100 d-flex justify-content-between align-items-center m-0 text-muted" onClick={() => toggleDropdown("maxPrice")}>
+        <img src={maxprice} alt="" />  {formData.maxPrice || "Select maxPrice"}
+        <FaChevronDown color="#2F747F"/>
+      </button>
     </div>
+    {dropdownState.activeDropdown === "maxPrice" && (
+ <div
+ className="dropdown-popup"
+ style={{
+   position: 'fixed',
+   top: '50%',
+   left: '50%',
+   transform: 'translate(-50%, -50%)',
+   // backgroundColor: '#fff',
+   backgroundColor: '#E9F7F2',
+
+   width: '100%',
+   // maxWidth: '400px',
+   maxWidth: '350px',
+
+   padding: '10px',
+   zIndex: 10,
+   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+   borderRadius: '8px',
+   overflowY: 'auto',
+   maxHeight: '50vh',
+   animation: 'popupOpen 0.3s ease-in-out',
+ }}
+>       
+
+<div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+ <input type="text" 
+  style={{
+    width: '80%',
+    padding: '5px',
+    // marginBottom: '10px',
+    background:"#C0DFDA",
+    border:"none",
+    outline:"none"
+}} className="form-control mt-2" placeholder="Filter options..." value={dropdownState.filterText} onChange={(e) => setDropdownState(prev => ({ ...prev, filterText: e.target.value }))} />
+      <button
+                        type="button"
+                        onClick={() => toggleDropdown()}
+                        style={{
+                          cursor: 'pointer',
+                          border: 'none',
+                          background: 'none',
+                        }}
+                      >
+                        <FaTimes size={18} color="red" />
+                      </button> 
+   </div>    
+        <ul className="list-group mt-2 w-100">
+          {(dataList.maxPrice || []).filter(option => option.toLowerCase().includes(dropdownState.filterText.toLowerCase())).map((option, index) => (
+            <li key={index}
+            style={{
+              padding: '5px',
+              cursor: 'pointer',
+              // backgroundColor: '#f9f9f9',
+              color:"#26794A",
+              marginBottom: '5px',
+              }} 
+className="list-group-item list-group-item-action d-flex align-items-center" onClick={() => handleDropdownSelect("maxPrice", option)}>
+             {option}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
   </div>
 </div>
 
@@ -622,7 +766,7 @@ const navigate = useNavigate();
 
 
 
-<div className="col-12 mb-3">
+{/* <div className="col-12 mb-3">
   <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', border: '1px solid #2F747F', background: "#fff" }}>
     <FaCreditCard className="input-icon" style={{ color: '#2F747F', marginLeft: "10px" }} />
     <input
@@ -635,8 +779,107 @@ const navigate = useNavigate();
       style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
     />
   </div>
-</div>
+</div> */}
+<div className="col-12 mb-3">
+  <div
+    className="input-card p-0 rounded-1"
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+      border: '1px solid #2F747F',
+      background: '#fff',
+      position: 'relative',
+    }}
+  >
+    <div
+      className="d-flex align-items-center"
+      onClick={() => toggleDropdown("paymentType")}
+      style={{ cursor: 'pointer', padding: '8px 10px' }}
+    >
+      <FaCreditCard style={{ color: '#2F747F', marginRight: '10px' }} />
+      <span style={{ flex: 1, color: formData.paymentType ? '#000' : '#6c757d' }}>
+        {formData.paymentType || "Select Payment Type"}
+      </span>
+      <FaChevronDown style={{ color: '#2F747F' }} />
+    </div>
 
+    {dropdownState.activeDropdown === "paymentType" && (
+      <div
+        className="dropdown-popup w-100"
+        style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: '#E9F7F2',
+          width: '100%',
+          maxWidth: '350px',
+          padding: '10px',
+          zIndex: 10,
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          borderRadius: '8px',
+          overflowY: 'auto',
+          maxHeight: '50vh',
+          animation: 'popupOpen 0.3s ease-in-out',
+        }}
+      >
+            <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Filter options..."
+          value={dropdownState.filterText}
+          onChange={(e) =>
+            setDropdownState((prev) => ({ ...prev, filterText: e.target.value }))
+          }
+        />
+             <button
+              type="button"
+              onClick={() => toggleDropdown('paymentType')}
+              style={{
+                cursor: 'pointer',
+                border: 'none',
+                background: 'none',
+              }}
+            >
+              <FaTimes size={18} color="red" />
+            </button>
+          </div>
+        <ul className="list-group mt-2">
+          {(paymentTypes || [])
+            .filter((type) =>
+              type.paymentType.toLowerCase().includes(dropdownState.filterText.toLowerCase())
+            )
+            .map((type, index) => (
+              <li
+                key={index}
+                className="list-group-item list-group-item-action"
+                style={{
+                  padding: '5px',
+                  cursor: 'pointer',
+                  color: '#26794A',
+                  marginBottom: '5px',
+                }}
+                onClick={() => {
+                  handleDropdownSelect("paymentType", type.paymentType);
+                  setDropdownState((prev) => ({ ...prev, filterText: "" }));
+                }}
+              >
+                {type.paymentType}
+              </li>
+            ))}
+        </ul>
+      </div>
+    )}
+  </div>
+</div>
 </div>
 <div className="col-12 mb-3">
   <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', border: '1px solid #2F747F', background: "#fff" }}>

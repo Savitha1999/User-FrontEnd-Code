@@ -32,6 +32,7 @@ const InterestStatus = () => {
   if (error) {
     return <div>{error}</div>;
   }
+  
 
   return (
     <div>

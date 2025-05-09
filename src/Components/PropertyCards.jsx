@@ -39,6 +39,10 @@ import {
   FaSortAmountDownAlt,
   FaHeadset,
 } from 'react-icons/fa';
+import NoData from "../Assets/OOOPS-No-Data-Found.png";
+import minprice from "../Assets/Price Mini-01.png";
+import maxprice from "../Assets/Price maxi-01.png";
+
 const PropertyCards = ({phoneNumber}) => {
   const [properties, setProperties] = useState([]);
   // const [filters, setFilters] = useState({ id: '', price: '', propertyMode: '', city: '' });
@@ -47,12 +51,37 @@ const PropertyCards = ({phoneNumber}) => {
     minPrice: '', 
     maxPrice: '', 
     propertyMode: '', 
-    city: '' 
+    city: '' ,
+     propertyType: ''
   });
   const [hoverSearch, setHoverSearch] = useState(false);
   const [hoverAdvance, setHoverAdvance] = useState(false);
   const [imageCounts, setImageCounts] = useState({}); // Store image count for each property
   const [loading, setLoading] = useState(true); 
+
+
+
+  
+
+  useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Mobile Home",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
+
 
 
   // const [advancedFilters, setAdvancedFilters] = useState({
@@ -69,7 +98,50 @@ const PropertyCards = ({phoneNumber}) => {
     facing: '', salesMode: '', furnished: '', lift: '', attachedBathrooms: '', minAttachedBathrooms: '',
     western: '', minWestern: '', numberOfFloors: '', carParking: '', city: '', phoneNumber: ''
   });
-  
+  const [showMinBedroomsOptions, setShowMinBedroomsOptions] = useState(false);
+  const [showMinAttachedBathroomsOptions, setShowMinAttachedBathroomsOptions] = useState(false);
+  const [showMinWesternOptions, setShowMinWesternOptions] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Handle change for minBedrooms
+  const handleMinBedroomSelect = (value) => {
+    setAdvancedFilters(prevState => ({
+      ...prevState,
+      minBedrooms: value
+    }));
+    setShowMinBedroomsOptions(false);
+  };
+
+  // Handle change for minAttachedBathrooms
+  const handleMinAttachedBathroomsSelect = (value) => {
+    setAdvancedFilters(prevState => ({
+      ...prevState,
+      minAttachedBathrooms: value
+    }));
+    setShowMinAttachedBathroomsOptions(false);
+  };
+
+  // Handle change for minWestern
+  const handleMinWesternSelect = (value) => {
+    setAdvancedFilters(prevState => ({
+      ...prevState,
+      minWestern: value
+    }));
+    setShowMinWesternOptions(false);
+  };
+
+  const closeMinBedroomsOptions = () => {
+    setShowMinBedroomsOptions(false);
+  };
+
+  const closeMinAttachedBathroomsOptions = () => {
+    setShowMinAttachedBathroomsOptions(false);
+  };
+
+  const closeMinWesternOptions = () => {
+    setShowMinWesternOptions(false);
+  };
+
   const [isFilterPopupOpen, setIsFilterPopupOpen] = useState(false);
   const [isAdvancedPopupOpen, setIsAdvancedPopupOpen] = useState(false);
   const navigate = useNavigate();
@@ -108,40 +180,7 @@ const PropertyCards = ({phoneNumber}) => {
 
 
 
-    // useEffect(() => {
-    //   const fetchProperties = async () => {
-    //     try {
-    //       const response = await axios.get(`${process.env.REACT_APP_API_URL}/fetch-active-users`);
-    //       const allProperties = response.data.users;
     
-    //       setProperties(allProperties); // Directly setting the fetched data
-    //     } catch (error) {
-    //       console.error("Error fetching properties:", error);
-    //     }
-    //   };
-    
-    //   fetchProperties();
-    // }, []);
-
-    
-//  useEffect(() => {
-//   const fetchProperties = async () => {
-//     try {
-//       const response = await axios.get(`${process.env.REACT_APP_API_URL}/fetch-active-users`);
-//       const allProperties = response.data.users;
-
-//       // Sort by createdAt in descending order (newest first)
-//       const sortedProperties = allProperties.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-//       setProperties(sortedProperties);
-//     } catch (error) {
-//       console.error("Error fetching properties:", error);
-//     }
-//   };
-
-//   fetchProperties();
-// }, []);
-
 
 useEffect(() => {
   const fetchProperties = async () => {
@@ -207,7 +246,14 @@ useEffect(() => {
     setDropdownState((prevState) => ({ ...prevState, filterText: e.target.value }));
 
   };
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
 
+  // Filter options based on search query
+  const filterOptions = (options) => {
+    return options.filter(option => option.toString().includes(searchQuery));
+  };
   const handleAdvancedFilterChange = (e) => {
     const { name, value } = e.target;
     setAdvancedFilters((prevState) => ({ ...prevState, [name]: value }));
@@ -217,6 +263,8 @@ useEffect(() => {
     propertyMode: "Property Mode",
     propertyType: "Property Type",
     price: "Price",
+    minPrice: 'minPrice', 
+    maxPrice: 'maxPrice', 
     propertyAge: "Property Age",
     bankLoan: "Bank Loan",
     negotiation: "Negotiation",
@@ -270,10 +318,17 @@ useEffect(() => {
           <div
             className="dropdown-popup"
             style={{
-          
-              backgroundColor: '#fff',
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              // backgroundColor: '#fff',
+              backgroundColor: '#E9F7F2',
+
               width: '100%',
-              maxWidth: '400px',
+              // maxWidth: '400px',
+              maxWidth: '350px',
+
               padding: '10px',
               zIndex: 10,
               boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
@@ -309,8 +364,10 @@ useEffect(() => {
                 style={{
                   width: '80%',
                   padding: '5px',
-                  marginBottom: '10px',
-                }}
+  // marginBottom: '10px',
+  background:"#C0DFDA",
+  border:"none",
+  outline:"none"                }}
               />
               <button
                 type="button"
@@ -354,7 +411,7 @@ useEffect(() => {
     style={{
       padding: '5px',
       cursor: 'pointer',
-      backgroundColor: '#f9f9f9',
+      color:"#26794A",
       marginBottom: '5px',
     }}
   >
@@ -370,36 +427,12 @@ useEffect(() => {
 
  
 
-  // const filteredProperties = properties.filter((property) => { 
-  //   const basicFilterMatch = 
-  //     (filters.id ? property.ppcId?.toString().includes(filters.id) : true) &&
-  //     (filters.propertyMode ? property.propertyMode?.toLowerCase().includes(filters.propertyMode.toLowerCase()) : true) &&
-  //     (filters.city ? property.city?.toLowerCase().includes(filters.city.toLowerCase()) : true);
-  
-  //   const priceMatch = 
-  //     (filters.minPrice ? property.price >= Number(filters.minPrice) : true) &&
-  //     (filters.maxPrice ? property.price <= Number(filters.maxPrice) : true);
-  
-  //   const advancedFilterMatch = Object.keys(advancedFilters).every((key) => {
-  //     if (!advancedFilters[key]) return true;
-  
-  //     if (key === "minPrice") {
-  //       return property.price >= Number(advancedFilters[key]);
-  //     }
-  //     if (key === "maxPrice") {
-  //       return property.price <= Number(advancedFilters[key]);
-  //     }
-  
-  //     return property[key]?.toString()?.toLowerCase()?.includes(advancedFilters[key]?.toLowerCase());
-  //   });
-  
-  //   return basicFilterMatch && priceMatch && advancedFilterMatch;
-  // });
  
   const filteredProperties = properties.filter((property) => { 
     const basicFilterMatch = 
       (filters.id ? property.ppcId?.toString().includes(filters.id) : true) &&
       (filters.propertyMode ? property.propertyMode?.toLowerCase().includes(filters.propertyMode.toLowerCase()) : true) &&
+      (filters.propertyType ? property.propertyType?.toLowerCase().includes(filters.propertyType.toLowerCase()) : true) &&
       (filters.city ? property.city?.toLowerCase().includes(filters.city.toLowerCase()) : true);
   
     const priceMatch = 
@@ -456,64 +489,7 @@ useEffect(() => {
       </Helmet>
       <Row className="g-3 w-100 ">
         <Col lg={12} className="d-flex align-items-center justify-content-center pt-2 m-0">
-          {/* <div
-            className="d-flex flex-column justify-content-center align-items-center " 
-              data-bs-toggle="modal"
-        data-bs-target="#propertyModal"
-            style={{
-              height: '50px', width: '50px', background: '#2F747F', borderRadius: '50%',
-              position: 'fixed',
-              right: 'calc(50% - 187.5px + 10px)', // Center - half of 375px + some offset
-              bottom: '15%', 
-              zIndex: '1',
-            }}
-            // onClick={() => setIsFilterPopupOpen(true)}
-          >
-            <BiSearchAlt fontSize={24} color="#fff" />
-          </div>
-      <div
-        className="modal fade"
-        id="propertyModal"
-        tabIndex="-1"
-          data-bs-backdrop="false"
-  data-bs-keyboard="false"
-
-      >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content rounded-4 shadow">
-            <div className="modal-body py-4">
-              <div className="d-grid gap-2 mb-2">
-                <button className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3"
-                //  onClick={() => setIsFilterPopupOpen(true)}
-                >
-                  <FaHome className="me-2" /> Search Property
-                </button>
-
-                <button className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3">
-                  <FaUsers className="me-2" /> Tenant Search
-                </button>
-
-                <button className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3">
-                  <FaSortAmountDownAlt className="me-2" /> Quick Sort
-                </button>
-
-                <button className="btn btn-light border rounded-2 py-2 d-flex align-items-center justify-content-start ps-3 mb-3">
-                  <FaHeadset className="me-2" /> Property Assistance
-                </button>
-              </div>
-
-              <div className="text-center">
-                <button
-                  className="btn btn-primary rounded-pill px-4 mt-3"
-                  data-bs-dismiss="modal"
-                >
-                  CANCEL
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> */}
+        
       <div
   className="d-flex flex-column justify-content-center align-items-center"
   data-bs-toggle="modal"
@@ -646,7 +622,7 @@ useEffect(() => {
           </div>
         </div>
 
-        <div className="form-group">
+        {/* <div className="form-group">
           <label>Min Price</label>
           <div
             className="input-card p-0 rounded-1"
@@ -708,9 +684,98 @@ useEffect(() => {
               }}
             />
           </div>
+        </div> */}
+        <div className="form-group">
+          <label>                value={filters.minPrice || ''}
+          </label>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ flex: '1' }}>
+              <select
+                name="minPrice"
+                value={filters.minPrice || ''}
+                onChange={handleFilterChange}
+                className="form-control"
+                style={{ display: 'none' }}
+              >
+                <option value="">Select minPrice</option>
+                {dataList.minPrice?.map((option, index) => (
+                  <option key={index} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                className="m-0"
+                type="button"
+                onClick={() => toggleDropdown('minPrice')}
+                style={{
+                  cursor: 'pointer',
+                  border: '1px solid #2F747F',
+                  padding: '10px',
+                  background: '#fff',
+                  borderRadius: '5px',
+                  width: '100%',
+                  textAlign: 'left',
+                  color: '#2F747F',
+                }}
+              >
+                <span style={{ marginRight: '10px' }}>
+                <img src={minprice} alt="" />
+                </span>
+                {filters.minPrice || 'Select minPrice'}
+              </button>
+
+              {renderDropdown('minPrice')}
+            </div>
+          </div>
         </div>
 
-        <div className="form-group">
+<div className="form-group">
+          <label>maxPrice</label>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ flex: '1' }}>
+              <select
+                name="maxPrice"
+                value={filters.maxPrice || ''}
+                onChange={handleFilterChange}
+                className="form-control"
+                style={{ display: 'none' }}
+              >
+                <option value="">Select maxPrice</option>
+                {dataList.maxPrice?.map((option, index) => (
+                  <option key={index} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                className="m-0"
+                type="button"
+                onClick={() => toggleDropdown('maxPrice')}
+                style={{
+                  cursor: 'pointer',
+                  border: '1px solid #2F747F',
+                  padding: '10px',
+                  background: '#fff',
+                  borderRadius: '5px',
+                  width: '100%',
+                  textAlign: 'left',
+                  color: '#2F747F',
+                }}
+              >
+                <span style={{ marginRight: '10px' }}>
+                <img src={maxprice} alt="" />
+                </span>
+                {filters.maxPrice || 'Select maxPrice'}
+              </button>
+
+              {renderDropdown('maxPrice')}
+            </div>
+          </div>
+        </div>
+  <div className="form-group">
           <label>Property Mode</label>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ flex: '1' }}>
@@ -754,7 +819,54 @@ useEffect(() => {
             </div>
           </div>
         </div>
-
+    
+      
+        <div className="form-group">
+          <label style={{ width: '100%'}}>
+      <label>Property Type  </label>
+            <div style={{ display: "flex", alignItems: "center"}}>
+              <div style={{ flex: "1" }}>
+                <select
+                  name="propertyType"
+                  value={advancedFilters.propertyType || ""}
+                  onChange={handleAdvancedFilterChange}
+                  className="form-control"
+                  style={{ display: "none" }} // Hide the default <select> dropdown
+                >
+                  <option value="">Select property Type</option>
+                  {dataList.propertyType?.map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+      
+                <button
+                  className="m-0"
+                  type="button"
+                  onClick={() => toggleDropdown("propertyType")}
+                  style={{
+                    cursor: "pointer",
+                    border: "1px solid #2F747F",
+                    padding: "10px",
+                    background: "#fff",
+                    borderRadius: "5px",
+                    width: "100%",
+                    textAlign: "left",
+                    color: "#2F747F",
+                  }}
+                >
+                  <span style={{ marginRight: "10px" }}>
+         <MdOutlineOtherHouses />
+                  </span>
+                  {filters.propertyType || "Select Property Type"}
+                </button>
+      
+                {renderDropdown("propertyType")}
+              </div>
+            </div>
+          </label>
+        </div>
         <div className="form-group">
           <label>City</label>
           <div
@@ -1371,53 +1483,130 @@ useEffect(() => {
         </div>
 
           
-      <div className="form-group">
-          <label style={{ width: '100%'}}>
-          <label>minBedrooms </label>
-      
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <div style={{ flex: "1" }}>
-                <select
-                  name="bedrooms"
-                  value={advancedFilters.minBedrooms || ""}
-                  onChange={handleAdvancedFilterChange}
-                  className="form-control"
-                  style={{ display: "none" }} // Hide the default <select> dropdown
-                >
-                  <option value="">Select minBedrooms</option>
-                  {dataList.bedrooms?.map((option, index) => (
-                    <option key={index} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-      
-                <button
-                  className="m-0"
-                  type="button"
-                  onClick={() => toggleDropdown("bedrooms")}
+        <div className="form-group">
+      <label style={{ width: '100%' }}>
+        <label>Min Bedrooms</label>
+
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <div style={{ flex: "1", position: "relative" }}>
+            <select
+              name="minBedrooms"
+              value={advancedFilters.minBedrooms || ""}
+              onChange={handleAdvancedFilterChange}
+              className="form-control"
+              style={{ display: "none" }}
+            >
+              <option value="">Select min bedrooms</option>
+              {filterOptions(["1", "2", "3", "4", "5", "6", "10"]).map((value, index) => (
+                  <div
+                    key={index}
+                    style={{ padding: "10px", cursor: "pointer" }}
+                    onClick={() => handleMinBedroomSelect(value)}
+                  >
+                    {value === "5" ? "5+ Bedrooms" :
+                     value === "6" ? "6+ Bedrooms" :
+                     value === "10" ? "10+ Bedrooms" :
+                     `${value} Bedroom${value !== "1" ? "s" : ""}`}
+                  </div>
+                ))}
+            </select>
+
+            <button
+              className="m-0"
+              type="button"
+              onClick={() => setShowMinBedroomsOptions(!showMinBedroomsOptions)}
+              style={{
+                cursor: "pointer",
+                border: "1px solid #2F747F",
+                padding: "10px",
+                background: "#fff",
+                borderRadius: "5px",
+                width: "100%",
+                textAlign: "left",
+                color: "#2F747F",
+              }}
+            >
+              <span style={{ marginRight: "10px" }}>
+                <FaBed />
+              </span>
+              {advancedFilters.minBedrooms || "Select min bedrooms"}
+            </button>
+
+            {showMinBedroomsOptions && (
+              <div
+              style={{
+                position: 'fixed',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                // backgroundColor: '#fff',
+                backgroundColor: '#E9F7F2',
+  
+                width: '100%',
+                // maxWidth: '400px',
+                maxWidth: '350px',
+  
+                padding: '10px',
+                zIndex: 10,
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                borderRadius: '8px',
+                overflowY: 'auto',
+                maxHeight: '50vh',
+                animation: 'popupOpen 0.3s ease-in-out',
+                 scrollbarWidth:"none"
+              }}
+              >
+                  <label       style={{
+            fontWeight: "bold",
+            fontSize: "16px",
+            marginBottom: "10px",
+            textAlign: "start",
+            color: "#019988",
+          }}> Min Bedrooms </label>
+                    <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  placeholder="Search options"
                   style={{
-                    cursor: "pointer",
-                    border: "1px solid #2F747F",
-                    padding: "10px",
-                    background: "#fff",
-                    borderRadius: "5px",
-                    width: "100%",
-                    textAlign: "left",
-                    color: "#2F747F",
+                    width: '80%',
+                    padding: '5px',
+    // marginBottom: '10px',
+    background:"#C0DFDA",
+    border:"none",
+    outline:"none"   
                   }}
-                >
-                  <span style={{ marginRight: "10px" }}>
-          <FaBed />
-                  </span>
-                  {advancedFilters.minBedrooms || "Select minBedrooms"}
-                </button>
-      
-                {renderDropdown("bedrooms")}
+                />
+                      <button
+                type="button"
+                onClick={closeMinBedroomsOptions}
+                style={{
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: 'none',
+                }}
+              >
+                <FaTimes size={18} color="red" />
+              </button>
+              {filterOptions(["1", "2", "3", "4", "5", "6", "10"]).map((value, index) => (
+                  <div
+                    key={index}
+                    style={{ padding: "10px", cursor: "pointer" , scrollbarWidth:"none" }}
+                    onClick={() => handleMinBedroomSelect(value)}
+                  >
+                    {value === "5" ? "5 Bedrooms" :
+                     value === "6" ? "6 Bedrooms" :
+                     value === "10" ? "10 Bedrooms" :
+                     `${value} Bedroom${value !== "1" ? "s" : ""}`}
+                  </div>
+                ))}
               </div>
-            </div>
-          </label>
+            )}
+          </div>
         </div>
+      </label>
+    </div>
+
         {/* kitchen */}
         <div className="form-group">
           <label style={{ width: '100%'}}>
@@ -1962,11 +2151,122 @@ useEffect(() => {
             </div>
           </label>
         </div>
+
+        <div className="form-group">
+        <label>Min Attached Bathrooms</label>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <div style={{ flex: "1", position: "relative" }}>
+            <select
+              name="minAttachedBathrooms"
+              value={advancedFilters.minAttachedBathrooms || ""}
+              onChange={(e) => handleMinAttachedBathroomsSelect(e.target.value)}
+              className="form-control"
+              style={{ display: "none" }}
+            >
+              <option value="">Select min attached bathrooms</option>
+              {filterOptions(["1", "2", "3", "4", "5"]).map((value, index) => (
+                <option key={index} value={value}>
+                  {value === "5" ? "5+ Bathrooms" : `${value} Bathroom${value !== "1" ? "s" : ""}`}
+                </option>
+              ))}
+            </select>
+            <button
+              className="m-0"
+              type="button"
+              onClick={() => setShowMinAttachedBathroomsOptions(!showMinAttachedBathroomsOptions)}
+              style={{
+                cursor: "pointer",
+                border: "1px solid #2F747F",
+                padding: "10px",
+                background: "#fff",
+                borderRadius: "5px",
+                width: "100%",
+                textAlign: "left",
+                color: "#2F747F",
+              }}
+            >
+              <span style={{ marginRight: "10px" }}>
+                <FaBath />
+              </span>
+              {advancedFilters.minAttachedBathrooms || "Select min attached bathrooms"}
+            </button>
+            {showMinAttachedBathroomsOptions && (
+              <div
+              style={{
+                position: 'fixed',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                // backgroundColor: '#fff',
+                backgroundColor: '#E9F7F2',
+  
+                width: '100%',
+                // maxWidth: '400px',
+                maxWidth: '350px',
+  
+                padding: '10px',
+                zIndex: 10,
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                borderRadius: '8px',
+                overflowY: 'auto',
+                maxHeight: '50vh',
+                animation: 'popupOpen 0.3s ease-in-out',
+                 scrollbarWidth:"none"
+              }}
+              >
+                <label       style={{
+            fontWeight: "bold",
+            fontSize: "16px",
+            marginBottom: "10px",
+            textAlign: "start",
+            color: "#019988",
+          }}> Min Attached Bathrooms</label>
+                  <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  placeholder="Search options"
+                  style={{
+                    width: '80%',
+                    padding: '5px',
+    // marginBottom: '10px',
+    background:"#C0DFDA",
+    border:"none",
+    outline:"none"   
+                  }}
+                />
+                    <button
+                type="button"
+                onClick={closeMinAttachedBathroomsOptions}
+                style={{
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: 'none',
+                }}
+              >
+                <FaTimes size={18} color="red" />
+              </button>
+               
+             {filterOptions(["1", "2", "3", "4", "5"]).map((value, index) => (
+                  <div
+                    key={index}
+                    style={{ padding: "10px", cursor: "pointer" }}
+                    onClick={() => handleMinAttachedBathroomsSelect(value)}
+                  >
+                    {value === "5" ? "5 Bathrooms" : `${value} Bathroom${value !== "1" ? "s" : ""}`}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
           {/* western */}
           <div className="form-group">
       
           <label style={{ width: '100%'}}>
-          <label>western</label>
+          <label  >western</label>
       
             <div style={{ display: "flex", alignItems: "center"}}>
               <div style={{ flex: "1" }}>
@@ -2011,6 +2311,118 @@ useEffect(() => {
             </div>
           </label>
         </div>
+        <div className="form-group">
+
+        <label style={{ width: '100%' }}>
+        <label>Min Western</label>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <div style={{ flex: "1", position: "relative" }}>
+            <select
+              name="minWestern"
+              value={advancedFilters.minWestern || ""}
+              onChange={(e) => handleMinWesternSelect(e.target.value)}
+              className="form-control"
+              style={{ display: "none" }}
+            >
+              <option value="">Select min western</option>
+              {filterOptions(["1", "2", "3", "4", "5"]).map((value, index) => (
+                <option key={index} value={value}>
+                  {value === "5" ? "5+ Western" : `${value} Western`}
+                </option>
+              ))}
+            </select>
+            <button
+              className="m-0"
+              type="button"
+              onClick={() => setShowMinWesternOptions(!showMinWesternOptions)}
+              style={{
+                cursor: "pointer",
+                border: "1px solid #2F747F",
+                padding: "10px",
+                background: "#fff",
+                borderRadius: "5px",
+                width: "100%",
+                textAlign: "left",
+                color: "#2F747F",
+              }}
+            >
+              <span style={{ marginRight: "10px" }}>
+                <FaBath />
+              </span>
+              {advancedFilters.minWestern || "Select min western"}
+            </button>
+            {showMinWesternOptions && (
+              <div
+              style={{
+                position: 'fixed',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                // backgroundColor: '#fff',
+                backgroundColor: '#E9F7F2',
+  
+                width: '100%',
+                // maxWidth: '400px',
+                maxWidth: '350px',
+  
+                padding: '10px',
+                zIndex: 10,
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                borderRadius: '8px',
+                overflowY: 'auto',
+                maxHeight: '50vh',
+                animation: 'popupOpen 0.3s ease-in-out',
+                scrollbarWidth:"none"
+              }}
+              >  <label       style={{
+                fontWeight: "bold",
+                fontSize: "16px",
+                marginBottom: "10px",
+                textAlign: "start",
+                color: "#019988",
+              }}> Min Western Bathrooms</label>
+                      <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  placeholder="Search options"
+                  style={{
+                    width: '80%',
+                    padding: '5px',
+    // marginBottom: '10px',
+    background:"#C0DFDA",
+    border:"none",
+    outline:"none"   
+                  }}
+                />
+                    <button
+                type="button"
+                onClick={closeMinWesternOptions}
+                style={{
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: 'none',
+                }}
+              >
+                <FaTimes size={18} color="red" />
+              </button>
+             {filterOptions(["1", "2", "3", "4", "5"]).map((value, index) => (
+  <div
+    key={index}
+    style={{ padding: "10px", cursor: "pointer" }}
+    onClick={() => handleMinWesternSelect(value)}
+  >
+    {value === "5" ? "5 Western" : `${value} Western`}
+  </div>
+))}
+
+              </div>
+            )}
+          </div>
+        </div>
+      </label>
+      </div>
+
           {/* numberOfFloors */}
           <div className="form-group">
       
@@ -2305,6 +2717,8 @@ useEffect(() => {
         </div>
         <div className="text-center mt-3 ">
         <button
+                  data-bs-dismiss="modal"
+
           type="button"
           className="btn w-100"
           style={{
@@ -2519,8 +2933,17 @@ useEffect(() => {
                 ))
 
               ) : (
-                <p>No properties found.</p>
-              )}
+                <div className="text-center my-4 "
+                style={{
+                  position: 'fixed',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+          
+                }}>
+        <img src={NoData} alt="" width={100}/>      
+        <p>No properties found.</p>
+        </div>              )}
             </div>
           </div>
 
@@ -2557,6 +2980,7 @@ useEffect(() => {
     </h4>
     <div>
    
+    
   <div className="form-group">
   <label>ID</label>
   <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>

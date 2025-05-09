@@ -83,7 +83,24 @@ const MyInterestSend = () => {
       scrollContainerRef.current.scrollTop += e.deltaY;
     }
   };
-
+  useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "My send interest ",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
   const handleIconScroll = (e) => {
     if (iconContainerRef.current) {
       e.preventDefault();

@@ -10,7 +10,7 @@ import axios from "axios";
 import { Button } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router-dom";
 import { RiLayoutLine } from 'react-icons/ri';
-import { TbArrowLeftRight } from 'react-icons/tb';
+import { TbArrowLeftRight, TbMapPinCode } from 'react-icons/tb';
 import {FaBuilding, FaMoneyBillWave,  FaBath, FaChartArea, FaPhone ,FaEdit,FaRoad,FaDoorClosed,FaMapPin, FaHome, FaUserAlt, FaEnvelope,  FaRupeeSign , FaFileVideo , FaToilet,FaCar,FaBed,  FaCity , FaTimes, FaClock, FaMapMarkedAlt, FaExchangeAlt, FaCompass, FaHandshake, FaTag, FaPhoneAlt, FaSpinner} from 'react-icons/fa';
 import {  FaRegAddressCard } from 'react-icons/fa6';
 import { MdLocationOn, MdOutlineMeetingRoom, MdOutlineOtherHouses, MdSchedule , MdStraighten , MdApproval, MdLocationCity , MdAddPhotoAlternate, MdKeyboardDoubleArrowDown, MdOutlineBathroom, MdDoorFront} from "react-icons/md";
@@ -34,6 +34,8 @@ import "swiper/css";
 import { IoCloseCircle } from "react-icons/io5";
 import { GrSteps } from "react-icons/gr";
 import moment from "moment";
+import { toWords } from 'number-to-words';
+import { FcSearch } from "react-icons/fc";
 
 
 
@@ -42,18 +44,44 @@ function EditForm({ ppcId, phoneNumber }) {
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [priceInWords, setPriceInWords] = useState("");
     const [loading, setLoading] = useState(false);
+    const [step, setStep] = useState("form");
+    const [isPreview, setIsPreview] = useState(false);
 
   const location = useLocation();
     const [currentStep, setCurrentStep] = useState(1);
     const swiperRef = useRef(null);
 
     const navigate = useNavigate();
-
-  // const ppcId = location.state?.ppcId || "";
-    // const { ppcId, phoneNumber } = location.state || {};
-
-  // const [ppcId, setPpcId] = useState(location.state?.ppcId || ""); 
-  const [formData, setFormData] = useState({
+      const inputRef = useRef(null);
+      const latRef = useRef(null);
+      const lngRef = useRef(null);
+      const mapRef = useRef(null);
+      const mapInstance = useRef(null);
+      const markerRef = useRef(null);
+    
+      // const mapRef = useRef(null);
+      // const inputRef = useRef(null);
+      // const [mapLoaded, setMapLoaded] = useState(false);
+      useEffect(() => {
+        const recordDashboardView = async () => {
+          try {
+            await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+              phoneNumber: phoneNumber,
+              viewedFile: "Edit Form",
+              viewTime: new Date().toISOString(),
+            });
+            console.log("Dashboard view recorded");
+          } catch (err) {
+            console.error("Failed to record dashboard view:", err);
+          }
+        };
+      
+        if (phoneNumber) {
+          recordDashboardView();
+        }
+      }, [phoneNumber]);
+      // const [p
+const [formData, setFormData] = useState({
     ppcId: "",
     // ppcId: ppcId || "",  
     propertyMode: '',
@@ -96,7 +124,7 @@ function EditForm({ ppcId, phoneNumber }) {
     ownerName: '',
     email: '',
     description:'',
-    // phoneNumber: "",
+    pinCode: "",
     countryCode:"+91",
     phoneNumber: phoneNumber || "", 
   phoneNumberCountryCode: "",
@@ -105,11 +133,200 @@ function EditForm({ ppcId, phoneNumber }) {
     bestTimeToCall: '',
     createdAt:""
   });
+  useEffect(() => {
+    if (isPreview || !window.google) return;
+  
+    const interval = setInterval(() => {
+      if (mapRef.current && inputRef.current) {
+        clearInterval(interval);
+  
+        mapRef.current.innerHTML = "";
+  
+        const map = new window.google.maps.Map(mapRef.current, {
+          center: { lat: 20.5937, lng: 78.9629 },
+          zoom: 5,
+        });
+  
+        mapInstance.current = map;
+  
+        const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+          types: ['geocode'],
+        });
+  
+        autocomplete.bindTo('bounds', map);
+  
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (!place.geometry || !place.geometry.location) return;
+  
+          const lat = place.geometry.location.lat();
+          const lng = place.geometry.location.lng();
+  
+          updateMap(lat, lng);
+  
+          const getComponent = (type) => {
+            const comp = place.address_components?.find(c => c.types.includes(type));
+            return comp?.long_name || '';
+          };
+  
+          setFormData(prev => ({
+            ...prev,
+            rentalPropertyAddress: place.formatted_address || '',
+            latitude: lat,
+            longitude: lng,
+            pinCode: getComponent("postal_code"),
+          
+            // City is usually in 'locality', fallback to district-level if missing
+            city: getComponent("sublocality_level_1"),
+          
+            // Area is more granular, typically sublocality levels
+            area: getComponent("sublocality_level_2"),          
+            // Optional: Nagar name, generally from level 1
+            nagar: getComponent("sublocality"),
+          
+            // Street name or building/premise
+            streetName: getComponent("route") || getComponent("premise"),
+          
+            // District is administrative_area_level_2 in most cases
+            district: getComponent("administrative_area_level_2") || getComponent("locality"),
+          
+            state: getComponent("administrative_area_level_1"),
+            country: getComponent("country"),
+            doorNumber: getComponent("street_number"),    }));
+        });
+      }
+    }, 100);
+  
+    return () => clearInterval(interval);
+  }, [isPreview]); // 👈 Re-run effect when preview mode changes
+  
+  const updateMap = (lat, lng) => {
+    const location = new window.google.maps.LatLng(lat, lng);
+    mapInstance.current.setCenter(location);
+    mapInstance.current.setZoom(15);
+
+    if (markerRef.current) markerRef.current.setMap(null);
+
+    markerRef.current = new window.google.maps.Marker({
+      map: mapInstance.current,
+      position: location,
+    });
+  };
+
+  const handleLatLngSearch = (e) => {
+    e.preventDefault();
+
+    const lat = parseFloat(latRef.current.value);
+    const lng = parseFloat(lngRef.current.value);
+  
+    if (!isNaN(lat) && !isNaN(lng)) {
+      updateMap(lat, lng);
+  
+      const geocoder = new window.google.maps.Geocoder();
+      const latlng = { lat, lng };
+  
+      geocoder.geocode({ location: latlng }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          const place = results[0];
+  
+          const getComponent = (type) => {
+            const comp = place.address_components.find(c => c.types.includes(type));
+            return comp?.long_name || '';
+          };
+  
+          setFormData(prev => ({
+            ...prev,
+            rentalPropertyAddress: place.formatted_address,
+            latitude: lat,
+            longitude: lng,
+            pinCode: getComponent("postal_code"),
+          
+            // City is usually in 'locality', fallback to district-level if missing
+            city: getComponent("sublocality_level_1"),
+          
+            // Area is more granular, typically sublocality levels
+            area: getComponent("sublocality_level_2"),          
+            // Optional: Nagar name, generally from level 1
+            nagar: getComponent("sublocality"),
+          
+            // Street name or building/premise
+            streetName: getComponent("route") || getComponent("premise"),
+          
+            // District is administrative_area_level_2 in most cases
+            district: getComponent("administrative_area_level_2") || getComponent("locality"),
+          
+            state: getComponent("administrative_area_level_1"),
+            country: getComponent("country"),
+            doorNumber: getComponent("street_number"),  }));
+        } else {
+          alert('Reverse geocoding failed: ' + status);
+        }
+      });
+    } else {
+      alert("Enter valid coordinates");
+    }
+  };
+  
+    // useEffect(() => {
+    //   const loadScript = () => {
+    //     if (window.google) {
+    //       setMapLoaded(true);
+    //       return;
+    //     }
+  
+    //     const script = document.createElement("script");
+    //     script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places`;
+    //     script.async = true;
+    //     script.onload = () => setMapLoaded(true);
+    //     document.body.appendChild(script);
+    //   };
+  
+    //   loadScript();
+    // }, []);
+  
+    // // ✅ Initialize map only after script and step are ready
+    // useEffect(() => {
+    //   if (!mapLoaded) return;
+    
+    //   const map = new window.google.maps.Map(mapRef.current, {
+    //     center: { lat: 28.6139, lng: 77.209 }, // Default to Delhi
+    //     zoom: 13,
+    //   });
+    
+    //   const input = document.getElementById("pac-input");
+    //   const autocomplete = new window.google.maps.places.Autocomplete(input);
+    //   autocomplete.bindTo("bounds", map);
+    
+    //   const marker = new window.google.maps.Marker({ map });
+    
+    //   autocomplete.addListener("place_changed", () => {
+    //     const place = autocomplete.getPlace();
+    //     if (!place.geometry || !place.geometry.location) return;
+    
+    //     map.setCenter(place.geometry.location);
+    //     marker.setPosition(place.geometry.location);
+    
+    //     const addressComponents = place.address_components || [];
+    //     const getComponent = (type) =>
+    //       addressComponents.find((c) => c.types.includes(type))?.long_name || "";
+    
+    //     setFormData((prev) => ({
+    //       ...prev,
+    //       pinCode: getComponent("postal_code"),
+    //       city: getComponent("locality") || getComponent("administrative_area_level_2"),
+    //       area: getComponent("sublocality") || getComponent("sublocality_level_1"),
+    //       streetName: getComponent("route") || getComponent("premise"),
+    //       district: getComponent("administrative_area_level_2"),
+    //       state: getComponent("administrative_area_level_1"),
+    //       country: getComponent("country"),
+    //     }));
+    //   });
+    // }, [mapLoaded]);
+    
+  
   const [photos, setPhotos] = useState([]);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [video, setVideo] = useState(null);
-  const [isPreview, setIsPreview] = useState(false);
-  const [step, setStep] = useState("form");
 
   // const handlePreview = () => {
   //   setIsPreview(!isPreview);
@@ -205,6 +422,7 @@ const formattedUpdatedAt = formData.updatedAt
           streetName: data.streetName || '',
           doorNumber: data.doorNumber || '',
           nagar: data.nagar || '',
+          pinCode:data.pinCode || '',
           ownerName: data.ownerName || '',
           alternatePhone: data.alternatePhone || '',
           email: data.email || '',
@@ -282,7 +500,10 @@ const formattedUpdatedAt = formData.updatedAt
        { icon: <MdLocationOn />, label: "Area", value: formData.area },
    
     { icon: <FaMapSigns />, label: "Nagar", value: formData.nagar },
+       { icon: <FaRoad />, label: "Street Name", value: formData.streetName },
+   
     { icon: <FaDoorClosed />, label: "Door Number", value: formData.doorNumber },
+    { icon: <TbMapPinCode />, label: "pinCode", value: formData.pinCode },
 
     { heading: true, label: "Contact Info" }, // Heading 5
    
@@ -427,29 +648,6 @@ const formattedUpdatedAt = formData.updatedAt
   };
   
 
-  // const handlePhotoUpload = (e) => {
-  //   setLoading(true); // Start loading animation
-
-  //   const files = Array.from(e.target.files);
-  //   const maxSize = 10 * 1024 * 1024; // 10MB
-  //   for (let file of files) {
-  //     if (file.size > maxSize) {
-  //       alert('File size exceeds the 10MB limit');
-  //       setLoading(false); // Stop loading if file size exceeds
-
-  //       return;
-  //     }
-  //   }
-  //   if (photos.length + files.length <= 15) {
-  //     setPhotos([...photos, ...files]);
-  //     setSelectedPhotoIndex(0);
-  //   } else {
-  //     alert('Maximum 15 photos can be uploaded.');
-  //   }
-
-  //   setTimeout(() => setLoading(false), 1500); // Simulate delay for upload completion
-
-  // };
 
   const removePhoto = (index) => {
     setPhotos(photos.filter((_, i) => i !== index));
@@ -513,108 +711,72 @@ const formattedUpdatedAt = formData.updatedAt
     }
   }
 };
-const convertToIndianRupees = (num) => {
-  if (!num) return "";
+   const convertToIndianRupees = (num) => {
+      const number = parseInt(num, 10);
+      if (isNaN(number)) return "";
+    
+      if (number >= 10000000) {
+        return (number / 10000000).toFixed(2).replace(/\.00$/, '') + " crores";
+      } else if (number >= 100000) {
+        return (number / 100000).toFixed(2).replace(/\.00$/, '') + " lakhs";
+      } else {
+        return toWords(number).replace(/\b\w/g, l => l.toUpperCase()) + " rupees";
+      }
+    };
+// const convertToIndianRupees = (num) => {
+//   if (!num) return "";
 
-  const units = [
-    "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
-    "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
-    "Seventeen", "Eighteen", "Nineteen",
-  ];
-  const tens = [
-    "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy",
-    "Eighty", "Ninety",
-  ];
+//   const units = [
+//     "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+//     "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
+//     "Seventeen", "Eighteen", "Nineteen",
+//   ];
+//   const tens = [
+//     "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy",
+//     "Eighty", "Ninety",
+//   ];
   
-  const scales = ["", "Thousand", "Lakh", "Crore"];
+//   const scales = ["", "Thousand", "Lakh", "Crore"];
   
-  let number = parseInt(num, 10);
-  let words = "";
+//   let number = parseInt(num, 10);
+//   let words = "";
 
-  if (number === 0) return "Zero";
+//   if (number === 0) return "Zero";
 
-  // Handle Crores
-  if (number >= 10000000) {
-    words += convertToIndianRupees(Math.floor(number / 10000000)) + " Crore ";
-    number %= 10000000;
-  }
-  // Handle Lakhs
-  if (number >= 100000) {
-    words += convertToIndianRupees(Math.floor(number / 100000)) + " Lakh ";
-    number %= 100000;
-  }
-  // Handle Thousands
-  if (number >= 1000) {
-    words += convertToIndianRupees(Math.floor(number / 1000)) + " Thousand ";
-    number %= 1000;
-  }
-  // Handle Hundreds
-  if (number >= 100) {
-    words += units[Math.floor(number / 100)] + " Hundred ";
-    number %= 100;
-  }
-  // Handle last part (0-99)
-  if (number > 0) {
-    if (words !== "") words += "and ";
-    if (number < 20) {
-      words += units[number];
-    } else {
-      words += tens[Math.floor(number / 10)];
-      if (number % 10 !== 0) words += " " + units[number % 10];
-    }
-  }
+//   // Handle Crores
+//   if (number >= 10000000) {
+//     words += convertToIndianRupees(Math.floor(number / 10000000)) + " Crore ";
+//     number %= 10000000;
+//   }
+//   // Handle Lakhs
+//   if (number >= 100000) {
+//     words += convertToIndianRupees(Math.floor(number / 100000)) + " Lakh ";
+//     number %= 100000;
+//   }
+//   // Handle Thousands
+//   if (number >= 1000) {
+//     words += convertToIndianRupees(Math.floor(number / 1000)) + " Thousand ";
+//     number %= 1000;
+//   }
+//   // Handle Hundreds
+//   if (number >= 100) {
+//     words += units[Math.floor(number / 100)] + " Hundred ";
+//     number %= 100;
+//   }
+//   // Handle last part (0-99)
+//   if (number > 0) {
+//     if (words !== "") words += "and ";
+//     if (number < 20) {
+//       words += units[number];
+//     } else {
+//       words += tens[Math.floor(number / 10)];
+//       if (number % 10 !== 0) words += " " + units[number % 10];
+//     }
+//   }
 
-  return words.trim();
-};
+//   return words.trim();
+// };
  
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   // Ensure `ppcId` is available
-  //   if (!ppcId) {
-  //     alert("PPC-ID is required. Please refresh or try again.");
-  //     return;
-  //   }
-  
-  //   // Create FormData instance to send photos and video
-  //   const formDataToSend = new FormData();
-  
-  //   // Append PPC-ID first
-  //   formDataToSend.append("ppcId", ppcId);
-  
-  //   // Append form fields
-  //   Object.keys(formData).forEach((key) => {
-  //     formDataToSend.append(key, formData[key]);
-  //   });
-  
-  //   // Append photos
-  //   photos.forEach((photo) => {
-  //     formDataToSend.append("photos", photo);
-  //   });
-  
-  //   // Append video if available
-  //   if (video) {
-  //     formDataToSend.append("video", video);
-  //   }
-  
-  //   try {
-  //     const response = await axios.post(
-  //       `${process.env.REACT_APP_API_URL}/update-property`,
-  //       formDataToSend,
-  //       { headers: { "Content-Type": "multipart/form-data" } }
-  //     );
-  
-  //     alert(response.data.message);
-  //     setTimeout(() => {
-  //       navigate('/my-property');
-  //     }, 2000); // 2000ms = 2 seconds delay
-      
-  //      } catch (error) {
-  //     console.error("Error saving property data:", error);
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -719,96 +881,6 @@ const convertToIndianRupees = (num) => {
     };
 
 
-    // const renderDropdown = (field) => {
-    //   const options = dataList[field] || [];
-    //   const filteredOptions = options.filter((option) =>
-    //     option.toLowerCase().includes(dropdownState.filterText.toLowerCase())
-    //   );
-  
-    //   return (
-    //     dropdownState.activeDropdown === field && (
-    //       <div
-    //         className="dropdown-popup"
-    //         style={{
-    //           position: 'fixed',
-    //           top: '50%',
-    //           left: '50%',
-    //           transform: 'translate(-50%, -50%)',
-    //           backgroundColor: '#fff',
-    //           width: '100%',
-    //           maxWidth: '400px',
-    //           padding: '10px',
-    //           zIndex: 10,
-    //           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    //           borderRadius: '8px',
-    //           overflowY: 'auto',
-    //           maxHeight: '50vh',
-    //           animation: 'popupOpen 0.3s ease-in-out',
-    //         }}
-    //       >
-    //         <div
-    //           style={{
-    //             display: 'flex',
-    //             justifyContent: 'space-between',
-    //             alignItems: 'center',
-    //           }}
-    //         >
-    //           <input
-    //             type="text"
-    //             placeholder="Filters options..."
-    //             value={dropdownState.filterText}
-    //             onChange={handleFilterChange}
-    //             style={{
-    //               width: '80%',
-    //               padding: '5px',
-    //               marginBottom: '10px',
-    //             }}
-    //           />
-    //           <button
-    //             type="button"
-    //             onClick={() => toggleDropdown(field)}
-    //             style={{
-    //               cursor: 'pointer',
-    //               border: 'none',
-    //               background: 'none',
-    //             }}
-    //           >
-    //             <FaTimes size={18} color="red" />
-    //           </button>
-    //         </div>
-    //         <ul
-    //           style={{
-    //             listStyleType: 'none',
-    //             padding: 0,
-    //             margin: 0,
-    //           }}
-    //         >
-    //           {filteredOptions.map((option, index) => (
-    //             <li
-    //               key={index}
-    //               onClick={() => {
-    //                 setFormData((prevState) => ({
-    //                   ...prevState,
-    //                   [field]: option,
-    //                 }));
-    //                 toggleDropdown(field);
-    //               }}
-    //               style={{
-    //                 padding: '5px',
-    //                 cursor: 'pointer',
-    //                 backgroundColor: '#f9f9f9',
-    //                 marginBottom: '5px',
-    //               }}
-    //             >
-    //               {option}
-    //             </li>
-    //           ))}
-    //         </ul>
-    //       </div>
-    //     )
-    //   );
-    // };
-
 
 const fieldLabels = {
   propertyMode: "Property Mode",
@@ -856,112 +928,6 @@ const fieldLabels = {
   alternatePhoneCountryCode: "Alternate Phone Country Code",
   bestTimeToCall: "Best Time to Call",
 };
-
-// const renderDropdown = (field) => {
-//   const options = dataList[field] || [];
-//   const filteredOptions = options.filter((option) =>
-//     option.toLowerCase().includes(dropdownState.filterText.toLowerCase())
-//   );
-
-//   return (
-//     dropdownState.activeDropdown === field && (
-//       <div
-//         className="dropdown-popup"
-//         style={{
-//           position: "fixed",
-//           top: "50%",
-//           left: "50%",
-//           transform: "translate(-50%, -50%)",
-//           backgroundColor: "#fff",
-//           width: "100%",
-//           maxWidth: "400px",
-//           padding: "10px",
-//           zIndex: 10,
-//           boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-//           borderRadius: "8px",
-//           overflowY: "auto",
-//           maxHeight: "50vh",
-//           animation: "popupOpen 0.3s ease-in-out",
-//         }}
-//       >
-//         {/* Dynamically Display Field Label */}
-//         <div
-//           style={{
-//             fontWeight: "bold",
-//             fontSize: "16px",
-//             marginBottom: "10px",
-//             textAlign: "start",
-//             color: "#019988",
-//           }}
-//         >
-//           {fieldLabels[field] || "Property Field"}
-//         </div>
-
-//         {/* Search Input and Close Button */}
-//         <div
-//           style={{
-//             display: "flex",
-//             justifyContent: "space-between",
-//             alignItems: "center",
-//           }}
-//         >
-//           <input
-//             type="text"
-//             placeholder="Filter options..."
-//             value={dropdownState.filterText}
-//             onChange={handleFilterChange}
-//             style={{
-//               width: "80%",
-//               padding: "5px",
-//               marginBottom: "10px",
-//             }}
-//           />
-//           <button
-//             type="button"
-//             onClick={() => toggleDropdown(field)}
-//             style={{
-//               cursor: "pointer",
-//               border: "none",
-//               background: "none",
-//             }}
-//           >
-//             <FaTimes size={18} color="red" />
-//           </button>
-//         </div>
-
-//         {/* Dropdown List */}
-//         <ul
-//           style={{
-//             listStyleType: "none",
-//             padding: 0,
-//             margin: 0,
-//           }}
-//         >
-//           {filteredOptions.map((option, index) => (
-//             <li
-//               key={index}
-//               onClick={() => {
-//                 setFormData((prevState) => ({
-//                   ...prevState,
-//                   [field]: option,
-//                 }));
-//                 toggleDropdown(field);
-//               }}
-//               style={{
-//                 padding: "5px",
-//                 cursor: "pointer",
-//                 backgroundColor: "#f9f9f9",
-//                 marginBottom: "5px",
-//               }}
-//             >
-//               {option}
-//             </li>
-//           ))}
-//         </ul>
-//       </div>
-//     )
-//   );
-// };
 
  
     const renderDropdown = (field) => {
@@ -1078,6 +1044,7 @@ const handleEdit = () => {
   setIsPreview(false);
 };
 
+const isReadOnly = true; // set true to make it readonly
 
   return (
     <div className="d-flex align-items-center justify-content-center  p-1 w-100">
@@ -1263,8 +1230,9 @@ onClick={() => removePhoto(index)}>
           <button
             className="m-0"
             type="button"
-            onClick={() => toggleDropdown("propertyMode")}
-            style={{
+            onClick={() => {
+              if (!isReadOnly) toggleDropdown("propertyMode");
+            }}            style={{
               cursor: "pointer",
               border: "1px solid #2F747F",
               padding: "10px",
@@ -1311,8 +1279,9 @@ onClick={() => removePhoto(index)}>
           <button
             className="m-0"
             type="button"
-            onClick={() => toggleDropdown("propertyType")}
-            style={{
+            onClick={() => {
+              if (!isReadOnly) toggleDropdown("propertyType");
+            }}            style={{
               cursor: "pointer",
               border: "1px solid #2F747F",
               padding: "10px",
@@ -2488,22 +2457,71 @@ onClick={() => removePhoto(index)}>
   {/*   rentalPropertyAddress */}
 <div>
   <div className="form-group">
-<label>Property Address:</label>
-
-<div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', border: '1px solid #2F747F', background:"#fff"}}>
-    <FaHome className="input-icon" 
-    style={{color: '#2F747F', marginLeft:"10px"}} />
-    <input
-      type="text"
-      name="rentalPropertyAddress"
-      value={formData.rentalPropertyAddress}
-      onChange={handleFieldChange}
-      className="form-input m-0"
-      placeholder="Property Address"
-      style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
-    />
+  {/* <label>Quick Address:</label> */}
+  
+  <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', border: '1px solid #2F747F', background:"#fff"}}>
+      <FcSearch  className="input-icon" 
+      style={{color: '#2F747F', marginLeft:"10px"}} />
+      <input
+        ref={inputRef}
+  
+        id="pac-input"
+        className="form-input m-0"
+        placeholder="Search location"
+        style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
+      />
+    </div>
   </div>
+  <div
+    ref={mapRef}
+    id="map"
+    style={{ height: "200px", width: "100%" }}
+  ></div>
+<div className="mt-1 w-100 d-flex gap-2 mb-2">
+  <input
+    ref={latRef}
+    placeholder="Latitude"
+    className="form-control m-0"
+  />
+  <input 
+    ref={lngRef}
+    placeholder="Longitude"
+    className="form-control m-0"
+  />
+  <button 
+    onClick={handleLatLngSearch}
+    className="btn btn-primary m-0 border-0"
+    style={{ whiteSpace: 'nowrap', background:"#6CBAAF" ,  }}
+  >
+    Go
+  </button>
 </div>
+
+
+  {/* <input value={formData.pinCode || ""} readOnly />
+  <input value={formData.city || ""} readOnly />
+  <input value={formData.area || ""} readOnly />
+  <input value={formData.streetName || ""} readOnly />
+   */}
+  <p className="mt-1" style={{color:"#0597FF" , fontSize:"13px"}}>IF YOU CAN'T FIND THE ADDRESS PLEASE ENTER MANUALLY</p>
+    <div className="form-group">
+  <label>Property Address:</label>
+  
+  <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', border: '1px solid #2F747F', background:"#fff"}}>
+      <FaHome className="input-icon" 
+      style={{color: '#2F747F', marginLeft:"10px"}} />
+      <input
+        type="text"
+        name="rentalPropertyAddress"
+        value={`${formData.doorNumber || ""} ${formData.streetName || ""} ${formData.area || ""}  ${formData.city || ""}   ${formData.state || ""} ${formData.pinCode || ""}`}
+        onChange={handleFieldChange}
+        className="form-input m-0"
+        placeholder="Property Address"
+        style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
+      />
+    </div>
+  </div>
+  
 
 
   {/* country */}
@@ -2550,7 +2568,7 @@ onClick={() => removePhoto(index)}>
     <input
       type="text"
       name="city"
-      value={formData.city}
+      value={formData.city} readOnly
       onChange={handleFieldChange}
       className="form-input m-0"
       placeholder="City"
@@ -2560,7 +2578,55 @@ onClick={() => removePhoto(index)}>
 </div>
 
   {/* district */}
-  <div className="form-group">
+
+  <div className="form-group" >
+    <label style={{width:'100%'}}>
+    <label>District</label>
+
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <div style={{ flex: "1" }}>
+          <select
+            name="district"
+            value={formData.district || ""}
+            onChange={handleFieldChange}
+            className="form-control"
+            style={{ display: "none" }} // Hide the default <select> dropdown
+          >
+            <option value="">Select District</option>
+            {dataList.district?.map((option, index) => (
+              <option key={index} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+
+          <button
+            className="m-0"
+            type="button"
+            onClick={() => toggleDropdown("district")}
+            style={{
+              cursor: "pointer",
+              border: "1px solid #2F747F",
+              padding: "10px",
+              background: "#fff",
+              borderRadius: "5px",
+              width: "100%",
+              textAlign: "left",
+              color: "#2F747F",
+            }}
+          >
+            <span style={{ marginRight: "10px" }}>
+              {fieldIcons.district || <FaHome />}
+            </span>
+            {formData.district || "Select District"}
+          </button>
+
+          {renderDropdown("district")}
+        </div>
+      </div>
+    </label>
+  </div>
+  {/* <div className="form-group">
   <label>District:</label>
   <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
     <FaRegAddressCard className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
@@ -2574,7 +2640,7 @@ onClick={() => removePhoto(index)}>
       style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
     />
   </div>
-</div>
+</div> */}
   {/* area */}
   <div className="form-group">
   <label>Area:</label>
@@ -2583,7 +2649,7 @@ onClick={() => removePhoto(index)}>
     <input
       type="text"
       name="area"
-      value={formData.area}
+      value={formData.area} readOnly
       onChange={handleFieldChange}
       className="form-input m-0"
       placeholder="Area"
@@ -2636,6 +2702,21 @@ onClick={() => removePhoto(index)}>
       onChange={handleFieldChange}
       className="form-input m-0"
       placeholder="Nagar"
+      style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
+    />
+  </div>
+</div>
+<div className="form-group">
+  <label>pinCode:</label>
+  <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
+    <TbMapPinCode  className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
+    <input
+      type="text"
+      name="pinCode"
+      value={formData.pinCode}
+      onChange={handleFieldChange}
+      className="form-input m-0"
+      placeholder="pinCode"
       style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
     />
   </div>

@@ -8,6 +8,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AddPlan.css';
+import { useLocation } from 'react-router-dom';
 
 
 
@@ -27,7 +28,10 @@ const AddPlan = () => {
     });
     const [editingPlanId, setEditingPlanId] = useState(null);
 
-
+    const location = useLocation();
+    const storedPhoneNumber = location.state?.phoneNumber || localStorage.getItem("phoneNumber") || "";
+  
+    const [phoneNumber, setPhoneNumber] = useState(storedPhoneNumber);
 const createOrUpdatePlan = async () => {
     try {
         if (editingPlanId) {
@@ -48,7 +52,24 @@ const createOrUpdatePlan = async () => {
         }
     }
 };
-
+useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Add Plan",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
 
     useEffect(() => {
         fetchPlans();

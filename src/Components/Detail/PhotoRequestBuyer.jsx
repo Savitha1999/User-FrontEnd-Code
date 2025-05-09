@@ -39,6 +39,8 @@ import profil from '../../Assets/xd_profile.png'
 import { TbCameraPlus } from "react-icons/tb";
 import { Button, Modal } from "react-bootstrap";
 import { FaArrowLeft } from "react-icons/fa";
+import NoData from "../../Assets/OOOPS-No-Data-Found.png";
+
 
 const App = () => {
   const [activeKey, setActiveKey] = useState("All");
@@ -55,7 +57,24 @@ const App = () => {
    const [popupMessage, setPopupMessage] = useState("");
    const navigate = useNavigate();
 
-
+useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Photo request Buyer",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
    const confirmAction = (message, action) => {
      setPopupMessage(message);
      setPopupAction(() => action);
@@ -354,8 +373,17 @@ const PropertyList = ({ properties, onRemove, onUndo, setProperties , setRemoved
 
   
   return properties.length === 0 ? (
-    <p>No properties found.</p>
-  ) : (
+<div className="text-center my-4 "
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+
+    }}>
+<img src={NoData} alt="" width={100}/>      
+<p>No properties found.</p>
+</div>  ) : (
     <div className="row mt-4 w-100">
       {properties.map((property) => (
         <div className="col-12 mb-1 p-0" key={property.ppcId}>

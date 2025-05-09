@@ -33,6 +33,7 @@ import bed from '../Assets/BHK-01.png'
 import totalarea from '../Assets/Total Area-01.png'
 import postedby from '../Assets/Posted By-01.png'
 import indianprice from '../Assets/Indian Rupee-01.png'
+import NoData from "../Assets/OOOPS-No-Data-Found.png";
 
 const LowtoHigh = ({phoneNumber}) => {
   const [properties, setProperties] = useState([]);
@@ -44,6 +45,7 @@ const LowtoHigh = ({phoneNumber}) => {
     propertyMode: '', 
     city: '' 
   });
+      const [loading, setLoading] = useState(true); // Loading state
     
   const [imageCounts, setImageCounts] = useState({}); // Store image count for each property
 
@@ -105,6 +107,8 @@ const LowtoHigh = ({phoneNumber}) => {
           setProperties(sortedProperties);
         } catch (error) {
           console.error("Error fetching properties:", error);
+        }  finally {
+          setLoading(false);
         }
       };
     
@@ -324,7 +328,18 @@ const LowtoHigh = ({phoneNumber}) => {
             
            <div className="w-100">
              <div style={{ overflowY: 'auto', fontFamily:"Inter, sans-serif" }}>
-               {filteredProperties.length > 0 ? (
+             {loading ? (
+  <div className="text-center my-4"
+  style={{
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    zIndex: 1000
+  }}>
+  <span className="spinner-border text-primary" role="status" />
+  <p className="mt-2">Loading properties...</p>
+</div>              ) : filteredProperties.length > 0 ? (
                  filteredProperties.map((property) => (
                    <div 
                      key={property._id}
@@ -464,8 +479,17 @@ const LowtoHigh = ({phoneNumber}) => {
                  ))
  
                ) : (
-                 <p>No properties found.</p>
-               )}
+                <div className="text-center my-4 "
+                style={{
+                  position: 'fixed',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+          
+                }}>
+        <img src={NoData} alt="" width={100}/>      
+        <p>No properties found.</p>
+        </div>               )}
              </div>
            </div>
            </div>

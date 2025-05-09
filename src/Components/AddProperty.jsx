@@ -7,7 +7,7 @@ import axios from "axios";
 import { Button } from "react-bootstrap";
 import {  useLocation, useNavigate, useParams } from "react-router-dom";
 import { RiCloseCircleFill, RiLayoutLine } from 'react-icons/ri';
-import { TbArrowLeftRight } from 'react-icons/tb';
+import { TbArrowLeftRight, TbMapPinCode } from 'react-icons/tb';
 import {FaArrowRight ,FaBuilding, FaMoneyBillWave,  FaBath, FaChartArea, FaPhone ,FaEdit,FaRoad,FaDoorClosed,FaMapPin, FaHome, FaUserAlt, FaEnvelope,  FaRupeeSign , FaFileVideo , FaToilet,FaCar,FaBed,  FaCity , FaTimes} from 'react-icons/fa';
 import {  FaRegAddressCard } from 'react-icons/fa6';
 import { MdLocationOn, MdOutlineMeetingRoom, MdOutlineOtherHouses, MdSchedule , MdStraighten , MdApproval, MdLocationCity , MdAddPhotoAlternate, MdKeyboardDoubleArrowDown} from "react-icons/md";
@@ -33,12 +33,16 @@ import { Navigation } from "swiper/modules";
 import { IoCloseCircle } from "react-icons/io5";
 import moment from "moment";
 import { useSwipeable } from 'react-swipeable';
+import SuccessIcon from '../Assets/Success.png';
+import { toWords } from 'number-to-words';
+import { FcSearch } from "react-icons/fc";
 
 
 function AddProperty() {
   const location = useLocation();
   const { phoneNumber } = useParams();
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState("form"); // "form" -> "preview" -> "submitted"
 
     const [currentStep, setCurrentStep] = useState(1);
     const [showPlans, setshowPlans] = useState(false);
@@ -79,6 +83,17 @@ function AddProperty() {
     return () => clearTimeout(timer);
   }, []);
   // const [ppcId, setPpcId] = useState(location.state?.ppcId || ""); 
+  
+  // const mapRef = useRef(null);
+  // const inputRef = useRef(null);
+  // const [mapLoaded, setMapLoaded] = useState(false);
+  const inputRef = useRef(null);
+  const latRef = useRef(null);
+  const lngRef = useRef(null);
+  const mapRef = useRef(null);
+  const mapInstance = useRef(null);
+  const markerRef = useRef(null);
+
   const [formData, setFormData] = useState({
     propertyMode: '',
     propertyType: '',
@@ -125,12 +140,235 @@ function AddProperty() {
   alternatePhone: "",
   alternatePhoneCountryCode: "",
     bestTimeToCall: '',
+    pinCode:"",
   });
+  useEffect(() => {
+    if (step !== "form" || !window.google) return;
+  
+    const interval = setInterval(() => {
+      if (mapRef.current && inputRef.current) {
+        clearInterval(interval);
+  
+        // Optional: clear any existing map to avoid duplication
+        mapRef.current.innerHTML = "";
+  
+        const map = new window.google.maps.Map(mapRef.current, {
+          center: { lat: 20.5937, lng: 78.9629 },
+          zoom: 5,
+        });
+  
+        mapInstance.current = map;
+  
+        const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+          types: ['geocode'],
+        });
+  
+        autocomplete.bindTo('bounds', map);
+  
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (!place.geometry || !place.geometry.location) return;
+  
+          const lat = place.geometry.location.lat();
+          const lng = place.geometry.location.lng();
+  
+          updateMap(lat, lng);
+  
+          const getComponent = (type) => {
+            const comp = place.address_components?.find(c => c.types.includes(type));
+            return comp?.long_name || '';
+          };
+  
+          setFormData(prev => ({
+            ...prev,
+            rentalPropertyAddress: place.formatted_address || '',
+            latitude: lat,
+            longitude: lng,
+            pinCode: getComponent("postal_code"),
+          
+            // City is usually in 'locality', fallback to district-level if missing
+            city: getComponent("sublocality_level_1"),
+          
+            // Area is more granular, typically sublocality levels
+            area: getComponent("sublocality_level_2"),          
+            // Optional: Nagar name, generally from level 1
+            nagar: getComponent("sublocality"),
+          
+            // Street name or building/premise
+            streetName: getComponent("route") || getComponent("premise"),
+          
+            // District is administrative_area_level_2 in most cases
+            district: getComponent("administrative_area_level_2") || getComponent("locality"),
+          
+            state: getComponent("administrative_area_level_1"),
+            country: getComponent("country"),
+            doorNumber: getComponent("street_number"),
+          }));
+        });
+      }
+    }, 100);
+  
+    return () => clearInterval(interval);
+  }, [step]); // 👈 critical: this makes map re-init on form re-entry
+  
+   // Initialize map only once
+  const updateMap = (lat, lng) => {
+    if (mapRef.current) {
+      const map = new window.google.maps.Map(mapRef.current, {
+        center: { lat, lng },
+        zoom: 12,
+      });
+      new window.google.maps.Marker({
+        position: { lat, lng },
+        map: map,
+      });
+    }
+  };
+
+  const handleLatLngSearch = (e) => {
+    e.preventDefault();
+
+    const lat = parseFloat(latRef.current.value);
+    const lng = parseFloat(lngRef.current.value);
+
+    if (!isNaN(lat) && !isNaN(lng)) {
+      updateMap(lat, lng);
+
+      const geocoder = new window.google.maps.Geocoder();
+      const latlng = { lat, lng };
+
+      geocoder.geocode({ location: latlng }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          const place = results[0];
+
+          const getComponent = (type) => {
+            const comp = place.address_components.find(c => c.types.includes(type));
+            return comp?.long_name || '';
+          };
+
+          // Update formData with address components, excluding latitude/longitude
+          setFormData((prev) => ({
+            ...prev,
+            rentalPropertyAddress: place.formatted_address,
+            pinCode: getComponent("postal_code"),
+          
+            // City is usually in 'locality', fallback to district-level if missing
+            city: getComponent("sublocality_level_1"),
+          
+            // Area is more granular, typically sublocality levels
+            area: getComponent("sublocality_level_2"),          
+            // Optional: Nagar name, generally from level 1
+            nagar: getComponent("sublocality"),
+          
+            // Street name or building/premise
+            streetName: getComponent("route") || getComponent("premise"),
+          
+            // District is administrative_area_level_2 in most cases
+            district: getComponent("administrative_area_level_2") || getComponent("locality"),
+          
+            state: getComponent("administrative_area_level_1"),
+            country: getComponent("country"),
+            doorNumber: getComponent("street_number"),
+          }));
+        } else {
+          alert('Reverse geocoding failed: ' + status);
+        }
+      });
+    } else {
+      alert("Enter valid coordinates");
+    }
+  };
+  
+
+  
+    useEffect(() => {
+      const recordDashboardView = async () => {
+        try {
+          await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+            phoneNumber: phoneNumber,
+            viewedFile: "Add Property",
+            viewTime: new Date().toISOString(),
+          });
+          console.log("Dashboard view recorded");
+        } catch (err) {
+          console.error("Failed to record dashboard view:", err);
+        }
+      };
+    
+      if (phoneNumber) {
+        recordDashboardView();
+      }
+    }, [phoneNumber]);
+  
+  
+
+
+  // ✅ Load Google Maps Script only once
+  // useEffect(() => {
+  //   const loadScript = () => {
+  //     if (window.google) {
+  //       setMapLoaded(true);
+  //       return;
+  //     }
+
+  //     const script = document.createElement("script");
+  //     script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places`;
+  //     script.async = true;
+  //     script.onload = () => setMapLoaded(true);
+  //     document.body.appendChild(script);
+  //   };
+
+  //   loadScript();
+  // }, []);
+
+  // // ✅ Initialize map only after script and step are ready
+  // useEffect(() => {
+  //   if (!mapLoaded || currentStep < 6) return;
+
+  //   const map = new window.google.maps.Map(mapRef.current, {
+  //     center: { lat: 28.6139, lng: 77.209 }, // Default to Delhi
+  //     zoom: 13,
+  //   });
+
+  //   const input = document.getElementById("pac-input");
+  //   const autocomplete = new window.google.maps.places.Autocomplete(input);
+  //   autocomplete.bindTo("bounds", map);
+
+  //   const marker = new window.google.maps.Marker({ map });
+
+  //   autocomplete.addListener("place_changed", () => {
+  //     const place = autocomplete.getPlace();
+  //     if (!place.geometry || !place.geometry.location) return;
+
+  //     map.setCenter(place.geometry.location);
+  //     marker.setPosition(place.geometry.location);
+
+  //     // ✅ Extract address components
+  //     const addressComponents = place.address_components || [];
+  //     const getComponent = (type) =>
+  //       addressComponents.find((c) => c.types.includes(type))?.long_name || "";
+
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       pinCode: getComponent("postal_code"),
+  //       city: getComponent("locality") || getComponent("administrative_area_level_2"),
+  //       area: getComponent("sublocality") || getComponent("sublocality_level_1"),
+  //       streetName: getComponent("route") || getComponent("premise"),
+  //       district: getComponent("administrative_area_level_2"),
+  //       state: getComponent("administrative_area_level_1"),
+  //       country: getComponent("country"),
+  //     }));
+      
+      
+  //   });
+  // }, [mapLoaded, currentStep]);
+
+
+
   const [photos, setPhotos] = useState([]);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [video, setVideo] = useState(null);
   const [isPreview, setIsPreview] = useState(true);
-  const [step, setStep] = useState("form"); // "form" -> "preview" -> "submitted"
 
     const [message, setMessage] = useState({ text: "", type: "" });
 
@@ -271,8 +509,13 @@ const formattedCreatedAt = Date.now
     { icon: <BiBuilding />, label: "State", value: formData.state },
     { icon: <MdLocationCity />, label: "City", value: formData.city },
     { icon: <FaMapMarkerAlt />, label: "District", value:  formData.district},
+           { icon: <MdLocationOn />, label: "Area", value: formData.area },
+    
     { icon: <FaMapSigns />, label: "Nagar", value: formData.nagar },
+       { icon: <FaRoad />, label: "Street Name", value: formData.streetName },
+   
     { icon: <FaDoorClosed />, label: "Door Number", value: formData.doorNumber },
+    { icon: <TbMapPinCode />, label: "pinCode", value: formData.pinCode },
 
     { heading: true, label: "Contact Info" }, // Heading 5
    
@@ -298,11 +541,11 @@ const formattedCreatedAt = Date.now
     }));
   };
 
-  // Handle dropdown selection
-  const handleDropdownSelect = (field, value) => {
-    setFormData((prevState) => ({ ...prevState, [field]: value }));
-    setDropdownState({ activeDropdown: null, filterText: "" });
-  };
+  // // Handle dropdown selection
+  // const handleDropdownSelect = (field, value) => {
+  //   setFormData((prevState) => ({ ...prevState, [field]: value }));
+  //   setDropdownState({ activeDropdown: null, filterText: "" });
+  // };
 
   // Handle filter input change for dropdown
   const handleFilterChange = (e) => {
@@ -425,6 +668,7 @@ const formattedCreatedAt = Date.now
       ...prev,
       [name]: value, // This dynamically updates the correct field (phoneNumberCountryCode or alternatePhoneCountryCode)
     }));
+  
     if (name === "price") {
       if (value !== "" && !isNaN(value)) {
         setPriceInWords(convertToIndianRupees(value));
@@ -433,60 +677,72 @@ const formattedCreatedAt = Date.now
       }
     }
   };
-
   const convertToIndianRupees = (num) => {
-    if (!num) return "";
+    const number = parseInt(num, 10);
+    if (isNaN(number)) return "";
   
-    const units = [
-      "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
-      "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
-      "Seventeen", "Eighteen", "Nineteen",
-    ];
-    const tens = [
-      "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy",
-      "Eighty", "Ninety",
-    ];
-    
-    const scales = ["", "Thousand", "Lakh", "Crore"];
-    
-    let number = parseInt(num, 10);
-    let words = "";
-  
-    if (number === 0) return "Zero";
-  
-    // Handle Crores
     if (number >= 10000000) {
-      words += convertToIndianRupees(Math.floor(number / 10000000)) + " Crore ";
-      number %= 10000000;
+      return (number / 10000000).toFixed(2).replace(/\.00$/, '') + " crores";
+    } else if (number >= 100000) {
+      return (number / 100000).toFixed(2).replace(/\.00$/, '') + " lakhs";
+    } else {
+      return toWords(number).replace(/\b\w/g, l => l.toUpperCase()) + " rupees";
     }
-    // Handle Lakhs
-    if (number >= 100000) {
-      words += convertToIndianRupees(Math.floor(number / 100000)) + " Lakh ";
-      number %= 100000;
-    }
-    // Handle Thousands
-    if (number >= 1000) {
-      words += convertToIndianRupees(Math.floor(number / 1000)) + " Thousand ";
-      number %= 1000;
-    }
-    // Handle Hundreds
-    if (number >= 100) {
-      words += units[Math.floor(number / 100)] + " Hundred ";
-      number %= 100;
-    }
-    // Handle last part (0-99)
-    if (number > 0) {
-      if (words !== "") words += "and ";
-      if (number < 20) {
-        words += units[number];
-      } else {
-        words += tens[Math.floor(number / 10)];
-        if (number % 10 !== 0) words += " " + units[number % 10];
-      }
-    }
-  
-    return words.trim();
   };
+  
+  // const convertToIndianRupees = (num) => {
+  //   if (!num) return "";
+  
+  //   const units = [
+  //     "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+  //     "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
+  //     "Seventeen", "Eighteen", "Nineteen",
+  //   ];
+  //   const tens = [
+  //     "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy",
+  //     "Eighty", "Ninety",
+  //   ];
+    
+  //   const scales = ["", "Thousand", "Lakh", "Crore"];
+    
+  //   let number = parseInt(num, 10);
+  //   let words = "";
+  
+  //   if (number === 0) return "Zero";
+  
+  //   // Handle Crores
+  //   if (number >= 10000000) {
+  //     words += convertToIndianRupees(Math.floor(number / 10000000)) + " Crore ";
+  //     number %= 10000000;
+  //   }
+  //   // Handle Lakhs
+  //   if (number >= 100000) {
+  //     words += convertToIndianRupees(Math.floor(number / 100000)) + " Lakh ";
+  //     number %= 100000;
+  //   }
+  //   // Handle Thousands
+  //   if (number >= 1000) {
+  //     words += convertToIndianRupees(Math.floor(number / 1000)) + " Thousand ";
+  //     number %= 1000;
+  //   }
+  //   // Handle Hundreds
+  //   if (number >= 100) {
+  //     words += units[Math.floor(number / 100)] + " Hundred ";
+  //     number %= 100;
+  //   }
+  //   // Handle last part (0-99)
+  //   if (number > 0) {
+  //     if (words !== "") words += "and ";
+  //     if (number < 20) {
+  //       words += units[number];
+  //     } else {
+  //       words += tens[Math.floor(number / 10)];
+  //       if (number % 10 !== 0) words += " " + units[number % 10];
+  //     }
+  //   }
+  
+  //   return words.trim();
+  // };
   const requiredFieldsByStep = {
     1: ['propertyMode', 'propertyType' , 'price'],
     2: ['totalArea', 'areaUnit'],
@@ -651,11 +907,12 @@ const formattedCreatedAt = Date.now
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStep("submitted");
-  
+    const safeOwnerName = (formData.ownerName || "").trim();
+
     const finalFormData = {
       ...formData,
-      ownerName: formData.ownerName.trim() === "" ? "Owner" : formData.ownerName,
-    };
+      ownerName: safeOwnerName === "" ? "Owner" : safeOwnerName,
+       };
   
     if (!ppcId) {
       setMessage({ text: "PPC-ID is required. Please refresh or try again.", type: "error" });
@@ -685,7 +942,7 @@ const formattedCreatedAt = Date.now
         { headers: { "Content-Type": "multipart/form-data" } }
       );
   
-      setMessage({ text: "Property Added successfully!", type: "success" });
+      setMessage({ text: "Property Added successfully!", type: "success" ,  image: SuccessIcon});
   
       setTimeout(() => {
         setMessage({ text: "", type: "" });
@@ -803,7 +1060,9 @@ const fieldLabels = {
   alternatePhoneCountryCode: "Alternate Phone Country Code",
   bestTimeToCall: "Best Time to Call",
 };
-    
+
+
+
     const renderDropdown = (field) => {
       const options = dataList[field] || [];
       const filteredOptions = options.filter((option) =>
@@ -959,14 +1218,9 @@ const handleEdit = () => {
 };
 
   return (
-    <div className="d-flex align-items-center justify-content-center pb-5">
-    <div      style={{
-              width: '100%',
-              maxWidth: '450px',
-              minWidth: '300px',
-              // padding: '5px',
-              borderRadius: '8px',
-            }}>
+    <div className="container-fluid d-flex align-items-center justify-content-center pb-5" >
+           <div className="d-flex flex-column align-items-center justify-content-center m-0" style={{ maxWidth: '500px', margin: 'auto', width: '100%',  fontFamily: "Inter, sans-serif" , }}>
+
               <div className="d-flex align-items-center justify-content-start w-100" style={{background:"#EFEFEF" }}>
               <button
       onClick={() => navigate(-1)}
@@ -991,16 +1245,50 @@ const handleEdit = () => {
     >
       <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
     </button><h3 className="m-0 ms-3" style={{fontSize:"18px"}}>ADD PROPERTY</h3> </div>
-<div className="p-1">
+<div className="row w-100 mt-2">
 {/* <h4 style={{ color: "rgb(10, 10, 10)", fontWeight: "bold", marginBottom: "10px" }}> Property Management</h4>  */}
 
+{message.text && (
+ <div
+ style={{
+   padding: "10px",
+   backgroundColor:
+     message.type === "success" ? "lightgreen" :
+     message.type === "error" ? "lightcoral" :
+     message.type === "warning" ? "khaki" :
+     message.type === "info" ? "lightblue" :
+     message.type === "update" ? "#d1ecf1" :
+     message.type === "deleted" ? "#f8d7da" :
+     "white",
+   color: "black",
+   margin: "10px 0",
+   borderRadius: "5px",
+   display: "flex",
+   flexDirection: "column",  // ⬅️ Stack vertically
+   alignItems: "center",      // ⬅️ Center horizontally
+   textAlign: "center",       // ⬅️ Center text
+   gap: "10px"
+ }}
+>
+ {message.image && (
+   <img
+     src={message.image}
+     alt="icon"
+     style={{ width: "40px", height: "40px", objectFit: "contain" }}
+   />
+ )}
+ <span>{message.text}</span>
+</div>
 
+)}
      {step === "submitted" ?  (
             <PricingPlans phoneNumber={phoneNumber} onClose={handleCloseAddForm}/>
       
       
     ) : step === "form" ?  (
-<form onSubmit={handleSubmit} style={{ fontFamily: "Inter, sans-serif"}}>
+      <div className="col-12 d-flex align-items-center justify-content-center">
+
+<form onSubmit={handleSubmit} style={{ fontFamily: "Inter, sans-serif"}} >
 <h4 style={{ color: "rgb(10, 10, 10)", fontWeight: "bold", marginBottom: "10px" }}> Property Management</h4>             
 
         <p className="p-3" style={{ color: "white", backgroundColor: "rgb(47,116,127)" }}>PPC-ID: {ppcId}</p>
@@ -1085,7 +1373,6 @@ const handleEdit = () => {
           </div>
         )}
 
-        {/* Video Upload Section */}
         <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>Property Video</h4>
         <div className="form-group">
           <input
@@ -1134,7 +1421,9 @@ const handleEdit = () => {
         </div>
 
 {currentStep >= 1 && (
-        <div className="fieldcontent p-0" ref={stepRefs[1]}>
+        <div
+        //  className="fieldcontent p-0" ref={stepRefs[1]}
+         >
   <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>  Property OverView  </h4>             
 
   {/* Property Mode */}
@@ -1989,7 +2278,7 @@ const handleEdit = () => {
             onChange={handleFieldChange}
             className="form-control"
             required
-            style={{ visibility: "hidden", position: "absolute" }} // Keep element in flow but hidden
+            style={{ display: "none" }} // Hide the default <select> dropdown
             >
             <option value="">Select salesType</option>
             {dataList.salesType?.map((option, index) => (
@@ -2413,7 +2702,68 @@ const handleEdit = () => {
 
 <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>  Property Address   </h4>             
 
+{/* <input
+        ref={inputRef}
 
+  id="pac-input"
+  type="text"
+  placeholder="Search location"
+  style={{
+    marginTop: 10,
+    width: "300px",
+    height: "40px",
+    fontSize: "16px",
+    padding: "5px",
+    position: "absolute",
+    zIndex: 5,
+  }}
+/> */}
+<div className="form-group">
+{/* <label>Quick Address:</label> */}
+
+<div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', border: '1px solid #2F747F', background:"#fff"}}>
+    <FcSearch  className="input-icon" 
+    style={{color: '#2F747F', marginLeft:"10px"}} />
+    <input
+      ref={inputRef}
+
+      id="pac-input"
+      className="form-input m-0"
+      placeholder="Search location"
+      style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
+    />
+  </div>
+</div>
+<div
+  ref={mapRef}
+  id="map"
+  style={{ height: "200px", width: "100%" }}
+></div>
+<div className="mt-1 w-100 d-flex gap-2 mb-2">
+  <input
+    ref={latRef}
+    placeholder="Latitude"
+    className="form-control m-0"
+  />
+  <input 
+    ref={lngRef}
+    placeholder="Longitude"
+    className="form-control m-0"
+  />
+  <button 
+    onClick={handleLatLngSearch}
+    className="btn btn-primary m-0 border-0"
+    style={{ whiteSpace: 'nowrap', background:"#6CBAAF" ,  }}
+  >
+    Go
+  </button>
+</div>
+{/* <input value={formData.pinCode || ""} readOnly />
+<input value={formData.city || ""} readOnly />
+<input value={formData.area || ""} readOnly />
+<input value={formData.streetName || ""} readOnly />
+ */}
+<p className="mt-1" style={{color:"#0597FF" , fontSize:"13px"}}>IF YOU CAN'T FIND THE ADDRESS PLEASE ENTER MANUALLY</p>
   <div className="form-group">
 <label>Property Address:</label>
 
@@ -2423,7 +2773,7 @@ const handleEdit = () => {
     <input
       type="text"
       name="rentalPropertyAddress"
-      value={formData.rentalPropertyAddress}
+      value={`${formData.doorNumber || ""} ${formData.streetName || ""} ${formData.area || ""}  ${formData.city || ""}   ${formData.state || ""} ${formData.pinCode || ""}`}
       onChange={handleFieldChange}
       className="form-input m-0"
       placeholder="Property Address"
@@ -2487,7 +2837,54 @@ const handleEdit = () => {
 </div>
 
   {/* district */}
-  <div className="form-group">
+   <div className="form-group" >
+      <label style={{width:'100%'}}>
+      <label>District</label>
+  
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <div style={{ flex: "1" }}>
+            <select
+              name="district"
+              value={formData.district || ""}
+              onChange={handleFieldChange}
+              className="form-control"
+              style={{ display: "none" }} // Hide the default <select> dropdown
+            >
+              <option value="">Select District</option>
+              {dataList.district?.map((option, index) => (
+                <option key={index} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+  
+            <button
+              className="m-0"
+              type="button"
+              onClick={() => toggleDropdown("district")}
+              style={{
+                cursor: "pointer",
+                border: "1px solid #2F747F",
+                padding: "10px",
+                background: "#fff",
+                borderRadius: "5px",
+                width: "100%",
+                textAlign: "left",
+                color: "#2F747F",
+              }}
+            >
+              <span style={{ marginRight: "10px" }}>
+                {fieldIcons.district || <FaHome />}
+              </span>
+              {formData.district || "Select District"}
+            </button>
+  
+            {renderDropdown("district")}
+          </div>
+        </div>
+      </label>
+    </div>
+  {/* <div className="form-group">
   <label>District:</label>
   <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
     <FaRegAddressCard className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
@@ -2501,7 +2898,7 @@ const handleEdit = () => {
       style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
     />
   </div>
-</div>
+</div> */}
   {/* area */}
   <div className="form-group">
   <label>Area:</label>
@@ -2568,6 +2965,22 @@ const handleEdit = () => {
   </div>
 </div>
 
+
+<div className="form-group">
+  <label>pinCode:</label>
+  <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
+    <TbMapPinCode  className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
+    <input
+      type="text"
+      name="pinCode"
+      value={formData.pinCode}
+      onChange={handleFieldChange}
+      className="form-input m-0"
+      placeholder="pinCode"
+      style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
+    />
+  </div>
+</div>
 <h4 style={{ color: "rgb(47,116,127)", fontWeight: "bold", marginBottom: "10px" }}>  Owner Details   </h4>             
   {/* Owner Name */}
 
@@ -2882,6 +3295,8 @@ const handleEdit = () => {
         }
       `}</style>
       </div> */}
+            {currentStep <= 6 && (
+
       <div>
   <style>
     {`
@@ -2992,6 +3407,7 @@ const handleEdit = () => {
     </div>
   </div>
 </div>
+)}
 
   {/* <div
       {...handlers}
@@ -3104,6 +3520,7 @@ const handleEdit = () => {
 )}
 
       </form>
+      </div>
       ) :  (
 
 <div  ref={previewRef} className="preview-section">
@@ -3303,9 +3720,7 @@ const handleEdit = () => {
         }}
         onClick={handleSubmit}
       >
-
         Submit Property
-
       </button> 
       </div>
       </div>

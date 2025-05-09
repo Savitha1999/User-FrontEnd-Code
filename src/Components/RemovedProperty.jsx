@@ -10,6 +10,7 @@ import bed from '../Assets/BHK-01.png'
 import totalarea from '../Assets/Total Area-01.png'
 import postedby from '../Assets/Posted By-01.png'
 import indianprice from '../Assets/Indian Rupee-01.png'
+import NoData from "../Assets/OOOPS-No-Data-Found.png";
 
 const RemovedProperty = () => {
   const phoneNumber = localStorage.getItem("phoneNumber"); // Get phone number from localStorage
@@ -75,7 +76,24 @@ const RemovedProperty = () => {
     }
   };
   
-  
+  useEffect(() => {
+      const recordDashboardView = async () => {
+        try {
+          await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+            phoneNumber: phoneNumber,
+            viewedFile: "Removed Property",
+            viewTime: new Date().toISOString(),
+          });
+          console.log("Dashboard view recorded");
+        } catch (err) {
+          console.error("Failed to record dashboard view:", err);
+        }
+      };
+    
+      if (phoneNumber) {
+        recordDashboardView();
+      }
+    }, [phoneNumber]);
   const handleUndo = async (ppcId) => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/undo-delete`, {
@@ -289,9 +307,18 @@ const RemovedProperty = () => {
           </div>
         ))
       ) : (
-        <div className="text-center">
-          <p>No Removed Property Data Found.</p>
-        </div>
+               <div className="text-center my-4 "
+                          style={{
+                            position: 'fixed',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                        
+                          }}>
+                        <img src={NoData} alt="" width={100} />      
+                        <p>No Removed Property Data Found.</p>
+                        </div> 
+       
       )}
        </Col> 
        </div> 

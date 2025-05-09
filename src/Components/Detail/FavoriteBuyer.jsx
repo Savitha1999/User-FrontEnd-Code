@@ -13,7 +13,7 @@ import profil from '../../Assets/xd_profile.png'
 import {  FaCalendarAlt } from "react-icons/fa";
 import { Button, Modal } from "react-bootstrap";
 import { FaArrowLeft } from "react-icons/fa";
-
+import NoData from "../../Assets/OOOPS-No-Data-Found.png";
 
 const FavoriteBuyer = () => {
   const { phoneNumber } = useParams();
@@ -27,6 +27,26 @@ const [showPopup, setShowPopup] = useState(false);
   const [popupAction, setPopupAction] = useState(null);
   const [popupMessage, setPopupMessage] = useState("");
   const navigate = useNavigate();
+
+
+  useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Owner ShortList",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
 
 
 
@@ -66,30 +86,6 @@ const [showPopup, setShowPopup] = useState(false);
     localStorage.setItem("removedFavoriteProperties", JSON.stringify(removedFavorites));
   }, [removedFavorites]);
 
-  // useEffect(() => {
-  //   if (!phoneNumber) {
-  //     setLoading(false);
-  //     return;
-  //   }
-  //   const fetchFavoriteRequests = async () => {
-  //     try {
-  //       setLoading(true);
-  //       const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-favorite-buyer`, {
-  //         params: { postedPhoneNumber: phoneNumber },
-  //       });
-
-  //       if (response.status === 200) {
-
-  //         setFavorites(response.data.favoriteRequestsData);
-  //         localStorage.setItem("favoriteProperties", JSON.stringify(response.data.favoriteRequestsData));
-  //       }
-  //     } catch (error) {
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchFavoriteRequests();
-  // }, [phoneNumber]);
 
   
   useEffect(() => {
@@ -411,8 +407,17 @@ const [showPopup, setShowPopup] = useState(false);
             </div>
           ))
         ) : (
-          <p>No properties found.</p>
-        )
+<div className="text-center my-4 "
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+
+    }}>
+<img src={NoData} alt="" />      
+<p>No properties found.</p>
+</div>        )
       ) : (
         // removedFavorites.length > 0 ? (
         //   removedFavorites.map((property, index) => (

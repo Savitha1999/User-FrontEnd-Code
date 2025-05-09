@@ -15,7 +15,7 @@ import myImage from '../../Assets/Rectangle 146.png'; // Correct path
 import myImage1 from '../../Assets/Rectangle 145.png'; // Correct path
 import pic from '../../Assets/Default image_PP-01.png'; // Correct path
 import { FaArrowLeft } from "react-icons/fa";
-
+import NoData from "../../Assets/OOOPS-No-Data-Found.png";
 
 const ConfirmationModal = ({ show, onClose, onConfirm, message }) => {
   if (!show) return null;
@@ -101,8 +101,17 @@ const ConfirmationModal = ({ show, onClose, onConfirm, message }) => {
 
 const PropertyCard = ({ property, onRemoveClick, onUndoClick }) => {
   const navigate = useNavigate();
-  const [message, setMessage] = useState({ text: "", type: "" });
+ const [message, setMessage] = useState({ text: "", type: "" });
 
+
+  // Auto-clear message after 3 seconds
+  useEffect(() => {
+   if (message.text) {
+     const timer = setTimeout(() => setMessage({ text: "", type: "" }), 3000);
+     return () => clearTimeout(timer);
+   }
+ }, [message]);
+    
   const handleCardClick = () => {
     if (property?.ppcId) {
       navigate(`/detail/${property.ppcId}`);
@@ -294,8 +303,17 @@ const PropertyCard = ({ property, onRemoveClick, onUndoClick }) => {
 
 const PropertyList = ({ properties, onRemoveClick, onUndoClick }) => {
   return properties.length === 0 ? (
-    <p>No properties found.</p>
-  ) : (
+<div className="text-center my-4 "
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+
+    }}>
+<img src={NoData} alt="" width={100}/>      
+<p>No properties found.</p>
+</div>  ) : (
     <div className="row mt-4 w-100">
       {properties.map((property) => (
         <PropertyCard key={property.ppcId} property={property} onRemoveClick={onRemoveClick} onUndoClick={onUndoClick} />
@@ -311,7 +329,24 @@ const App = () => {
   const { phoneNumber } = useParams();
   const [message, setMessage] = useState({ text: "", type: "" });
   const [modal, setModal] = useState({ show: false, type: "", property: null });
-
+useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "interest Owner",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
   useEffect(() => {
     if (message.text) {
       const timer = setTimeout(() => setMessage({ text: "", type: "" }), 3000);

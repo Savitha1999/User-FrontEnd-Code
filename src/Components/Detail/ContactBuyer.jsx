@@ -11,6 +11,7 @@ import profil from '../../Assets/xd_profile.png'
 import {  FaCalendarAlt } from "react-icons/fa";
 import { Button, Modal } from "react-bootstrap";
 import { FaArrowLeft } from "react-icons/fa";
+import NoData from "../../Assets/OOOPS-No-Data-Found.png";
 
 const ContactBuyer = () => {
   const { phoneNumber } = useParams();
@@ -24,6 +25,28 @@ const ContactBuyer = () => {
   const [popupAction, setPopupAction] = useState(null);
   const [popupMessage, setPopupMessage] = useState("");
   const navigate = useNavigate();
+
+
+  useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Owner Contact",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
+
+
 
 
   const confirmAction = (message, action) => {
@@ -146,28 +169,7 @@ useEffect(() => {
 
 
 
-// const handleContact = (ppcId, userPhone) => {
-  
-//   confirmAction("Do you want to call this user?", async () => {
-//     try {
-//       await axios.post(`${process.env.REACT_APP_API_URL}/contact`, {
-//         ppcId,
-//         phoneNumber: userPhone,
-//       });
 
-//       if (response.data.success) {
-//         setMessage({ text: "Contact saved successfully", type: "success" });
-//         window.location.href = `tel:${userPhone}`;
-//       } else {
-//         setMessage({ text: "Contact failed", type: "error" });
-//       }
-//     } catch (error) {
-//       console.error("Contact API error:", error);
-//       setMessage({ text: "An error occurred", type: "error" });
-//     }
-//     setShowPopup(false);
-//   });
-// };
 
   const handleContact = async (ppcId, userPhone) => {
     // confirmAction("Do you want to call this user?", async () => {
@@ -398,8 +400,17 @@ useEffect(() => {
       </div>
     ))
   ) : (
-    <p>No properties found.</p>
-  )
+<div className="text-center my-4 "
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+
+    }}>
+<img src={NoData} alt="" width={100}/>      
+<p>No properties found.</p>
+</div>  )
 ) : (
   removedContacts.length > 0 ? (
     removedContacts.map((property, index) => (

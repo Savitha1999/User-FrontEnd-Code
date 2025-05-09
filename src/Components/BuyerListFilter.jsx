@@ -54,7 +54,24 @@ const BuyerListFilter = () => {
     setSelectedPpcId(ba_id);
     setShowPopup(true);
   };
-
+useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Buyer List Filter ",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
   const handleSendInterest = async (id) => {
     try {
       const response = await fetch(

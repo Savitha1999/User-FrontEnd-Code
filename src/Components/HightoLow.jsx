@@ -33,6 +33,7 @@ import bed from '../Assets/BHK-01.png'
 import totalarea from '../Assets/Total Area-01.png'
 import postedby from '../Assets/Posted By-01.png'
 import indianprice from '../Assets/Indian Rupee-01.png'
+import NoData from "../Assets/OOOPS-No-Data-Found.png";
 
 const HightoLow = ({phoneNumber}) => {
   const [properties, setProperties] = useState([]);
@@ -44,6 +45,8 @@ const HightoLow = ({phoneNumber}) => {
     propertyMode: '', 
     city: '' 
   });
+        const [loading, setLoading] = useState(true); // Loading state
+  
     
   const [imageCounts, setImageCounts] = useState({}); // Store image count for each property
 
@@ -59,7 +62,24 @@ const HightoLow = ({phoneNumber}) => {
   const [isAdvancedPopupOpen, setIsAdvancedPopupOpen] = useState(false);
   const navigate = useNavigate();
 
-
+useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "High to low ",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
     const fetchImageCount = async (ppcId) => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/uploads-count`, {
@@ -105,6 +125,8 @@ const HightoLow = ({phoneNumber}) => {
           setProperties(sortedProperties);
         } catch (error) {
           console.error("Error fetching properties:", error);
+        }  finally {
+          setLoading(false);
         }
       };
     
@@ -324,7 +346,18 @@ const HightoLow = ({phoneNumber}) => {
             
            <div className="w-100">
              <div style={{ overflowY: 'auto', fontFamily:"Inter, sans-serif" }}>
-               {filteredProperties.length > 0 ? (
+             {loading ? (
+  <div className="text-center my-4"
+  style={{
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    zIndex: 1000
+  }}>
+  <span className="spinner-border text-primary" role="status" />
+  <p className="mt-2">Loading properties...</p>
+</div>              ) : filteredProperties.length > 0 ? (
                  filteredProperties.map((property) => (
                    <div 
                      key={property._id}
@@ -464,7 +497,17 @@ const HightoLow = ({phoneNumber}) => {
                  ))
  
                ) : (
-                 <p>No properties found.</p>
+                 <div className="text-center my-4 "
+                 style={{
+                   position: 'fixed',
+                   top: '50%',
+                   left: '50%',
+                   transform: 'translate(-50%, -50%)',
+           
+                 }}>
+         <img src={NoData} alt="" width={100}/>      
+         <p>No properties found.</p>
+         </div>
                )}
              </div>
            </div>

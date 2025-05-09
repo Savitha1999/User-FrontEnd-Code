@@ -12,8 +12,11 @@ import {
 , FaComment,
 FaRulerCombined,
 FaUserAlt,
-FaPhoneAlt} from "react-icons/fa";
+FaPhoneAlt,
+FaTimes} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import minprice from "../Assets/Price Mini-01.png";
+import maxprice from "../Assets/Price maxi-01.png";
 
 
 
@@ -33,6 +36,16 @@ const PropertyForm = ({ phoneNumber, existingData }) => {
     const hoverStyle = {
       backgroundColor: "#017a6e",
     };
+   
+  // Function to handle price selection
+  const handlePriceSelect = (priceType, price) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [priceType]: price,
+    }));
+    toggleDropdown(null); // Close the dropdown after selecting an option
+  };
+
   const [formData, setFormData] = useState({
     phoneNumber: phoneNumber || "",
     altPhoneNumber: "",
@@ -57,7 +70,60 @@ const PropertyForm = ({ phoneNumber, existingData }) => {
     alternatePhone:""
   });
 
+useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: " Property Assistance" ,
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
 
+    useEffect(() => {
+      const recordDashboardView = async () => {
+        try {
+          await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+            phoneNumber: phoneNumber,
+            viewedFile: "Add Buyer Assistance",
+            viewTime: new Date().toISOString(),
+          });
+          console.log("Dashboard view recorded");
+        } catch (err) {
+          console.error("Failed to record dashboard view:", err);
+        }
+      };
+    
+      if (phoneNumber) {
+        recordDashboardView();
+      }
+    }, [phoneNumber]);
+  
+
+  const [paymentTypes, setPaymentTypes] = useState([]);
+
+
+  useEffect(() => {
+    fetchPaymentTypes();
+  }, []);
+  
+  const fetchPaymentTypes = async () => {
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/payment-all`);
+      setPaymentTypes(res.data); // Expected format: [{ paymentType: "Online" }, { paymentType: "Cash" }, ...]
+    } catch (error) {
+      console.error('Error fetching payment types:', error);
+    }
+  };
 const navigate = useNavigate();
   
   const [dataList, setDataList] = useState({});
@@ -153,7 +219,21 @@ const handleSubmit = (e) => {
       }, 3000);
     }
   };
-  
+
+const minPriceEnum = [
+  "0", "50001", "100001", "200001", "300001", "800001", "1000001", "1200001",
+  "1500001", "2000001", "2500001", "3000001", "4000001", "5000001", "7000001",
+  "8000001", "10000001", "20000001", "50000001", "70000001", "100000001",
+  "150000001"
+];
+
+const maxPriceEnum = [
+  "50000", "100000", "200000", "300000", "800000", "1000000", "1200000", "1500000",
+  "2000000", "2500000", "3000000", "4000000", "5000000", "7000000", "8000000",
+  "10000000", "20000000", "50000000", "70000000", "100000000", "150000000",
+  "15 cr+"
+];
+
   return (
     <div className="property-form-container p-1" style={{  overflowY: "auto",  position: "relative", scrollbarWidth: "none" ,  fontFamily: "Inter, sans-serif",}}>
       <img src={imge} alt="" className="header-image"  style={{width:'100%'}}/>
@@ -245,7 +325,7 @@ const handleSubmit = (e) => {
 
       <form onSubmit={handleSubmit} className="p-3">
   
-<div className="row mb-3 justify-content-around">
+      {/* <div className="row mb-3 justify-content-around">
 <div className="col-5 p-0">
     <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', width: '100%', border: '1px solid #2F747F', background: "#fff" }}>
       <FaRupeeSign className="input-icon" style={{ color: '#2F747F', marginLeft: "10px", marginRight: '10px' }} />
@@ -275,8 +355,436 @@ const handleSubmit = (e) => {
       />
     </div>
   </div>
-</div>
+</div> */}
+{/* <div className="row mb-3 justify-content-around">
 
+  <div className="col-10 mb-2 p-0">
+    <input
+      type="text"
+      className="form-control"
+      placeholder="Filter price options..."
+      value={filterText}
+      onChange={(e) => setFilterText(e.target.value)}
+      style={{ border: "1px solid #2F747F", background: "#E8F5F2", color: "#2F747F" }}
+    />
+  </div>
+
+  <div className="col-5 p-0">
+    <select
+      className="form-select"
+      name="minPrice"
+      value={formData.minPrice}
+      onChange={handleInputChange}
+      style={{ border: "1px solid #2F747F", background: "#fff", color: "#2F747F" }}
+    >
+      <option value="">Select Min Price</option>
+      {filteredMinPrices.map((price, index) => (
+        <option key={index} value={price}>{price}</option>
+      ))}
+    </select>
+  </div>
+
+  <div className="col-5 p-0">
+    <select
+      className="form-select"
+      name="maxPrice"
+      value={formData.maxPrice}
+      onChange={handleInputChange}
+      style={{ border: "1px solid #2F747F", background: "#fff", color: "#2F747F" }}
+    >
+      <option value="">Select Max Price</option>
+      {filteredMaxPrices.map((price, index) => (
+        <option key={index} value={price}>{price}</option>
+      ))}
+    </select>
+  </div>
+
+</div> */}
+
+
+
+ <div className="row mb-3 justify-content-around">
+      {/* Min Price Dropdown */}
+      {/* <div className="col-5 p-0">
+        <div
+          className="dropdown-popup"
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: '#E9F7F2',
+            width: '100%',
+            maxWidth: '350px',
+            padding: '10px',
+            zIndex: 10,
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            borderRadius: '8px',
+            overflowY: 'auto',
+            maxHeight: '50vh',
+            animation: 'popupOpen 0.3s ease-in-out',
+            display: dropdownState.activeDropdown === 'minPrice' ? 'block' : 'none',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <input
+              type="text"
+              className="form-control mt-2"
+              style={{
+                width: '80%',
+                padding: '5px',
+                background: '#C0DFDA',
+                border: 'none',
+                outline: 'none',
+              }}
+              placeholder="Filter Min Price..."
+              value={dropdownState.minPriceFilterText}
+              onChange={(e) =>
+                setDropdownState((prev) => ({
+                  ...prev,
+                  minPriceFilterText: e.target.value,
+                }))
+              }
+            />
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation(); // prevents bubbling
+                toggleDropdown('minPrice');
+              }}
+              style={{
+                cursor: 'pointer',
+                border: 'none',
+                background: 'none',
+              }}
+            >
+              <FaTimes size={18} color="red" />
+            </button>
+          </div>
+          <ul className="list-group mt-2 w-100">
+            {minPriceEnum
+              .filter((price) =>
+                price.toLowerCase().includes((dropdownState.minPriceFilterText || '').toLowerCase())
+              )
+              .map((price, index) => (
+                <li
+                  key={index}
+                  className="list-group-item list-group-item-action d-flex align-items-center"
+                  style={{
+                    padding: '5px',
+                    cursor: 'pointer',
+                    color: '#26794A',
+                    marginBottom: '5px',
+                  }}
+                  onClick={() => handlePriceSelect('minPrice', price)} // Update formData minPrice
+                >
+                  {price}
+                </li>
+              ))}
+          </ul>
+        </div>
+
+        <button
+  onClick={(e) => {
+    e.stopPropagation(); // prevents bubbling
+    toggleDropdown('minPrice');
+  }}          style={{
+            width: '100%',
+            padding: '10px',
+            backgroundColor: '#fff',
+            border: '1px solid #2F747F',
+            color: '#2F747F',
+            cursor: 'pointer',
+            textAlign: 'center',
+          }}
+        >
+       <img src={minprice} alt="" />    ({formData.minPrice || 'Select MinPrice'})
+        </button>
+      </div> */}
+  <div className="col-5 p-0">
+    <div className="input-group">
+      <button type="button" style={{border: "1px solid #2F747F",}} className="btn w-100 d-flex justify-content-between align-items-center m-0 text-muted" onClick={() => toggleDropdown("minPrice")}>
+        <img src={minprice} alt="" />  {formData.minPrice || "Select minPrice"}
+        <FaChevronDown color="#2F747F"/>
+      </button>
+    </div>
+
+    {dropdownState.activeDropdown === "minPrice" && (
+ <div
+ className="dropdown-popup"
+ style={{
+   position: 'fixed',
+   top: '50%',
+   left: '50%',
+   transform: 'translate(-50%, -50%)',
+   // backgroundColor: '#fff',
+   backgroundColor: '#E9F7F2',
+
+   width: '100%',
+   // maxWidth: '400px',
+   maxWidth: '350px',
+
+   padding: '10px',
+   zIndex: 10,
+   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+   borderRadius: '8px',
+   overflowY: 'auto',
+   maxHeight: '50vh',
+   animation: 'popupOpen 0.3s ease-in-out',
+ }}
+>   
+<div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+>    
+ <input 
+          type="text" 
+          className="form-control m-0 mt-2"
+          placeholder="Filter options..." 
+          value={dropdownState.filterText} 
+          onChange={(e) => setDropdownState((prevState) => ({ ...prevState, filterText: e.target.value }))} 
+          style={{
+            width: '80%',
+            padding: '5px',
+            // marginBottom: '10px',
+            background:"#C0DFDA",
+            border:"none",
+            outline:"none"
+}}
+        />
+         <button
+                        type="button"
+                        onClick={() => toggleDropdown()}
+                        style={{
+                          cursor: 'pointer',
+                          border: 'none',
+                          background: 'none',
+                        }}
+                      >
+                        <FaTimes size={18} color="red" />
+                      </button>
+                      </div>
+
+        <ul className="list-group mt-2 w-100">
+          {(dataList.minPrice || [])
+            .filter(option => option.toLowerCase().includes(dropdownState.filterText.toLowerCase()))
+            .map((option, index) => (
+              <li 
+                key={index} 
+                className="list-group-item list-group-item-action d-flex align-items-center" 
+                onClick={() => handleDropdownSelect("minPrice", option)}
+                style={{
+                  padding: '5px',
+                  cursor: 'pointer',
+                  // backgroundColor: '#f9f9f9',
+                  color:"#26794A",
+
+                  marginBottom: '5px',
+}}
+              >
+                 {option}
+              </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </div>
+
+  <div className="col-5 p-0">
+    <div className="input-group">
+      <button type="button" style={{border: "1px solid #2F747F",}}
+       className="btn w-100 d-flex justify-content-between align-items-center m-0 text-muted" onClick={() => toggleDropdown("maxPrice")}>
+        <img src={maxprice} alt="" />  {formData.maxPrice || "Select maxPrice"}
+        <FaChevronDown color="#2F747F"/>
+      </button>
+    </div>
+    {dropdownState.activeDropdown === "maxPrice" && (
+ <div
+ className="dropdown-popup"
+ style={{
+   position: 'fixed',
+   top: '50%',
+   left: '50%',
+   transform: 'translate(-50%, -50%)',
+   // backgroundColor: '#fff',
+   backgroundColor: '#E9F7F2',
+
+   width: '100%',
+   // maxWidth: '400px',
+   maxWidth: '350px',
+
+   padding: '10px',
+   zIndex: 10,
+   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+   borderRadius: '8px',
+   overflowY: 'auto',
+   maxHeight: '50vh',
+   animation: 'popupOpen 0.3s ease-in-out',
+ }}
+>       
+
+<div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+ <input type="text" 
+  style={{
+    width: '80%',
+    padding: '5px',
+    // marginBottom: '10px',
+    background:"#C0DFDA",
+    border:"none",
+    outline:"none"
+}} className="form-control mt-2" placeholder="Filter options..." value={dropdownState.filterText} onChange={(e) => setDropdownState(prev => ({ ...prev, filterText: e.target.value }))} />
+      <button
+                        type="button"
+                        onClick={() => toggleDropdown()}
+                        style={{
+                          cursor: 'pointer',
+                          border: 'none',
+                          background: 'none',
+                        }}
+                      >
+                        <FaTimes size={18} color="red" />
+                      </button> 
+   </div>    
+        <ul className="list-group mt-2 w-100">
+          {(dataList.maxPrice || []).filter(option => option.toLowerCase().includes(dropdownState.filterText.toLowerCase())).map((option, index) => (
+            <li key={index}
+            style={{
+              padding: '5px',
+              cursor: 'pointer',
+              // backgroundColor: '#f9f9f9',
+              color:"#26794A",
+              marginBottom: '5px',
+              }} 
+className="list-group-item list-group-item-action d-flex align-items-center" onClick={() => handleDropdownSelect("maxPrice", option)}>
+             {option}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </div>
+      {/* Max Price Dropdown */}
+      {/* <div className="col-5 p-0">
+        <div
+          className="dropdown-popup"
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: '#E9F7F2',
+            width: '100%',
+            maxWidth: '350px',
+            padding: '10px',
+            zIndex: 10,
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            borderRadius: '8px',
+            overflowY: 'auto',
+            maxHeight: '50vh',
+            animation: 'popupOpen 0.3s ease-in-out',
+            display: dropdownState.activeDropdown === 'maxPrice' ? 'block' : 'none',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <input
+              type="text"
+              className="form-control mt-2"
+              style={{
+                width: '80%',
+                padding: '5px',
+                background: '#C0DFDA',
+                border: 'none',
+                outline: 'none',
+              }}
+              placeholder="Filter Max Price..."
+              value={dropdownState.maxPriceFilterText}
+              onChange={(e) =>
+                setDropdownState((prev) => ({
+                  ...prev,
+                  maxPriceFilterText: e.target.value,
+                }))
+              }
+            />
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation(); // prevents bubbling
+                toggleDropdown('maxPrice');
+              }}
+              // onClick={() => toggleDropdown('maxPrice')}
+              style={{
+                cursor: 'pointer',
+                border: 'none',
+                background: 'none',
+              }}
+            >
+              <FaTimes size={18} color="red" />
+            </button>
+          </div>
+          <ul className="list-group mt-2 w-100">
+            {maxPriceEnum
+              .filter((price) =>
+                price.toLowerCase().includes((dropdownState.maxPriceFilterText || '').toLowerCase())
+              )
+              .map((price, index) => (
+                <li
+                  key={index}
+                  className="list-group-item list-group-item-action d-flex align-items-center"
+                  style={{
+                    padding: '5px',
+                    cursor: 'pointer',
+                    color: '#26794A',
+                    marginBottom: '5px',
+                  }}
+                  onClick={() => handlePriceSelect('maxPrice', price)} // Update formData maxPrice
+                >
+                  {price}
+                </li>
+              ))}
+          </ul>
+        </div>
+
+        <button
+          onClick={(e) => {
+            e.stopPropagation(); // prevents bubbling
+            toggleDropdown('maxPrice');
+          }}
+          // onClick={() => toggleDropdown('maxPrice')}
+          style={{
+            width: '100%',
+            padding: '10px',
+            backgroundColor: '#fff',
+            border: '1px solid #2F747F',
+            color: '#2F747F',
+            cursor: 'pointer',
+            textAlign: 'center',
+          }}
+        >
+          <img src={maxprice} alt="" /> ({formData.maxPrice || 'select MaxPrice'})
+        </button>
+      </div> */}
+    </div>
 
       <div className="col-12 mb-3">
   <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', border: '1px solid #2F747F', background: "#fff" }}>
@@ -317,14 +825,64 @@ const handleSubmit = (e) => {
     </div>
 
     {dropdownState.activeDropdown === "propertyMode" && (
-      <div className="dropdown-popup w-100">
-        <input 
+ <div
+ className="dropdown-popup"
+ style={{
+   position: 'fixed',
+   top: '50%',
+   left: '50%',
+   transform: 'translate(-50%, -50%)',
+   // backgroundColor: '#fff',
+   backgroundColor: '#E9F7F2',
+
+   width: '100%',
+   // maxWidth: '400px',
+   maxWidth: '350px',
+
+   padding: '10px',
+   zIndex: 10,
+   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+   borderRadius: '8px',
+   overflowY: 'auto',
+   maxHeight: '50vh',
+   animation: 'popupOpen 0.3s ease-in-out',
+ }}
+>   
+<div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+>    
+ <input 
           type="text" 
           className="form-control m-0 mt-2"
           placeholder="Filter options..." 
           value={dropdownState.filterText} 
           onChange={(e) => setDropdownState((prevState) => ({ ...prevState, filterText: e.target.value }))} 
+          style={{
+            width: '80%',
+            padding: '5px',
+            // marginBottom: '10px',
+            background:"#C0DFDA",
+            border:"none",
+            outline:"none"
+}}
         />
+         <button
+                        type="button"
+                        onClick={() => toggleDropdown()}
+                        style={{
+                          cursor: 'pointer',
+                          border: 'none',
+                          background: 'none',
+                        }}
+                      >
+                        <FaTimes size={18} color="red" />
+                      </button>
+                      </div>
+
         <ul className="list-group mt-2 w-100">
           {(dataList.propertyMode || [])
             .filter(option => option.toLowerCase().includes(dropdownState.filterText.toLowerCase()))
@@ -333,6 +891,14 @@ const handleSubmit = (e) => {
                 key={index} 
                 className="list-group-item list-group-item-action d-flex align-items-center" 
                 onClick={() => handleDropdownSelect("propertyMode", option)}
+                style={{
+                  padding: '5px',
+                  cursor: 'pointer',
+                  // backgroundColor: '#f9f9f9',
+                  color:"#26794A",
+
+                  marginBottom: '5px',
+}}
               >
                  {option}
               </li>
@@ -353,11 +919,71 @@ const handleSubmit = (e) => {
       </button>
     </div>
     {dropdownState.activeDropdown === "propertyType" && (
-      <div className="dropdown-popup w-100">
-        <input type="text" className="form-control mt-2" placeholder="Filter options..." value={dropdownState.filterText} onChange={(e) => setDropdownState(prev => ({ ...prev, filterText: e.target.value }))} />
+ <div
+ className="dropdown-popup"
+ style={{
+   position: 'fixed',
+   top: '50%',
+   left: '50%',
+   transform: 'translate(-50%, -50%)',
+   // backgroundColor: '#fff',
+   backgroundColor: '#E9F7F2',
+
+   width: '100%',
+   // maxWidth: '400px',
+   maxWidth: '350px',
+
+   padding: '10px',
+   zIndex: 10,
+   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+   borderRadius: '8px',
+   overflowY: 'auto',
+   maxHeight: '50vh',
+   animation: 'popupOpen 0.3s ease-in-out',
+ }}
+>   
+<div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+>    
+     <input type="text" className="form-control mt-2"
+       style={{
+        width: '80%',
+        padding: '5px',
+        // marginBottom: '10px',
+        background:"#C0DFDA",
+        border:"none",
+        outline:"none"
+}} placeholder="Filter options..." value={dropdownState.filterText} onChange={(e) => setDropdownState(prev => ({ ...prev, filterText: e.target.value }))} />
+     
+     <button
+                        type="button"
+                        onClick={() => toggleDropdown()}
+                        style={{
+                          cursor: 'pointer',
+                          border: 'none',
+                          background: 'none',
+                        }}
+                      >
+                        <FaTimes size={18} color="red" />
+                      </button>
+     </div>
         <ul className="list-group mt-2 w-100">
           {(dataList.propertyType || []).filter(option => option.toLowerCase().includes(dropdownState.filterText.toLowerCase())).map((option, index) => (
-            <li key={index} className="list-group-item list-group-item-action d-flex align-items-center" onClick={() => handleDropdownSelect("propertyType", option)}>
+            <li key={index}
+             className="list-group-item list-group-item-action d-flex align-items-center" 
+             style={{
+              padding: '5px',
+              cursor: 'pointer',
+              // backgroundColor: '#f9f9f9',
+              color:"#26794A",
+
+              marginBottom: '5px',
+}}
+             onClick={() => handleDropdownSelect("propertyType", option)}>
                {option}
             </li>
           ))}
@@ -365,6 +991,8 @@ const handleSubmit = (e) => {
       </div>
     )}
   </div>
+
+
    {/* Bed */}
    <div className="col-12 mb-3">
     <div className="input-group">
@@ -374,11 +1002,68 @@ const handleSubmit = (e) => {
       </button>
     </div>
     {dropdownState.activeDropdown === "bedrooms" && (
-      <div className="dropdown-popup w-100">
-        <input type="text" className="form-control mt-2" placeholder="Filter options..." value={dropdownState.filterText} onChange={(e) => setDropdownState(prev => ({ ...prev, filterText: e.target.value }))} />
+ <div
+ className="dropdown-popup"
+ style={{
+   position: 'fixed',
+   top: '50%',
+   left: '50%',
+   transform: 'translate(-50%, -50%)',
+   // backgroundColor: '#fff',
+   backgroundColor: '#E9F7F2',
+
+   width: '100%',
+   // maxWidth: '400px',
+   maxWidth: '350px',
+
+   padding: '10px',
+   zIndex: 10,
+   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+   borderRadius: '8px',
+   overflowY: 'auto',
+   maxHeight: '50vh',
+   animation: 'popupOpen 0.3s ease-in-out',
+ }}
+>   
+<div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+>    
+     <input type="text"
+      style={{
+        width: '80%',
+        padding: '5px',
+        // marginBottom: '10px',
+        background:"#C0DFDA",
+        border:"none",
+        outline:"none"
+}} className="form-control mt-2" placeholder="Filter options..." value={dropdownState.filterText} onChange={(e) => setDropdownState(prev => ({ ...prev, filterText: e.target.value }))} />
+
+<button
+                        type="button"
+                        onClick={() => toggleDropdown()}
+                        style={{
+                          cursor: 'pointer',
+                          border: 'none',
+                          background: 'none',
+                        }}
+                      >
+                        <FaTimes size={18} color="red" />
+                      </button>
+     </div>
         <ul className="list-group mt-2 w-100">
           {(dataList.bedrooms || []).filter(option => option.toLowerCase().includes(dropdownState.filterText.toLowerCase())).map((option, index) => (
-            <li key={index} className="list-group-item list-group-item-action d-flex align-items-center" onClick={() => handleDropdownSelect("bedrooms", option)}>
+            <li key={index}  style={{
+              padding: '5px',
+              cursor: 'pointer',
+              // backgroundColor: '#f9f9f9',
+              color:"#26794A",
+
+              marginBottom: '5px',
+}} className="list-group-item list-group-item-action d-flex align-items-center" onClick={() => handleDropdownSelect("bedrooms", option)}>
                {option}
             </li>
           ))}
@@ -401,6 +1086,8 @@ const handleSubmit = (e) => {
   </div>
 </div> */}
 
+
+
  {/* Facing */}
  <div className="col-12 mb-3">
     <div className="input-group">
@@ -410,11 +1097,69 @@ const handleSubmit = (e) => {
       </button>
     </div>
     {dropdownState.activeDropdown === "facing" && (
-      <div className="dropdown-popup w-100">
-        <input type="text" className="form-control mt-2" placeholder="Filter options..." value={dropdownState.filterText} onChange={(e) => setDropdownState(prev => ({ ...prev, filterText: e.target.value }))} />
+      <div
+ className="dropdown-popup"
+ style={{
+   position: 'fixed',
+   top: '50%',
+   left: '50%',
+   transform: 'translate(-50%, -50%)',
+   // backgroundColor: '#fff',
+   backgroundColor: '#E9F7F2',
+
+   width: '100%',
+   // maxWidth: '400px',
+   maxWidth: '350px',
+
+   padding: '10px',
+   zIndex: 10,
+   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+   borderRadius: '8px',
+   overflowY: 'auto',
+   maxHeight: '50vh',
+   animation: 'popupOpen 0.3s ease-in-out',
+ }}
+>  
+<div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+>    
+        <input type="text"
+          style={{
+            width: '80%',
+            padding: '5px',
+            // marginBottom: '10px',
+            background:"#C0DFDA",
+            border:"none",
+            outline:"none"
+    }} className="form-control mt-2" placeholder="Filter options..." value={dropdownState.filterText} onChange={(e) => setDropdownState(prev => ({ ...prev, filterText: e.target.value }))} />
+
+      <button
+                        type="button"
+                        onClick={() => toggleDropdown()}
+                        style={{
+                          cursor: 'pointer',
+                          border: 'none',
+                          background: 'none',
+                        }}
+                      >
+                        <FaTimes size={18} color="red" />
+                      </button> 
+       </div>
         <ul className="list-group mt-2 w-100">
           {(dataList.facing || []).filter(option => option.toLowerCase().includes(dropdownState.filterText.toLowerCase())).map((option, index) => (
-            <li key={index} className="list-group-item list-group-item-action d-flex align-items-center" onClick={() => handleDropdownSelect("facing", option)}>
+            <li key={index} 
+            style={{
+              padding: '5px',
+              cursor: 'pointer',
+              // backgroundColor: '#f9f9f9',
+              color:"#26794A",
+
+              marginBottom: '5px',
+}} className="list-group-item list-group-item-action d-flex align-items-center" onClick={() => handleDropdownSelect("facing", option)}>
               {option}
             </li>
           ))}
@@ -423,20 +1168,81 @@ const handleSubmit = (e) => {
     )}
   </div>
 
+
+
     {/* Property Approved */}
     <div className="col-12 mb-3">
     <div className="input-group">
-      <button type="button" style={{border: "1px solid #2F747F",}} className="btn w-100 d-flex justify-content-between align-items-center m-0 text-muted" onClick={() => toggleDropdown("propertyApproved")}>
+      <button type="button" style={{border: "1px solid #2F747F",}}
+       className="btn w-100 d-flex justify-content-between align-items-center m-0 text-muted" onClick={() => toggleDropdown("propertyApproved")}>
         <span><FaCheckCircle className="me-2" color="#2F747F" /> {formData.propertyApproved || "Select Property Approved"}</span> 
         <FaChevronDown color="#2F747F"/>
       </button>
     </div>
     {dropdownState.activeDropdown === "propertyApproved" && (
-      <div className="dropdown-popup w-100">
-        <input type="text" className="form-control mt-2" placeholder="Filter options..." value={dropdownState.filterText} onChange={(e) => setDropdownState(prev => ({ ...prev, filterText: e.target.value }))} />
+ <div
+ className="dropdown-popup"
+ style={{
+   position: 'fixed',
+   top: '50%',
+   left: '50%',
+   transform: 'translate(-50%, -50%)',
+   // backgroundColor: '#fff',
+   backgroundColor: '#E9F7F2',
+
+   width: '100%',
+   // maxWidth: '400px',
+   maxWidth: '350px',
+
+   padding: '10px',
+   zIndex: 10,
+   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+   borderRadius: '8px',
+   overflowY: 'auto',
+   maxHeight: '50vh',
+   animation: 'popupOpen 0.3s ease-in-out',
+ }}
+>       
+
+<div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+ <input type="text" 
+  style={{
+    width: '80%',
+    padding: '5px',
+    // marginBottom: '10px',
+    background:"#C0DFDA",
+    border:"none",
+    outline:"none"
+}} className="form-control mt-2" placeholder="Filter options..." value={dropdownState.filterText} onChange={(e) => setDropdownState(prev => ({ ...prev, filterText: e.target.value }))} />
+      <button
+                        type="button"
+                        onClick={() => toggleDropdown()}
+                        style={{
+                          cursor: 'pointer',
+                          border: 'none',
+                          background: 'none',
+                        }}
+                      >
+                        <FaTimes size={18} color="red" />
+                      </button> 
+   </div>    
         <ul className="list-group mt-2 w-100">
           {(dataList.propertyApproved || []).filter(option => option.toLowerCase().includes(dropdownState.filterText.toLowerCase())).map((option, index) => (
-            <li key={index} className="list-group-item list-group-item-action d-flex align-items-center" onClick={() => handleDropdownSelect("propertyApproved", option)}>
+            <li key={index}
+            style={{
+              padding: '5px',
+              cursor: 'pointer',
+              // backgroundColor: '#f9f9f9',
+              color:"#26794A",
+              marginBottom: '5px',
+              }} 
+className="list-group-item list-group-item-action d-flex align-items-center" onClick={() => handleDropdownSelect("propertyApproved", option)}>
              {option}
             </li>
           ))}
@@ -462,8 +1268,38 @@ const handleSubmit = (e) => {
   </div>
 
   {dropdownState.activeDropdown === "propertyAge" && (
-    <div className="dropdown-popup w-100">
-      <input
+ <div
+ className="dropdown-popup"
+ style={{
+   position: 'fixed',
+   top: '50%',
+   left: '50%',
+   transform: 'translate(-50%, -50%)',
+   // backgroundColor: '#fff',
+   backgroundColor: '#E9F7F2',
+
+   width: '100%',
+   // maxWidth: '400px',
+   maxWidth: '350px',
+
+   padding: '10px',
+   zIndex: 10,
+   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+   borderRadius: '8px',
+   overflowY: 'auto',
+   maxHeight: '50vh',
+   animation: 'popupOpen 0.3s ease-in-out',
+ }}
+>    
+<div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+
+  <input
         type="text"
         className="form-control mt-2"
         placeholder="Filter options..."
@@ -472,6 +1308,20 @@ const handleSubmit = (e) => {
           setDropdownState((prev) => ({ ...prev, filterText: e.target.value }))
         }
       />
+
+<button
+                        type="button"
+                        onClick={() => toggleDropdown()}
+                        style={{
+                          cursor: 'pointer',
+                          border: 'none',
+                          background: 'none',
+                        }}
+                      >
+                        <FaTimes size={18} color="red" />
+                      </button>
+                      </div>
+
       <ul className="list-group mt-2 w-100">
         {(dataList.propertyAge || []).filter((option) =>
           option.toLowerCase().includes(dropdownState.filterText.toLowerCase())
@@ -499,11 +1349,69 @@ const handleSubmit = (e) => {
       </button>
     </div>
     {dropdownState.activeDropdown === "bankLoan" && (
-      <div className="dropdown-popup w-100">
-        <input type="text" className="form-control mt-2" placeholder="Filter options..." value={dropdownState.filterText} onChange={(e) => setDropdownState(prev => ({ ...prev, filterText: e.target.value }))} />
+ <div
+ className="dropdown-popup"
+ style={{
+   position: 'fixed',
+   top: '50%',
+   left: '50%',
+   transform: 'translate(-50%, -50%)',
+   // backgroundColor: '#fff',
+   backgroundColor: '#E9F7F2',
+
+   width: '100%',
+   // maxWidth: '400px',
+   maxWidth: '350px',
+
+   padding: '10px',
+   zIndex: 10,
+   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+   borderRadius: '8px',
+   overflowY: 'auto',
+   maxHeight: '50vh',
+   animation: 'popupOpen 0.3s ease-in-out',
+ }}
+>       
+<div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            > 
+
+<input type="text" style={{
+                  width: '80%',
+                  padding: '5px',
+                  // marginBottom: '10px',
+                  background:"#C0DFDA",
+                  border:"none",
+                  outline:"none"
+                }} className="form-control mt-2" placeholder="Filter options..." value={dropdownState.filterText} onChange={(e) => setDropdownState(prev => ({ ...prev, filterText: e.target.value }))} />
+      
+<button
+                        type="button"
+                        onClick={() => toggleDropdown()}
+                        style={{
+                          cursor: 'pointer',
+                          border: 'none',
+                          background: 'none',
+                        }}
+                      >
+                        <FaTimes size={18} color="red" />
+                      </button>
+                      </div>
+      
         <ul className="list-group mt-2 w-100">
           {(dataList.bankLoan || []).filter(option => option.toLowerCase().includes(dropdownState.filterText.toLowerCase())).map((option, index) => (
-            <li key={index} className="list-group-item list-group-item-action d-flex align-items-center" onClick={() => handleDropdownSelect("bankLoan", option)}>
+            <li key={index} style={{
+              padding: '5px',
+              cursor: 'pointer',
+              // backgroundColor: '#f9f9f9',
+              color:"#26794A",
+
+              marginBottom: '5px',
+              }} className="list-group-item list-group-item-action d-flex align-items-center" onClick={() => handleDropdownSelect("bankLoan", option)}>
                {option}
             </li>
           ))}
@@ -540,11 +1448,69 @@ const handleSubmit = (e) => {
     </button>
   </div>
   {dropdownState.activeDropdown === "areaUnit" && (
-    <div className="dropdown-popup w-100">
-      <input type="text" className="form-control mt-2" placeholder="Filter options..." value={dropdownState.filterText} onChange={(e) => setDropdownState(prev => ({ ...prev, filterText: e.target.value }))} />
+ <div
+ className="dropdown-popup"
+ style={{
+   position: 'fixed',
+   top: '50%',
+   left: '50%',
+   transform: 'translate(-50%, -50%)',
+   // backgroundColor: '#fff',
+   backgroundColor: '#E9F7F2',
+
+   width: '100%',
+   // maxWidth: '400px',
+   maxWidth: '350px',
+
+   padding: '10px',
+   zIndex: 10,
+   boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+   borderRadius: '8px',
+   overflowY: 'auto',
+   maxHeight: '50vh',
+   animation: 'popupOpen 0.3s ease-in-out',
+ }}
+>     
+<div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+ <input type="text"
+style={{
+  width: '80%',
+  padding: '5px',
+  // marginBottom: '10px',
+  background:"#C0DFDA",
+  border:"none",
+  outline:"none"
+              }} className="form-control mt-2" placeholder="Filter options..." value={dropdownState.filterText} onChange={(e) => setDropdownState(prev => ({ ...prev, filterText: e.target.value }))} />
+    
+<button
+                        type="button"
+                        onClick={() => toggleDropdown()}
+                        style={{
+                          cursor: 'pointer',
+                          border: 'none',
+                          background: 'none',
+                        }}
+                      >
+                        <FaTimes size={18} color="red" />
+                      </button>
+                      </div>
+    
       <ul className="list-group mt-2 w-100">
         {(dataList.areaUnit || []).filter(option => option.toLowerCase().includes(dropdownState.filterText.toLowerCase())).map((option, index) => (
-          <li key={index} className="list-group-item list-group-item-action d-flex align-items-center" onClick={() => handleDropdownSelect("areaUnit", option)}>
+          <li key={index} style={{
+            padding: '5px',
+            cursor: 'pointer',
+            // backgroundColor: '#f9f9f9',
+            color:"#26794A",
+
+            marginBottom: '5px',
+              }} className="list-group-item list-group-item-action d-flex align-items-center" onClick={() => handleDropdownSelect("areaUnit", option)}>
             {option}
           </li>
         ))}
@@ -555,7 +1521,7 @@ const handleSubmit = (e) => {
 
 
 
-<div className="col-12 mb-3">
+{/* <div className="col-12 mb-3">
   <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', border: '1px solid #2F747F', background: "#fff" }}>
     <FaCreditCard className="input-icon" style={{ color: '#2F747F', marginLeft: "10px" }} />
     <input
@@ -568,8 +1534,207 @@ const handleSubmit = (e) => {
       style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
     />
   </div>
-</div>
+</div> */}
+{/* <div className="col-12 mb-3">
+  <div
+    className="input-card p-0 rounded-1"
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+      border: '1px solid #2F747F',
+      background: '#fff',
+      position: 'relative',
+    }}
+  >
+    <div
+      className="d-flex align-items-center"
+      onClick={() => toggleDropdown("paymentType")}
+      style={{ cursor: 'pointer', padding: '8px 10px' }}
+    >
+      <FaCreditCard style={{ color: '#2F747F', marginRight: '10px' }} />
+      <span style={{ flex: 1, color: formData.paymentType ? '#000' : '#6c757d' }}>
+        {formData.paymentType || "Select Payment Type"}
+      </span>
+      <FaChevronDown style={{ color: '#2F747F' }} />
+    </div>
 
+    {dropdownState.activeDropdown === "paymentType" && (
+      <div
+        className="dropdown-popup w-100"
+        style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: '#E9F7F2',
+          width: '100%',
+          maxWidth: '350px',
+          padding: '10px',
+          zIndex: 10,
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          borderRadius: '8px',
+          overflowY: 'auto',
+          maxHeight: '50vh',
+          animation: 'popupOpen 0.3s ease-in-out',
+        }}
+      >
+            <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Filter options..."
+          value={dropdownState.filterText}
+          onChange={(e) =>
+            setDropdownState((prev) => ({ ...prev, filterText: e.target.value }))
+          }
+        />
+             <button
+              type="button"
+              onClick={() => toggleDropdown('paymentType')}
+              style={{
+                cursor: 'pointer',
+                border: 'none',
+                background: 'none',
+              }}
+            >
+              <FaTimes size={18} color="red" />
+            </button>
+          </div>
+        <ul className="list-group mt-2">
+          {(paymentTypes || [])
+            .filter((type) =>
+              type.paymentType.toLowerCase().includes(dropdownState.filterText.toLowerCase())
+            )
+            .map((type, index) => (
+              <li
+                key={index}
+                className="list-group-item list-group-item-action"
+                style={{
+                  padding: '5px',
+                  cursor: 'pointer',
+                  color: '#26794A',
+                  marginBottom: '5px',
+                }}
+                onClick={() => {
+                  handleDropdownSelect("paymentType", type.paymentType);
+                  setDropdownState((prev) => ({ ...prev, filterText: "" }));
+                }}
+              >
+                {type.paymentType}
+              </li>
+            ))}
+        </ul>
+      </div>
+    )}
+  </div>
+</div> */}
+<div className="col-12 mb-3">
+  <div
+    className="input-card p-0 rounded-1"
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+      border: '1px solid #2F747F',
+      background: '#fff',
+      position: 'relative',
+    }}
+  >
+    <div
+      className="d-flex align-items-center"
+      onClick={() => toggleDropdown("paymentType")}
+      style={{ cursor: 'pointer', padding: '8px 10px' }}
+    >
+      <FaCreditCard style={{ color: '#2F747F', marginRight: '10px' }} />
+      <span style={{ flex: 1, color: formData.paymentType ? '#000' : '#6c757d' }}>
+        {formData.paymentType || "Select Payment Type"}
+      </span>
+      <FaChevronDown style={{ color: '#2F747F' }} />
+    </div>
+
+    {dropdownState.activeDropdown === "paymentType" && (
+      <div
+        className="dropdown-popup w-100"
+        style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: '#E9F7F2',
+          width: '100%',
+          maxWidth: '350px',
+          padding: '10px',
+          zIndex: 10,
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          borderRadius: '8px',
+          overflowY: 'auto',
+          maxHeight: '50vh',
+          animation: 'popupOpen 0.3s ease-in-out',
+        }}
+      >
+            <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Filter options..."
+          value={dropdownState.filterText}
+          onChange={(e) =>
+            setDropdownState((prev) => ({ ...prev, filterText: e.target.value }))
+          }
+        />
+             <button
+              type="button"
+              onClick={() => toggleDropdown('paymentType')}
+              style={{
+                cursor: 'pointer',
+                border: 'none',
+                background: 'none',
+              }}
+            >
+              <FaTimes size={18} color="red" />
+            </button>
+          </div>
+        <ul className="list-group mt-2">
+          {(paymentTypes || [])
+            .filter((type) =>
+              type.paymentType.toLowerCase().includes(dropdownState.filterText.toLowerCase())
+            )
+            .map((type, index) => (
+              <li
+                key={index}
+                className="list-group-item list-group-item-action"
+                style={{
+                  padding: '5px',
+                  cursor: 'pointer',
+                  color: '#26794A',
+                  marginBottom: '5px',
+                }}
+                onClick={() => {
+                  handleDropdownSelect("paymentType", type.paymentType);
+                  setDropdownState((prev) => ({ ...prev, filterText: "" }));
+                }}
+              >
+                {type.paymentType}
+              </li>
+            ))}
+        </ul>
+      </div>
+    )}
+  </div>
+</div>
 </div>
 <div className="col-12 mb-3">
   <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', border: '1px solid #2F747F', background: "#fff" }}>

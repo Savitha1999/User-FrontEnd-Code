@@ -11,7 +11,8 @@ import { RiApps2AiFill } from 'react-icons/ri';
 import { HiDocumentText } from 'react-icons/hi2';
 import { BiSolidLogIn } from 'react-icons/bi';
 import axios from 'axios';
-
+import { useDispatch } from 'react-redux';
+import { setPhoneNumber } from '../red/userSlice'; // Import your Redux action
 
 
 
@@ -42,6 +43,27 @@ const SidebarApp = () => {
     transform: hoveredLink === linkId ? 'scale(1.1)' : 'scale(1)', // Slightly enlarge the link on hover
 
   });
+
+
+  
+// ... inside your component ...
+
+const dispatch = useDispatch();
+
+const handleLogout = () => {
+  // Clear Redux store
+  dispatch(setPhoneNumber(null)); // Or use a dedicated logout action if you have one
+  
+  // Clear localStorage
+  localStorage.removeItem('userPhoneNumber');
+  
+  // Redirect to login page
+  navigate('/login');
+  
+  // Optional: Show logout success message
+  // toast.success("Logged out successfully!");
+};
+
 
   const { phoneNumber: statePhoneNumber, countryCode: stateCountryCode } = location.state || {};
   const storedPhoneNumber = localStorage.getItem('phoneNumber');
@@ -397,7 +419,7 @@ const SidebarApp = () => {
         </a>
       </li>
 
-      <li className="nav-item">
+      {/* <li className="nav-item">
         <a
           className="nav-link"
           style={getLinkStyle('login')}
@@ -408,7 +430,20 @@ const SidebarApp = () => {
         >
           <BiSolidLogIn  className="me-2" style={{ color: '#30747F' }} /> LogOut
         </a>
-      </li>
+      </li> */}
+
+<li className="nav-item">
+  <button
+    className="nav-link border-0 bg-transparent w-100 text-start p-0"
+    style={getLinkStyle('logout')}
+    onMouseEnter={() => handleMouseEnter('logout')}
+    onMouseLeave={handleMouseLeave}
+    onClick={handleLogout}
+  >
+    <BiSolidLogIn className="ms-3 me-2" style={{ color: '#30747F' }} /> 
+    Logout
+  </button>
+</li>
     </ul>
     </div>
 

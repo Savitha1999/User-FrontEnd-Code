@@ -51,6 +51,8 @@ import { FiAlertCircle } from "react-icons/fi";
 import ConfirmationModal from "./ConfirmationModal";
 import { IoChevronBackSharp } from "react-icons/io5";
 import { GrFormNext, GrNext } from "react-icons/gr";
+import numberToWords from 'number-to-words';
+import NoData from "../Assets/OOOPS-No-Data-Found.png";
 
 const Details = () => {
   const [popupType, setPopupType] = useState(""); // "report" or "help"
@@ -59,17 +61,8 @@ const Details = () => {
   const [showOptions, setShowOptions] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showPropertyModal, setShowPropertyModal] = useState(false);
-  // const [showPopup, setShowPopup] = useState(false);
-  // const [popupTitle, setPopupTitle] = useState("");
+
   const [popupSubmitHandler, setPopupSubmitHandler] = useState(() => () => {});
-  // const [reason, setReason] = useState("");
-  // const [comment, setComment] = useState("");
-  // const handleOpenPopup = (title, submitHandler) => {
-  //   setPopupTitle(title);
-  //   setPopupSubmitHandler(() => submitHandler);
-  //   setShowPopup(true);
-  // };
-  // const [showPopup, setShowPopup] = useState(false);
   const [popupTitle, setPopupTitle] = useState("Report Property");
   const [reason, setReason] = useState("");
   const [comment, setComment] = useState("");
@@ -80,28 +73,6 @@ const Details = () => {
     setShowPopup(true);
   };
 
-  // const ReporthandleSubmit = async () => {
-  //   if (!reason) {
-  //     setMessage("Please select a valid reason");
-  //     return;
-  //   }
-
-  //   try {
-  //     const res = await axios.post(`${process.env.REACT_APP_API_URL}/report-property`, {
-  //       phoneNumber: userPhoneNumber,
-  //       ppcId: ppcId,
-  //       reason: comment,
-  //       selectReasons: reason,
-  //     });
-
-  //     setMessage(res.data.message);
-  //     setPropertyClicked(true);
-  //     setShowPopup(false);
-  //   } catch (err) {
-  //     console.error("Report Error:", err);
-  //     setMessage(err.response?.data?.message || "Something went wrong");
-  //   }
-  // };
 
   const ReporthandleSubmit = async () => {
     if (!reason) {
@@ -182,17 +153,6 @@ const Details = () => {
 
   };
   
-
-  // const ReporthandleSubmit = () => {
-  //   if (!reason) {
-  //     alert("Please select a reason.");
-  //     return;
-  //   }
-  //   popupSubmitHandler({ reason, comment });
-  //   setReason("");
-  //   setComment("");
-  //   setShowPopup(false);
-  // };
 
   const handleImageError = (index) => {
     setImageError((prev) => ({ ...prev, [index]: true }));
@@ -395,17 +355,6 @@ useEffect(() => {
 }, [userPhoneNumber]);
 
 
-// const handleSubmit = async (e) => {
-//       e.preventDefault();
-
-//       try {
-//           const response = await axios.post(`${process.env.REACT_APP_API_URL}/offer`, { price ,phoneNumber ,ppcId  });
-//           alert('Offer saved successfully');
-//           setPrice(''); // Clear the input field after successful submission
-//       } catch (error) {
-//           alert('Error saving offer');
-//       }
-//   };
 
 
 const handleSubmit = async ({ price, phoneNumber, ppcId }) => {
@@ -499,9 +448,29 @@ const handleSubmit = async ({ price, phoneNumber, ppcId }) => {
     setShowOwnerContact(false); 
   };
 
-  if (loading) return <p>Loading property details...</p>;
+  if (loading) return   <div className="text-center my-4"
+  style={{
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    zIndex: 1000
+  }}>
+  <span className="spinner-border text-primary" role="status" />
+  <p className="mt-2">Loading properties details...</p>
+</div>;
   if (error) return <p>{error}</p>;
-  if (!propertyDetails) return <p>No property details found.</p>;
+  if (!propertyDetails) return   <div className="text-center my-4 "
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+  
+    }}>
+  <img src={NoData} alt="" width={100}/>      
+  <p>No properties details found.</p>
+  </div>  ;
 
 
   const images = propertyDetails.photos && propertyDetails.photos.length > 0
@@ -872,16 +841,38 @@ const handleHeartClick = async () => {
     }
   });
  
-  const formattedPrice = propertyDetails && propertyDetails.price
-  ? new Intl.NumberFormat('en-IN').format(propertyDetails.price) // Indian-style number format
-  : "N/A"; // fallback if price is undefined
+//   const formattedPrice = propertyDetails && propertyDetails.price
+//   ? new Intl.NumberFormat('en-IN').format(propertyDetails.price) // Indian-style number format
+//   : "N/A"; // fallback if price is undefined
 
-const priceInWords = propertyDetails && propertyDetails.price
-  ? toWords.convert(propertyDetails.price) + " rupees" // Convert the price to words
-  : "N/A"; // fallback if price is undefined
+// const priceInWords = propertyDetails && propertyDetails.price
+//   ? toWords.convert(propertyDetails.price) + " rupees" // Convert the price to words
+//   : "N/A"; // fallback if price is undefined
 
 
- 
+const formattedPrice = propertyDetails?.price
+  ? new Intl.NumberFormat('en-IN').format(propertyDetails.price)
+  : "N/A";
+
+  const priceInWords = propertyDetails?.price
+  ? (() => {
+      const price = propertyDetails.price;
+      if (price >= 10000000) {
+        return (price / 10000000).toFixed(2).replace(/\.00$/, '') + " crores";
+      } else if (price >= 100000) {
+        return (price / 100000).toFixed(2).replace(/\.00$/, '') + " lakhs";
+      } else {
+        return numberToWords.toWords(price).replace(/\b\w/g, l => l.toUpperCase()) + " Rupees";
+      }
+    })()
+  : "N/A";
+
+
+
+
+
+
+
   const handlePhotoRequest = () => {
     setPopupMessage("Are you sure you want to request a photo?");
     setConfirmAction(() => confirmPhotoRequest); // Store function reference
@@ -950,7 +941,7 @@ const currentUrl = `${window.location.origin}${location.pathname}`; // <- Works 
     >
       <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
     </button>
-<h3 className="m-0 ms-3 " style={{fontSize:"15px"}}>DETAIL PROPERTY</h3> </div>
+<h3 className="m-0 ms-3 " style={{fontSize:"15px"}}>PROPERTY DETAILS </h3> </div>
       {showShareOptions && (
         <div
           className="d-flex flex-column gap-2 mt-4 pt-3 p-3"
@@ -983,7 +974,12 @@ const currentUrl = `${window.location.origin}${location.pathname}`; // <- Works 
 
 
 
-  <Swiper loop={true} navigation={true} modules={[Navigation]}     onSlideChange={handleSlideChange}
+  <Swiper loop={true} navigation={{
+      prevEl: ".swiper-button-prev-custom",
+      nextEl: ".swiper-button-next-custom",
+    }}  modules={[Navigation]} 
+  onSlideChange={handleSlideChange}
+  className="swiper-container"
   >
 {images.length > 0
     ? images.map((image, index) => (
@@ -1097,7 +1093,12 @@ const currentUrl = `${window.location.origin}${location.pathname}`; // <- Works 
       }
     `}
   </style>
-
+  <div className="row d-flex align-items-center w-100">
+    <div className="d-flex col-12 justify-content-end">  
+      <button className="swiper-button-prev-custom m-1 w-30" style={{background:"#019988"}}>❮</button>
+      <button className="swiper-button-next-custom m-1 w-30"style={{background:"#019988"}}>❯</button>
+    </div>
+  </div>
   <div className="text-center mt-2">
     {Math.min(currentIndex, images.length)}/{maxImages}
   </div>
@@ -1193,7 +1194,7 @@ const currentUrl = `${window.location.origin}${location.pathname}`; // <- Works 
       
         </div>
       </div>
-      <p style={{paddingLeft:"10px", paddingRight:"10px"}}>({priceInWords})</p>
+      <p style={{paddingLeft:"10px", paddingRight:"10px", color:"#8B99A9"}}>{priceInWords}</p>
 
         <h4 className="fw-bold mt-0" style={{fontSize:"15px",paddingLeft:"10px"}}>Make an offer</h4>
         <form
@@ -1713,8 +1714,9 @@ return (
         ><TiHome />
 Home</button>
         <button className="d-flex align-items-center justify-content-start ps-3" onClick={handleIncreasePpcId}         style={{background:"#5AB89E" , color:"#fff" ,}}
-        ><GrNext />
- Next</button>
+        >Next
+          <GrNext />
+ </button>
       </div>
    <img src={promotion} alt="" className="p-4 m-0" />
     </div>

@@ -27,7 +27,24 @@ const MoreComponent = ({ phoneNumber }) => {
     const [activeTab, setActiveTab] = useState('buyerMenu');
       const [loading, setLoading] = useState(false);
     
-
+      useEffect(() => {
+        const recordDashboardView = async () => {
+          try {
+            await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+              phoneNumber: phoneNumber,
+              viewedFile: "Buyer Menu",
+              viewTime: new Date().toISOString(),
+            });
+            console.log("Dashboard view recorded");
+          } catch (err) {
+            console.error("Failed to record dashboard view:", err);
+          }
+        };
+      
+        if (phoneNumber) {
+          recordDashboardView();
+        }
+      }, [phoneNumber]);
     const handleTabClick = (tabName) => {
         setActiveTab(tabName);
     };

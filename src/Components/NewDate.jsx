@@ -34,6 +34,7 @@ import bed from '../Assets/BHK-01.png'
 import totalarea from '../Assets/Total Area-01.png'
 import postedby from '../Assets/Posted By-01.png'
 import indianprice from '../Assets/Indian Rupee-01.png'
+import NoData from "../Assets/OOOPS-No-Data-Found.png";
 
 const NewDate = ({phoneNumber}) => {
   const [properties, setProperties] = useState([]);
@@ -45,7 +46,24 @@ const NewDate = ({phoneNumber}) => {
     propertyMode: '', 
     city: '' 
   });
-    
+  useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "New Property",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
   const [imageCounts, setImageCounts] = useState({}); // Store image count for each property
 
 
@@ -467,8 +485,17 @@ const NewDate = ({phoneNumber}) => {
                 ))
 
               ) : (
-                <p>No properties found.</p>
-              )}
+                <div className="text-center my-4 "
+                style={{
+                  position: 'fixed',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+          
+                }}>
+        <img src={NoData} alt="" width={100}/>      
+        <p>No properties found.</p>
+        </div>              )}
             </div>
           </div>
           </div>

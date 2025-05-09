@@ -9,6 +9,7 @@ import profil from '../../Assets/xd_profile.png'
 import {  FaCalendarAlt } from "react-icons/fa";
 import { Button, Modal } from "react-bootstrap";
 import { FaArrowLeft } from "react-icons/fa";
+import NoData from "../../Assets/OOOPS-No-Data-Found.png";
 
 const App = () => {
   const { phoneNumber } = useParams();
@@ -34,7 +35,24 @@ const App = () => {
     setProperties(storedProperties);
     setRemovedProperties(storedRemovedProperties);
   }, []);
-
+useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Sold Out Buyer Property",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
   useEffect(() => {
     localStorage.setItem("soldOutProperties", JSON.stringify(properties));
   }, [properties]);
@@ -43,38 +61,7 @@ const App = () => {
     localStorage.setItem("removedSoldOutProperties", JSON.stringify(removedProperties));
   }, [removedProperties]);
 
-  // useEffect(() => {
-  //   if (!phoneNumber) {
-  //     setLoading(false);
-  //     return;
-  //   }
-
-  //   const fetchSoldOutProperties = async () => {
-  //     try {
-  //       const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-soldout-buyer`, {
-  //         params: { postedPhoneNumber: phoneNumber },
-  //       });
-
-  //       if (response.status === 200) {
-  //         const transformedProperties = response.data.soldOutRequestsData.map((property) => ({
-  //           ...property,
-  //           soldOutRequesters: property.soldOutRequestersPhoneNumbers.filter(
-  //             (user) => user && user !== "undefined"
-  //           ),
-  //         }));
-
-  //         setProperties(transformedProperties);
-  //         localStorage.setItem("soldOutProperties", JSON.stringify(transformedProperties));
-  //       }
-  //     } catch (error) {
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchSoldOutProperties();
-  // }, [phoneNumber]);
-
+  
 
   useEffect(() => {
     if (!phoneNumber) {

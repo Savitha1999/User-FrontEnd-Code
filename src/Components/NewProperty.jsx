@@ -4,13 +4,33 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { FaRulerCombined, FaBed, FaUserAlt, FaCalendarAlt, FaRupeeSign } from "react-icons/fa";
 import { MdLocationOn } from "react-icons/md";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const NewProperty = () => {
   const navigate = useNavigate();
   const [properties, setProperties] = useState([]);
+  const location = useLocation();
+  const storedPhoneNumber = location.state?.phoneNumber || localStorage.getItem("phoneNumber") || "";
 
-
+  const [phoneNumber, setPhoneNumber] = useState(storedPhoneNumber);
+useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "New Property",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
   const handleClick = () => {
     navigate("/login"); // Navigate to the "About" page
   };

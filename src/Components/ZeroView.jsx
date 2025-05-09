@@ -11,6 +11,7 @@ import totalarea from '../Assets/Total Area-01.png';
 import postedby from '../Assets/Posted By-01.png';
 import indianprice from '../Assets/Indian Rupee-01.png';
 import { useLocation, useNavigate } from "react-router-dom";
+import NoData from "../Assets/OOOPS-No-Data-Found.png";
 
 const ZeroView = () => {
   const [properties, setProperties] = useState([]);
@@ -44,7 +45,24 @@ const ZeroView = () => {
     fetchZeroViewProperties();
   }, []);
   
-
+  useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Zero View Property",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
   return (
     <div className="container mb-4">
         <div className="row p-1">
@@ -200,7 +218,17 @@ const ZeroView = () => {
                 </div>
               ))
             ) : (
-              <p>No properties with zero views found.</p>
+              <div className="text-center my-4 "
+              style={{
+                position: 'fixed',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+            
+              }}>
+            <img src={NoData} alt="" width={100}/>      
+            <p>No properties with zero views found.</p>
+            </div>     
             )}
           </div>
     </div>

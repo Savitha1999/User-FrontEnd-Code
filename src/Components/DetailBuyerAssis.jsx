@@ -1,5 +1,52 @@
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { FaArrowLeft, FaPhone, FaPhoneAlt, FaRegIdCard, FaRupeeSign } from "react-icons/fa";
@@ -15,77 +62,90 @@ import imge from "../Assets/xd_profile1.png"
 import axios from "axios";
 import { CgProfile } from "react-icons/cg";
 
-export default function DetailBuyerAssis() {
-  const { id } = useParams();
+export default function DetailBuyerAssistance() {
+  const { ba_id } = useParams(); // Extract ba_id from URL
   const navigate = useNavigate();
-  const [buyerData, setBuyerData] = useState(null);
+  const [buyerAssistance, setBuyerAssistance] = useState(null);
+  const [matchedProperties, setMatchedProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [requestData, setRequestData] = useState(null);
-const [matchedProperties, setMatchedProperties] = useState([]);
-  const [message, setMessage] = useState("");
-
-
-const location = useLocation();
-  const storedPhoneNumber = location.state?.phoneNumber || localStorage.getItem("phoneNumber") || "";
-
+  const [message, setMessage] = useState('');
+  const location = useLocation();
+  const storedPhoneNumber = location.state?.phoneNumber || localStorage.getItem('phoneNumber') || '';
   const [phoneNumber, setPhoneNumber] = useState(storedPhoneNumber);
+  const [requestData, setRequestData] = useState(null);
+  const [buyerRequests, setBuyerRequests] = useState([]);
+
+  const [planDetails, setPlanDetails] = useState(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [actionType, setActionType] = useState(null); // "remove" | "match" | "pay"
+  const [selectedData, setSelectedData] = useState(null);
+
+  const openConfirm = (type, data) => {
+    setActionType(type);
+    setSelectedData(data);
+    setShowConfirm(true);
+  };
+
+  const handleConfirm = () => {
+    if (actionType === "remove" && selectedData) {
+      handleRemoveAssistance(selectedData);
+    } else if (actionType === "match" && selectedData) {
+      handleViewMore(selectedData.phoneNumber, selectedData.ppcId);
+    } else if (actionType === "pay" && selectedData) {
+      // handlePay(selectedData);
+    }
+    setShowConfirm(false);
+    setActionType(null);
+    setSelectedData(null);
+  };
+
+  const handleCancel = () => {
+    setShowConfirm(false);
+    setActionType(null);
+    setSelectedData(null);
+  };
 
   useEffect(() => {
-    const fetchRequest = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/fetch-buyerAssistance/${id}`);
-        const data = response.data.data;
-        setRequestData(data);
-  
-       
-        if (data?.interestedUserPhone) {
-          const matchedResponse = await axios.get(
-            `${process.env.REACT_APP_API_URL}/fetch-owner-matched-properties?phoneNumber=${data.buyerPhoneNumber}`
-          );
-          setMatchedProperties(matchedResponse.data.properties);
-        }
-      } catch (error) {
-        setError("Error fetching data");
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    if (id) fetchRequest();
-  }, [id]);
-
-  const handleSendInterest = async (id) => {
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/update-status-buyer-assistance/${id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ba_status: "buyer-assistance-interest",
-            userPhoneNumber: phoneNumber,
-          }),
-        }
-      );
-  
-      const data = await response.json();
-  
-      if (response.ok) {
-        alert("Interest Sent Successfully!");
-        // Optionally refetch data here
-      } else {
-        alert(`Failed to send interest: ${data.message}`);
-      }
-    } catch (error) {
-      console.error("Error sending interest:", error);
-      alert("An error occurred. Please try again.");
+    if (ba_id) {
+      axios
+        .get(`${process.env.REACT_APP_API_URL}/fetch-buyerAssistance/${ba_id}`)
+        .then((response) => {
+          console.log('Buyer Assistance data:', response.data.data); // Add a console log
+          setRequestData(response.data.data);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching buyer assistance:', error);
+          setError('Failed to load Buyer Assistance data.');
+          setLoading(false);
+        });
     }
-  };
+  }, [ba_id]);
+
+  
+    useEffect(() => {
+      if (!phoneNumber) return;
+  
+      const fetchBuyerAssistanceData = async () => {
+        try {
+          const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-buyerAssistance?phoneNumber=${phoneNumber}`);
+          setPlanDetails(response.data.planDetails);
+          setBuyerRequests(response.data.data);
+          setLoading(false);
+        } catch (err) {
+          console.error('Error fetching Buyer Assistance data:', err);
+          setError('Failed to load data. Please try again.');
+          setLoading(false);
+        }
+      };
+  
+      fetchBuyerAssistanceData();
+    }, [phoneNumber]);
   
   
 
-  
+    
   const handleRemoveAssistance = async (id) => {
     try {
       const res = await axios.delete(`${process.env.REACT_APP_API_URL}/delete-buyerAssistance/${id}`);
@@ -95,6 +155,30 @@ const location = useLocation();
       setMessage("Failed to delete Buyer Assistance request.");
     }
   };
+
+  
+ 
+
+
+  // Fetch matched properties based on the phone number
+  useEffect(() => {
+    if (!phoneNumber) return;
+
+    const fetchMatchedProperties = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/fetch-owner-matched-properties?phoneNumber=${phoneNumber}`);
+        setMatchedProperties(response.data.properties);
+      } catch (error) {
+        setError('Failed to load matched properties.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMatchedProperties();
+  }, [phoneNumber]);
+
+ 
 
   
     if (loading) return <p>Loading...</p>;
@@ -138,6 +222,8 @@ const location = useLocation();
     </button> <h3 className="m-0 ms-3" style={{fontSize:"15px", fontWeight:"bold"}}>DETAILED BUYER ASSISTANT</h3> </div>
 
             {message && <div className="alert text-success text-bold">{message}</div>}
+
+
 
        <div className='d-flex algin-item-center justify-content-center w-100' style={{height:"200px"}}>
 
@@ -315,19 +401,19 @@ const location = useLocation();
         </span>
       </div>
     </div>
-
-    {/* Interested User Phone Number */}
     <div className="d-flex align-items-center col-6 mt-2">
-      <FaPhoneAlt color="#30747F" style={{ fontSize: "20px", marginRight: "8px" }} />
-      <div>
-        <h6 className="m-0 text-muted" style={{ fontSize: "12px" }}>
-          Interested User Phone
-        </h6>
-        <span className="card-text" style={{ color: "#1D1D1D", fontWeight: "500" }}>
-          {requestData?.interestedUserPhone || "N/A"}
-        </span>
-      </div>
-    </div>
+  <FaPhoneAlt color="#30747F" style={{ fontSize: "20px", marginRight: "8px" }} />
+  <div>
+    <h6 className="m-0 text-muted" style={{ fontSize: "12px" }}>
+      Interested User Phone
+    </h6>
+    <span className="card-text" style={{ color: "#1D1D1D", fontWeight: "500" }}>
+      {Array.isArray(requestData?.interestedUserPhone) && requestData?.interestedUserPhone.length > 0
+        ? requestData.interestedUserPhone.join(", ")
+        : "N/A"}
+    </span>
+  </div>
+</div>
 
   </div>
 </div>
@@ -345,38 +431,57 @@ const location = useLocation();
 <div className=' ms-3 mb-3' style={{ display: 'flex', alignItems: 'center' }}>
   <HiOutlineNewspaper color='#30747F' style={{ fontSize: '24px', flexShrink: 0, marginRight: '8px' }} />
   <p style={{ margin: 0, flex: 1 }}>{requestData.description || "No Description Available"}</p>
+  
 </div>
 
-            <div className="d-flex align-items-center mb-3">
-                      <div className="d-flex  flex-row align-items-start w-100 ps-3">
-                      <div className="d-flex align-items-center col-6">
-                          <LiaMoneyCheckSolid color="#30747F" style={{ fontSize: "20px", marginRight: "8px" }} />
-                          <div>
-                            <h6 className="m-0 text-muted" style={{ fontSize: "12px" }}>
-                           Plan Name                      </h6>
-                            <span className="card-text" style={{ color: "#1D1D1D", fontWeight:"500", fontSize:"14px"}}>
-                            {requestData.paymentType || "N/A"}
-                            </span>
-                          </div>
-                        </div>  
-                     
-      <div className="d-flex align-items-center col-6">
-                          <LuCalendarDays color="#30747F" style={{ fontSize: "20px", marginRight: "8px" }} />
-                          <div>
-                            <h6 className="m-0 text-muted" style={{ fontSize: "12px" }}>
-                           Expire Date                          </h6>
-                            <span className="card-text" style={{ color: "#1D1D1D", fontWeight:"500", fontSize:"14px"}}>
-                            {new Date(requestData.updatedAt).toLocaleString() || "N/A"}
-                            </span>
-                          </div>
-                        </div>  
-                        </div>
-                        </div> 
+         
 
+
+<div className="d-flex align-items-center mb-3">
+  <div className="d-flex flex-row align-items-start w-100 ps-3">
+    {/* Plan Name */}
+    <div className="d-flex align-items-center col-6">
+      <LiaMoneyCheckSolid color="#30747F" style={{ fontSize: "20px", marginRight: "8px" }} />
+      <div>
+        <h6 className="m-0 text-muted" style={{ fontSize: "12px" }}>
+          Plan Name
+        </h6>
+        <span
+          className="card-text"
+          style={{ color: "#1D1D1D", fontWeight: "500", fontSize: "14px" }}
+        >
+          {planDetails?.planName || "N/A"}
+        </span>
+        
+      </div>
+    </div>
+
+    {/* Expire Date */}
+    <div className="d-flex align-items-center col-6">
+      <LuCalendarDays color="#30747F" style={{ fontSize: "20px", marginRight: "8px" }} />
+      <div>
+        <h6 className="m-0 text-muted" style={{ fontSize: "12px" }}>
+          Expire Date
+        </h6>
+        <span
+          className="card-text"
+          style={{ color: "#1D1D1D", fontWeight: "500", fontSize: "14px" }}
+        >
+          {planDetails?.planExpiryDate || "N/A"}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  
 
                         <div className="d-flex justify-content-between align-items-center ps-2 pe-2 mt-5 mb-5 col-12">
-  <button className="btn text-white px-3 py-1 mx-1" style={{ background: "#FF0000",  fontSize: "13px" }}
-        onClick={() => handleRemoveAssistance(requestData._id)}
+                        <button className="btn text-white px-3 py-1 mx-1" style={{ background: "#FF0000",  fontSize: "13px" }}
+        // onClick={() => handleRemoveAssistance(requestData._id)}
+        onClick={() => openConfirm("remove", requestData._id)}
+
         onMouseOver={(e) => {
           e.target.style.background = "#FF6700"; // Brighter neon on hover
           e.target.style.fontWeight = 600; // Brighter neon on hover
@@ -391,11 +496,16 @@ const location = useLocation();
     REMOVE
   </button>
 
-  {/* <div className="d-flex flex-column align-items-center justify-content-center"> */}
   {matchedProperties.length > 0 ? (
     <button
+      // onClick={() =>
+      //   handleViewMore(matchedProperties[0].phoneNumber, matchedProperties[0].ppcId)
+      // }
       onClick={() =>
-        handleViewMore(matchedProperties[0].phoneNumber, matchedProperties[0].ppcId)
+        openConfirm("match", {
+          phoneNumber: matchedProperties[0].phoneNumber,
+          ppcId: matchedProperties[0].ppcId,
+        })
       }
       className="btn text-white px-3 py-1 mx-1"
       style={{ background: "#2F747F",  fontSize: "13px" }}
@@ -406,27 +516,10 @@ const location = useLocation();
   ) : null}
 {/* </div> */}
 
-{/* 
-  <button
-  className="btn text-white px-3 py-1 mx-1"
-  style={{ background: "#3660FF", fontSize: "13px" }}
-  onMouseOver={(e) => {
-    e.target.style.background = "#017a6e"; // Brighter neon on hover
-    e.target.style.fontWeight = 600; // Brighter neon on hover
-    e.target.style.transition = "background 0.3s ease"; // Brighter neon on hover
-
-  }}
-  onMouseOut={(e) => {
-    e.target.style.background = "#3660FF"; // Original orange
-    e.target.style.fontWeight = 400; // Brighter neon on hover
-
-  }}  onClick={() => handleSendInterest(id)}
->
-  Send Interest
-</button> */}
-
   <button className="btn text-white px-3 py-1 mx-1" style={{ background: "#0F9F2C", fontSize: "13px" }}
-    onMouseOver={(e) => {
+         onClick={() => openConfirm("pay", requestData)}
+
+ onMouseOver={(e) => {
       e.target.style.background = "#32cd32"; // Neon green on hover
     }}
     onMouseOut={(e) => {
@@ -435,7 +528,28 @@ const location = useLocation();
     PAY
   </button>
 </div>
-
+{showConfirm && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{ background: "rgba(0,0,0,0.5)", zIndex: 9999 }}
+        >
+          <div className="bg-white p-4 rounded shadow" style={{ width: "300px" }}>
+            <h6 className="mb-3">
+              {actionType === "remove" && "Are you sure you want to remove?"}
+              {actionType === "match" && "Do you want to view matching property?"}
+              {actionType === "pay" && "Proceed with payment?"}
+            </h6>
+            <div className="d-flex justify-content-end">
+              <button className="btn btn-secondary me-2" onClick={handleCancel}>
+                No
+              </button>
+              <button className="btn btn-primary" onClick={handleConfirm}>
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
        </div>
        </div>
 
@@ -443,7 +557,6 @@ const location = useLocation();
 </div>
   );
 }
-
 
 
 

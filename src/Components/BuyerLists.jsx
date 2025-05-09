@@ -8,6 +8,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import profil from "../Assets/xd_profile.png";
+import NoData from "../Assets/OOOPS-No-Data-Found.png";
 import {
   MdOutlineCall,
   MdOutlineMapsHomeWork,
@@ -61,7 +62,24 @@ const BuyerLists = () => {
     setSelectedPpcId(ba_id);
     setShowPopup(true);
   };
-
+  useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Buyer Lists",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
   const handleSendInterest = async (id) => {
     try {
       const response = await fetch(
@@ -123,7 +141,7 @@ const BuyerLists = () => {
     const fetchAllAssistanceData = async () => {
       try {
         // Fetch buyer assistance
-        const assistanceResponse = await axios.get(`${process.env.REACT_APP_API_URL}/get-buyerAssistance`);
+        const assistanceResponse = await axios.get(`${process.env.REACT_APP_API_URL}/get-buyerAssistances`);
         const sortedAssistanceData = assistanceResponse.data.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
@@ -134,10 +152,7 @@ const BuyerLists = () => {
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
   
-        // You can either:
-        // 1. Show both separately (recommended for clarity), or
-        // 2. Combine them into one if needed.
-  
+      
         setAssistanceData(sortedAssistanceData); // regular assistance requests
         setInterestData(sortedInterestData); // buyer-assistance-interest entries
   
@@ -301,7 +316,7 @@ const BuyerLists = () => {
                 </p>
               </div>
 
-              <div className="d-flex justify-content-between align-items-center mt-2">
+              {/* <div className="d-flex justify-content-between align-items-center mt-2">
                 <div className="d-flex align-items-center">
                   <MdOutlineCall color="#019988" style={{ fontSize: "12px", marginRight: "8px" }} />
                   <h6 className="m-0 text-muted" style={{ fontSize: "12px" }}>
@@ -314,8 +329,20 @@ const BuyerLists = () => {
                 </div>
 
           
-              </div>
-              <div className="d-flex justify-content-end align-items-center m-0">
+              </div> */}
+
+<div className="d-flex justify-content-between align-items-center mt-2">
+  <div className="d-flex align-items-center">
+    <MdOutlineCall color="#019988" style={{ fontSize: "12px", marginRight: "8px" }} />
+    <h6 className="m-0 text-muted" style={{ fontSize: "12px" }}>
+      {card.phoneNumber
+        ? `Buyer Phone: ${card.phoneNumber.slice(0, -5)}*****`
+        : "Phone: N/A"}
+    </h6>
+  </div>
+</div>
+<div className="d-flex justify-content-end align-items-center m-0">
+
 
 <button
   className="btn text-white px-3 py-1 mx-1"
@@ -349,8 +376,8 @@ const BuyerLists = () => {
     e.target.style.fontWeight = 400; // Brighter neon on hover
 
   }}
-  onClick={() => navigate(`/detail-buyer-assistance/${card._id}`)}
-
+  // onClick={() => navigate(`/detail-buyer-assistance/${card._id}`)}
+  onClick={() => navigate(`/detail-buyer-assistance/${card.ba_id}`)}
 >
   More
 </button>
@@ -359,7 +386,17 @@ const BuyerLists = () => {
           </div>
         ))
       ) : (
-        <p>No buyer assistance interests found.</p>
+        <div className="text-center my-4 "
+    style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+
+    }}>
+<img src={NoData} alt="" width={100}/>      
+<p>No buyer assistance interests found.</p>
+</div>
       )}
 
       {showPopup && (

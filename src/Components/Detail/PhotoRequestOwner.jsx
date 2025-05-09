@@ -14,8 +14,17 @@ import { MdCall } from 'react-icons/md';
 
 const PropertyCard = ({ property , onRemove , onUndo }) => {
 
-  const [message, setMessage] = useState({ text: "", type: "" });
+ const [message, setMessage] = useState({ text: "", type: "" });
 
+
+  // Auto-clear message after 3 seconds
+  useEffect(() => {
+   if (message.text) {
+     const timer = setTimeout(() => setMessage({ text: "", type: "" }), 3000);
+     return () => clearTimeout(timer);
+   }
+ }, [message]);
+    
  // Auto-clear message after 3 seconds
   useEffect(() => {
     if (message.text) {
@@ -397,7 +406,24 @@ const App = () => {
   //   fetchProperties();
   // }, []);
 
-
+useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "Photo request Owner Property",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
 
 useEffect(() => {
   const fetchProperties = async () => {

@@ -572,7 +572,7 @@ import totalarea from '../Assets/Total Area-01.png'
 import postedby from '../Assets/Posted By-01.png'
 import NoData from "../Assets/OOOPS-No-Data-Found.png";
 
-const ExpiredPlans = () => {
+const ExpireProperty = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const phoneNumber = location.state?.phoneNumber || localStorage.getItem("phoneNumber") || "";
@@ -660,7 +660,7 @@ useEffect(() => {
       try {
         await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
           phoneNumber: phoneNumber,
-          viewedFile: "Expired Plan",
+          viewedFile: "Exprie Property",
           viewTime: new Date().toISOString(),
         });
         console.log("Dashboard view recorded");
@@ -677,7 +677,7 @@ useEffect(() => {
   return (
     <div className="container d-flex align-items-center justify-content-center p-0">
       <div className="d-flex flex-column align-items-center justify-content-center w-100" style={{ maxWidth: "500px", margin: "auto" }}>
-         {/* <div className="d-flex align-items-center justify-content-start w-100" style={{ background: "#EFEFEF" }}>
+         <div className="d-flex align-items-center justify-content-start w-100" style={{ background: "#EFEFEF" }}>
  <button
       onClick={() => navigate(-1)}
       className="pe-5"
@@ -701,7 +701,7 @@ useEffect(() => {
     >
       <FaArrowLeft style={{ color: '#30747F', transition: 'color 0.3s ease-in-out' , background:"transparent"}} />
 </button>          <h3 className="m-0 " style={{ fontSize: "20px" }}>Expired Property</h3>
-        </div>  */}
+        </div> 
         <div className="col-12">
         <div className="w-100 d-flex align-items-center justify-content-center" style={{ maxWidth: '500px' }}>
         <div className="row mt-4 w-100">
@@ -856,7 +856,7 @@ useEffect(() => {
     transform: 'translate(-50%, -50%)',
 
   }}>
-<img src={NoData} alt="" width={100} />      
+<img src={NoData} alt="" width={100}/>      
 <p>No properties found.</p>
 </div>              )}
 
@@ -974,7 +974,7 @@ useEffect(() => {
   );
 };
 
-export default ExpiredPlans;
+export default ExpireProperty;
 
 
 

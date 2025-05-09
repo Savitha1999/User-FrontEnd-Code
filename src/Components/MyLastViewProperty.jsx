@@ -15,6 +15,7 @@ import myImage1 from '../Assets/Rectangle 145.png'; // Correct path
 import indianprice from '../Assets/Indian Rupee-01.png'
 import {FaCamera, FaEye , FaRulerCombined, FaBed, FaUserAlt, FaCalendarAlt, FaRupeeSign } from "react-icons/fa";
 import { MdCall } from "react-icons/md";
+import NoData from "../Assets/OOOPS-No-Data-Found.png";
 
 const LastViewedProperty = () => {
   const location = useLocation();
@@ -40,7 +41,24 @@ const LastViewedProperty = () => {
     }
   }, [message]);
   
-
+  useEffect(() => {
+    const recordDashboardView = async () => {
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/record-views`, {
+          phoneNumber: phoneNumber,
+          viewedFile: "My Last view Property",
+          viewTime: new Date().toISOString(),
+        });
+        console.log("Dashboard view recorded");
+      } catch (err) {
+        console.error("Failed to record dashboard view:", err);
+      }
+    };
+  
+    if (phoneNumber) {
+      recordDashboardView();
+    }
+  }, [phoneNumber]);
   const [imageCounts, setImageCounts] = useState({}); // Store image count for each property
 
       const fetchImageCount = async (ppcId) => {
@@ -237,10 +255,32 @@ const LastViewedProperty = () => {
       }}>
         <span className="spinner-border text-primary" role="status" />
         <p className="mt-2">Loading properties...</p>
-      </div>          ) : (
+      </div>   
+             ) : 
+             (
             <>
-              {activeTab === "all" && allViews.length === 0 && <p>No viewed properties found.</p>}
-              {activeTab === "removed" && removedViews.length === 0 && <p>No removed properties found.</p>}
+              {activeTab === "all" && allViews.length === 0 && 
+                     <div className="text-center my-4 "
+                     style={{
+                       position: 'fixed',
+                       top: '50%',
+                       left: '50%',
+                       transform: 'translate(-50%, -50%)',
+                   
+                     }}>
+                   <img src={NoData} alt="" width={100}/>      
+                   <p>No viewed properties found.</p>                   </div> }
+              {activeTab === "removed" && removedViews.length === 0 &&   <div className="text-center my-4 "
+                  style={{
+                    position: 'fixed',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                
+                  }}>
+                <img src={NoData} alt="" width={100}/>      
+                <p>No Removed Property Data Found.</p>
+                </div> }
               {(activeTab === "all" ? allViews : removedViews).map((property, index) => (
                 <div key={index}
                 className="row g-0 rounded-4 mb-2" style={{ border: '1px solid #ddd', overflow: "hidden", background:"#EFEFEF"}}                onClick={() => navigate(`/detail/${property.ppcId}`)}>
@@ -362,7 +402,7 @@ const LastViewedProperty = () => {
                 </div>
               ))}
             </>
-          )}
+          ) }
         </div>
 
         {/* Modal */}

@@ -1,7 +1,7 @@
 
 
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , useRef} from "react";
 import axios from "axios";
 import { MdAddPhotoAlternate, MdStraighten } from "react-icons/md";
 import { FaFileVideo } from "react-icons/fa";
@@ -16,6 +16,7 @@ import { RiLayoutLine } from 'react-icons/ri';
 import { TbArrowLeftRight } from 'react-icons/tb';
 import {FaCouch,FaHandshake,FaTag,FaLocationArrow,FaCalendarAlt,FaArrowUp,FaShower,FaToilet,FaCar,FaCheckCircle,FaUtensils,FaBed, FaMoneyBill,FaPhone, FaRegBuilding, FaCity } from 'react-icons/fa';
 import { FaBuilding , FaHome, FaMapSigns, FaMapMarkerAlt, FaVectorSquare, FaRoad, FaDoorClosed, FaMapPin, FaUserAlt, FaEnvelope, FaPhoneAlt } from 'react-icons/fa';
+import { TbMapPinCode } from "react-icons/tb";
 
 import { BiWorld} from "react-icons/bi";
 import './AddProperty.css';
@@ -27,10 +28,20 @@ import { BsBuildingsFill } from 'react-icons/bs';
 import { GiHouse, GiGears, GiResize } from 'react-icons/gi';
 import { FaClock, FaRegAddressCard } from 'react-icons/fa6';
 import moment from "moment";
+import { useSelector } from "react-redux";
+import { FcSearch } from "react-icons/fc";
+import { toWords } from 'number-to-words';
 
 function EditProperty() {
   const location = useLocation();
   const { ppcId, phoneNumber } = location.state || {};
+     const inputRef = useRef(null);
+          const latRef = useRef(null);
+          const lngRef = useRef(null);
+          const mapRef = useRef(null);
+          const mapInstance = useRef(null);
+          const markerRef = useRef(null);
+           const [priceInWords, setPriceInWords] = useState("");
 
   const [formData, setFormData] = useState({
     phoneNumber: "",
@@ -74,12 +85,145 @@ function EditProperty() {
     length:"",
     breadth:"",
     totalArea:"",
+    pinCode: "",
+
   });
 
   const [photos, setPhotos] = useState([]);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [video, setVideo] = useState(null);
 
+  useEffect(() => {
+    if (!window.google) return;
+
+    const defaultCenter = { lat: 20.5937, lng: 78.9629 };
+
+    const map = new window.google.maps.Map(mapRef.current, {
+      center: defaultCenter,
+      zoom: 5,
+    });
+
+    mapInstance.current = map;
+
+    const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+      types: ['geocode'],
+    });
+
+    autocomplete.bindTo('bounds', map);
+
+    autocomplete.addListener('place_changed', () => {
+      const place = autocomplete.getPlace();
+      if (!place.geometry || !place.geometry.location) return;
+
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+
+      updateMap(lat, lng);
+
+      const getComponent = (type) => {
+        const component = place.address_components?.find(c => c.types.includes(type));
+        return component?.long_name || '';
+      };
+
+      setFormData(prev => ({
+        ...prev,
+        pinCode: getComponent("postal_code"),
+        city: getComponent("locality") || getComponent("administrative_area_level_2"),
+        area: getComponent("sublocality") || getComponent("sublocality_level_1"),
+        streetName: getComponent("route") || getComponent("premise"),
+        district: getComponent("administrative_area_level_2"),
+        state: getComponent("administrative_area_level_1"),
+        country: getComponent("country"),
+        doorNumber: getComponent("street_number"), // ✅ added here
+
+        latitude: lat,
+        longitude: lng,
+        rentalPropertyAddress: place.formatted_address || '',
+      }));
+    });
+  }, []);
+
+  const updateMap = (lat, lng) => {
+    const location = new window.google.maps.LatLng(lat, lng);
+    mapInstance.current.setCenter(location);
+    mapInstance.current.setZoom(15);
+
+    if (markerRef.current) markerRef.current.setMap(null);
+
+    markerRef.current = new window.google.maps.Marker({
+      map: mapInstance.current,
+      position: location,
+    });
+  };
+
+  const handleLatLngSearch = (e) => {
+    e.preventDefault();
+
+    const lat = parseFloat(latRef.current.value);
+    const lng = parseFloat(lngRef.current.value);
+  
+    if (!isNaN(lat) && !isNaN(lng)) {
+      updateMap(lat, lng);
+  
+      const geocoder = new window.google.maps.Geocoder();
+      const latlng = { lat, lng };
+  
+      geocoder.geocode({ location: latlng }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          const place = results[0];
+  
+          const getComponent = (type) => {
+            const comp = place.address_components.find(c => c.types.includes(type));
+            return comp?.long_name || '';
+          };
+  
+          setFormData(prev => ({
+            ...prev,
+            rentalPropertyAddress: place.formatted_address,
+            latitude: lat,
+            longitude: lng,
+            pinCode: getComponent("postal_code"),
+            city: getComponent("locality") || getComponent("administrative_area_level_2"),
+            area: getComponent("sublocality") || getComponent("sublocality_level_1"),
+            streetName: getComponent("route") || getComponent("premise"),
+            district: getComponent("administrative_area_level_2"),
+            state: getComponent("administrative_area_level_1"),
+            country: getComponent("country"),
+            doorNumber: getComponent("street_number"), // ✅ added here
+
+          }));
+        } else {
+          alert('Reverse geocoding failed: ' + status);
+        }
+      });
+    } else {
+      alert("Enter valid coordinates");
+    }
+  };
+//   const adminName = useSelector((state) => state.admin.name);
+  
+
+//   // ✅ Record view on mount
+// useEffect(() => {
+//  const recordDashboardView = async () => {
+//    try {
+//      await axios.post(`${process.env.REACT_APP_API_URL}/record-view`, {
+//        userName: adminName,
+//        viewedFile: "EditProperty ",
+//        viewTime: moment().format("YYYY-MM-DD HH:mm:ss"), // optional, backend already handles it
+
+
+//      });
+//      console.log("Dashboard view recorded");
+//    } catch (err) {
+//      console.error("Failed to record dashboard view:", err);
+//    }
+//  };
+
+//  if (adminName) {
+//    recordDashboardView();
+//  }
+// }, [adminName]);
 
 
   const [countryCodes, setCountryCodes] = useState([
@@ -173,6 +317,8 @@ function EditProperty() {
           length:data.length || "",
           breadth:data.breadth || "",
           totalArea:data.totalArea || "",
+          pinCode:data.pinCode || '',
+
         });
 
         // Optionally set photos and video data
@@ -205,7 +351,18 @@ function EditProperty() {
 
     fetchDropdownData();
   }, []);
-
+   const convertToIndianRupees = (num) => {
+      const number = parseInt(num, 10);
+      if (isNaN(number)) return "";
+    
+      if (number >= 10000000) {
+        return (number / 10000000).toFixed(2).replace(/\.00$/, '') + " crores";
+      } else if (number >= 100000) {
+        return (number / 100000).toFixed(2).replace(/\.00$/, '') + " lakhs";
+      } else {
+        return toWords(number).replace(/\b\w/g, l => l.toUpperCase()) + " rupees";
+      }
+    };
   // Handle field changes for form data
   const handleFieldChange = (e) => {
     const { name, value } = e.target;
@@ -213,6 +370,13 @@ function EditProperty() {
       ...formData,
       [name]: value,
     });
+    if (name === "price") {
+      if (value !== "" && !isNaN(value)) {
+        setPriceInWords(convertToIndianRupees(value));
+      } else {
+        setPriceInWords("");
+      }
+    }
   };
   const handleVideoChange = (e) => {
     const file = e.target.files[0];
@@ -790,7 +954,11 @@ function EditProperty() {
     />
   </div>
   </div>
-
+  {priceInWords && (
+        <p style={{ fontSize: "14px", color: "#2F747F", marginTop: "5px" }}>
+          {priceInWords}
+        </p>
+      )}
 
 
 
@@ -1883,23 +2051,70 @@ function EditProperty() {
 
   {/*   rentalPropertyAddress */}
   <div className="form-group">
-<label>Property Address:</label>
-
-<div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', border: '1px solid #2F747F', background:"#fff"}}>
-    <FaHome className="input-icon" 
-    style={{color: '#2F747F', marginLeft:"10px"}} />
-    <input
-      type="text"
-      name="rentalPropertyAddress"
-      value={formData.rentalPropertyAddress}
-      onChange={handleFieldChange}
-      className="form-input m-0"
-      placeholder=" Property Address"
-      style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
-    />
+  {/* <label>Quick Address:</label> */}
+  
+  <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', border: '1px solid #2F747F', background:"#fff"}}>
+      <FcSearch  className="input-icon" 
+      style={{color: '#2F747F', marginLeft:"10px"}} />
+      <input
+        ref={inputRef}
+  
+        id="pac-input"
+        className="form-input m-0"
+        placeholder="Search location"
+        style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
+      />
+    </div>
   </div>
+  <div
+    ref={mapRef}
+    id="map"
+    style={{ height: "200px", width: "100%" }}
+  ></div>
+  <div className="mt-1 w-100 d-flex gap-2 mb-2">
+  <input
+    ref={latRef}
+    placeholder="Latitude"
+    className="form-control m-0"
+  />
+  <input 
+    ref={lngRef}
+    placeholder="Longitude"
+    className="form-control m-0"
+  />
+  <button 
+    onClick={handleLatLngSearch}
+    className="btn btn-primary m-0 border-0"
+    style={{ whiteSpace: 'nowrap', background:"#6CBAAF" ,  }}
+  >
+    Go
+  </button>
 </div>
 
+  {/* <input value={formData.pinCode || ""} readOnly />
+  <input value={formData.city || ""} readOnly />
+  <input value={formData.area || ""} readOnly />
+  <input value={formData.streetName || ""} readOnly />
+   */}
+  <p className="mt-1" style={{color:"#0597FF" , fontSize:"13px"}}>IF YOU CAN'T FIND THE ADDRESS PLEASE ENTER MANUALLY</p>
+    <div className="form-group">
+  <label>Property Address:</label>
+  
+  <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', border: '1px solid #2F747F', background:"#fff"}}>
+      <FaHome className="input-icon" 
+      style={{color: '#2F747F', marginLeft:"10px"}} />
+      <input
+        type="text"
+        name="rentalPropertyAddress"
+        value={`${formData.doorNumber || ""} ${formData.streetName || ""} ${formData.area || ""}  ${formData.city || ""}   ${formData.state || ""} ${formData.pinCode || ""}`}
+        onChange={handleFieldChange}
+        className="form-input m-0"
+        placeholder="Property Address"
+        style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
+      />
+    </div>
+  </div>
+  
 
   {/* country */}
 
@@ -1955,7 +2170,7 @@ function EditProperty() {
 </div>
 
   {/* district */}
-  <div className="form-group">
+  {/* <div className="form-group">
   <label>District:</label>
   <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
     <FaRegAddressCard className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
@@ -1969,7 +2184,54 @@ function EditProperty() {
       style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
     />
   </div>
-</div>
+</div> */}
+  <div className="form-group" >
+    <label style={{width:'100%'}}>
+    <label>District</label>
+
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <div style={{ flex: "1" }}>
+          <select
+            name="district"
+            value={formData.district || ""}
+            onChange={handleFieldChange}
+            className="form-control"
+            style={{ display: "none" }} // Hide the default <select> dropdown
+          >
+            <option value="">Select District</option>
+            {dataList.district?.map((option, index) => (
+              <option key={index} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+
+          <button
+            className="m-0"
+            type="button"
+            onClick={() => toggleDropdown("district")}
+            style={{
+              cursor: "pointer",
+              border: "1px solid #2F747F",
+              padding: "10px",
+              background: "#fff",
+              borderRadius: "5px",
+              width: "100%",
+              textAlign: "left",
+              color: "#2F747F",
+            }}
+          >
+            <span style={{ marginRight: "10px" }}>
+              {fieldIcons.district || <FaHome />}
+            </span>
+            {formData.district || "Select District"}
+          </button>
+
+          {renderDropdown("district")}
+        </div>
+      </div>
+    </label>
+  </div>
   {/* area */}
   <div className="form-group">
   <label>Area:</label>
@@ -2031,6 +2293,22 @@ function EditProperty() {
       onChange={handleFieldChange}
       className="form-input m-0"
       placeholder="Nagar"
+      style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
+    />
+  </div>
+</div>
+
+<div className="form-group">
+  <label>pinCode:</label>
+  <div className="input-card p-0 rounded-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',  border: '1px solid #2F747F', background:"#fff" }}>
+    <TbMapPinCode  className="input-icon" style={{color: '#2F747F', marginLeft:"10px"}} />
+    <input
+      type="text"
+      name="pinCode"
+      value={formData.pinCode}
+      onChange={handleFieldChange}
+      className="form-input m-0"
+      placeholder="pinCode"
       style={{ flex: '1 0 80%', padding: '8px', fontSize: '14px', border: 'none', outline: 'none' }}
     />
   </div>
